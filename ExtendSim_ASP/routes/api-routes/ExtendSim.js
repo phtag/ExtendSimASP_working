@@ -1,0 +1,32 @@
+const router = require('express').Router();
+const ExtendSimController = require('../../controllers/ExtendSimController');
+
+router.route('/getserverextendmodelsrootdirectory').post(ExtendSimController.getserverextendmodelsrootdirectory);
+router.route('/getmodeldatabases').post(ExtendSimController.getmodeldatabases);
+router.route('/getmodeldatabasetables').post(ExtendSimController.getmodeldatabasetables);
+router.route('/getmodeldatabasetablefields').post(ExtendSimController.getmodeldatabasetablefields);
+router.route('/getmodelinfo').post(ExtendSimController.getmodelinfo);
+router.route('/createScenarioFolder').post(ExtendSimController.createScenarioFolder);
+router.route('/copyModelToScenarioFolder').post(ExtendSimController.copyModelToScenarioFolder);
+router.route('/sendfile').post(ExtendSimController.sendfile);
+router.route('/senddatastream').post(ExtendSimController.senddatastream);
+router.route('/senddialogvariabledata').post(ExtendSimController.senddialogvariabledata);
+router.route('/submitsimulationscenario').post(ExtendSimController.submitsimulationscenario);
+router.route('/checkmodelrunstatus').post(ExtendSimController.checkmodelrunstatus);
+router.route('/getuserscenarios').post(ExtendSimController.getuserscenarios);
+router.route('/getcycletimeresults').post(ExtendSimController.getcycletimeresults);
+router.route('/getdtabasetablecontentsstream').post(ExtendSimController.getdtabasetablecontentsstream);
+router.route('/getcycletimeresultsstream').post(ExtendSimController.getcycletimeresultsstream);
+router.route('/getresourceresults').post(ExtendSimController.getresourceresults);
+router.route('/getresourceresultsstream').post(ExtendSimController.getresourceresultsstream);
+router.route('/getpoolresults').post(ExtendSimController.getpoolresults);
+router.route('/getpoolresultsstream').post(ExtendSimController.getpoolresultsstream);
+// router.route('/getmodelresults').post(ExtendSimController.getmodelresults);
+router.route('/getscenariocycletimedata').post(ExtendSimController.getscenariocycletimedata);
+router.route('/getresourcedata').post(ExtendSimController.getresourcedata);
+router.route('/getpooldata').post(ExtendSimController.getpooldata);
+// router.route('/getremodeldata').post(ExtendSimController.getremodeldata);
+router.route('/updatescenariodata').post(ExtendSimController.updatescenariodata);
+router.route('/deletescenario').post(ExtendSimController.deletescenario);
+
+module.exports = router;

@@ -1,0 +1,28 @@
+{
+  "name": "extendsim_nodejsserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-router": "0.0.1",
+    "node": "^12.8.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phtag/ExtendSim_ASP.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phtag/ExtendSim_ASP/issues"
+  },
+  "homepage": "https://github.com/phtag/ExtendSim_ASP#readme"
+}
