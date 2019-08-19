@@ -27,16 +27,18 @@
         <label id="user-models-label" >User models:</label>
         <select id="user-models"></select>
         <br></br>
-        <button id="ExtendSim/copyModelToScenarioFolder">Copy model to scenario folder</button>
+        <button class="buttons" id="ExtendSim/copyModelToScenarioFolder">Copy model to scenario folder</button>
         <label id="model-copied-status-label">Model copied:</label>
         <input id="model-copied-status" type="checkbox"></input>
         <br></br>
-        <button id="ExtendSim/sendfile">Upload file to server</button>
-        <label id="upload-filename-label">Upload file name:</label>
-        <input type="text" id="upload-filename"></input>
-        <br></br>
         <input type="file" onchange="filesSelected(event)" multiple>
-        <!-- <form id="select-file"> <input type="file" name="fileupload" value="Upload file" id="fileupload"> <input type="submit"></form> -->
+        <button class="upload-files" id="ExtendSim/sendfile">Upload files to server</button>
+        <label id="files-uploaded-status-label">Files uploaded:</label>
+        <input id="files-uploaded-status" type="checkbox"></input>
+        <br></br>
+        <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
+        <label id="scenario-id-label">Scenario ID:</label>
+        <input id="scenario-id"></input>
     </div>
     <script type="text/javascript">
     var uploadedFiles = [];
@@ -47,6 +49,7 @@
         if (files) {
             [].forEach.call(files, readAndPreview);
         }
+        enableDisableUploadFilesButton();
     }
     function readAndPreview(file) {
         var reader  = new FileReader();
@@ -63,45 +66,53 @@
             reader.readAsText(file);
         }
     }
+    function enableDisableUploadFilesButton() {
+        if (selectedFiles.length === 0)  {
+            $('.upload-files').prop('disabled', true);
+        }
+        else {
+            $('.upload-files').prop('disabled', false);
+        }
+    }
     function enableDisableCopyModelToScenarioFolderButton() {
         const scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         const userModelPathname = $("#user-models").val();
-        if ((scenarioFolderPathname.length === 0) ||
-            (userModelPathname.length === 0)) {
-            $('#CopyModelToScenarioFolder').prop('disabled', true);
-        }
-        else {
-            $('#CopyModelToScenarioFolder').prop('disabled', false);
-        }
+        // if ((scenarioFolderPathname.length === 0) ||
+        //     (userModelPathname.length === 0)) {
+        //     $('#ExtendSim/CopyModelToScenarioFolder').prop('disabled', true);
+        // }
+        // else {
+        //     $('#ExtendSim/CopyModelToScenarioFolder').prop('disabled', false);
+        // }
     }
 
-function CopyTextFilesToServer(fileIndex) {
-    var reader = new FileReader();
+    function CopyTextFilesToServer(fileIndex) {
+        var reader = new FileReader();
 
-    reader.onload = function(event) {
-      event.preventDefault();
-      alert("Copying file=" + uploadedFiles[fileIndex].name);
-        axios({
-            url: proxyurl + queryURL_root + "ExtendSim/sendfile",
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data : {
-                scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
-                filename: selectedFiles[fileIndex].name,
-                filedata: reader.result
-            }
-        })
-        .then(function(response) {
-            fileIndex++;
-            if (fileIndex < selectedFiles.length) {
-                CopyTextFilesToServer(fileIndex);
-            }
-        });
+        reader.onload = function(event) {
+        event.preventDefault();
+        // alert("Copying file=" + uploadedFiles[fileIndex].name);
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
+                    filename: selectedFiles[fileIndex].name,
+                    filedata: reader.result
+                }
+            })
+            .then(function(response) {
+                fileIndex++;
+                if (fileIndex < selectedFiles.length) {
+                    CopyTextFilesToServer(fileIndex);
+                }
+            });
+        }
+        // alert('Reading uploaded file...');
+        reader.readAsText(selectedFiles[fileIndex]);
     }
-    alert('Reading uploaded file...');
-    reader.readAsText(selectedFiles[fileIndex]);
-  }
 
     $("#user-login-session-id").width(300);
     $("#user-login-session-id-label").css("margin-left", 20);
@@ -117,6 +128,8 @@ function CopyTextFilesToServer(fileIndex) {
                                                 "background-color": '#c9d6ff'});
     $("#model-copied-status-label").css("margin-left", 20);
     $("#upload-filename-label").css("margin-left", 20);
+    $("#files-uploaded-status-label").css("margin-left", 20);
+    $("#scenario-id-label").css("margin-left", 20);
 
     const IPaddress = "http://184.171.246.58";
     // const IPaddress = "localhost";
@@ -135,9 +148,13 @@ function CopyTextFilesToServer(fileIndex) {
     const password = 'model';
 
     $('.buttons').prop('disabled', true);
-    $('#CopyModelToScenarioFolder').prop('disabled', true);
+    $('.upload-files').prop('disabled', true);
+    // $('#CopyModelToScenarioFolder').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
-    $("#model-copied-status").prop('disabled', true);
+    // $("#model-copied-status").prop('disabled', true);
+    // $("#ExtendSim/sendfile").prop('disabled', true);
+
+    enableDisableUploadFilesButton();
 
     // Event listener for all button elements
     $("button").on("click", function() {
@@ -226,15 +243,26 @@ function CopyTextFilesToServer(fileIndex) {
 
         case 'ExtendSim/sendfile':
 
-            alert('ExtendSim/sendfile')
             CopyTextFilesToServer(0);
+            $("#files-uploaded-status").prop('checked', true);
             break;
 
-        case 'fileupload':
-            testThis();
-            break;
-
-
+        case 'ExtendSim/submitsimulationscenario':
+        axios({
+            url: proxyurl + queryURL_root + this.id,
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data: {
+                userLoginSessionID: $("#user-login-session-id").val(),
+                modelPathname:  $("#user-models").val(),
+                removeFolderOnCompletion: false
+            }
+        })
+        .then(function(response) {
+            $("#scenario-id").val(response.data.scenarioID);
+        });
+        break;
       }
     });
 
