@@ -107,6 +107,8 @@
                 fileIndex++;
                 if (fileIndex < selectedFiles.length) {
                     CopyTextFilesToServer(fileIndex);
+                } else {
+                    $("#files-uploaded-status").prop('checked', true);
                 }
             });
         }
@@ -244,7 +246,6 @@
         case 'ExtendSim/sendfile':
 
             CopyTextFilesToServer(0);
-            $("#files-uploaded-status").prop('checked', true);
             break;
 
         case 'ExtendSim/submitsimulationscenario':
