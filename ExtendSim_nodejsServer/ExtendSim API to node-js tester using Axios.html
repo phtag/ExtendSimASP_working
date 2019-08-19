@@ -31,21 +31,20 @@
         <label id="model-copied-status-label">Model copied:</label>
         <input id="model-copied-status" type="checkbox"></input>
         <br></br>
-        <button id="UploadPathname">Upload file to server</button>
+        <button id="ExtendSim/sendfile">Upload file to server</button>
         <label id="upload-filename-label">Upload file name:</label>
         <input type="text" id="upload-filename"></input>
         <br></br>
         <input type="file" onchange="filesSelected(event)" multiple>
         <!-- <form id="select-file"> <input type="file" name="fileupload" value="Upload file" id="fileupload"> <input type="submit"></form> -->
-    
     </div>
     <script type="text/javascript">
     var uploadedFiles = [];
+    var selectedFiles = [];
     var numFilesUploaded = 0;
     function filesSelected(event) {
         var files = $('input[type=file]')[0].files;
         if (files) {
-            alert('Here we go');
             [].forEach.call(files, readAndPreview);
         }
     }
@@ -54,12 +53,13 @@
         reader.onload = function(event) {
             var contents = event.target.result;
             uploadedFiles[numFilesUploaded].data = contents;
-            alert('file name=' + uploadedFiles[numFilesUploaded].name);
+            // alert('file name=' + uploadedFiles[numFilesUploaded].name);
            numFilesUploaded++;
         };
 
         if (file) {
             uploadedFiles.push({ name: file.name });
+            selectedFiles.push(file);
             reader.readAsText(file);
         }
     }
@@ -75,6 +75,33 @@
         }
     }
 
+function CopyTextFilesToServer(fileIndex) {
+    var reader = new FileReader();
+
+    reader.onload = function(event) {
+      event.preventDefault();
+      alert("Copying file=" + uploadedFiles[fileIndex].name);
+        axios({
+            url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
+                filename: selectedFiles[fileIndex].name,
+                filedata: reader.result
+            }
+        })
+        .then(function(response) {
+            fileIndex++;
+            if (fileIndex < selectedFiles.length) {
+                CopyTextFilesToServer(fileIndex);
+            }
+        });
+    }
+    alert('Reading uploaded file...');
+    reader.readAsText(selectedFiles[fileIndex]);
+  }
 
     $("#user-login-session-id").width(300);
     $("#user-login-session-id-label").css("margin-left", 20);
@@ -197,37 +224,10 @@
             });
             break;
 
-        case 'UploadPathname':
+        case 'ExtendSim/sendfile':
 
-            axios({
-                url: proxyurl + queryURL_root + this.id,
-                method: 'post',
-                accept : 'application/json',
-                contentType: 'application/json;charset=utf-8',
-                params: {
-                    filepathname : $("#user-scenario-folder-pathname").val() + "\\" + $("#upload-filename").val()
-                }
-            })
-            .then(function(response) {
-                var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/UploadStream";
-            console.log("UploadStream: req.body.filedata=" + req.body.filedata);
-            return axios({
-                url: queryURL,
-                method: 'post',
-                accept : 'application/json',
-                //    contentType: 'application/json;charset=utf-8',
-                contentType: 'multipart/form-data',
-                headers : myheaders,
-                data: req.body.filedata,
-                //    payload : result,
-                muteHttpExceptions : false
-            }).then(function(uploadResponse) 
-            { 
-                console.log("Upload RETURN");
-                return res.json({result: uploadResponse.data})
-            })
-
-            });
+            alert('ExtendSim/sendfile')
+            CopyTextFilesToServer(0);
             break;
 
         case 'fileupload':
