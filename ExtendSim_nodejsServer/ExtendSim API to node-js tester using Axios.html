@@ -23,7 +23,7 @@
         <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
         <input id="user-scenario-folder-pathname"></input>
         <br></br>
-        <button class="buttons" id="GetUserModelPaths">Get user model paths</button>
+        <button class="buttons" id="ExtendSim/getUserModelPaths">Get user model paths</button>
         <label id="user-models-label" >User models:</label>
         <select id="user-models"></select>
         <br></br>
@@ -91,9 +91,10 @@
     $("#model-copied-status-label").css("margin-left", 20);
     $("#upload-filename-label").css("margin-left", 20);
 
-    const IPaddress = "184.171.246.58";
+    const IPaddress = "http://184.171.246.58";
+    // const IPaddress = "localhost";
     // var queryURL_root = "http://" + IPaddress + ":8090/StreamingService/web/"
-    var queryURL_root = "http://" + IPaddress + ":3001/api/"
+    var queryURL_root =  IPaddress + ":3001/api/"
     var queryURL_root2 = "http://" + IPaddress + ":3001/api/users/login/"
     var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer"
     var queryURL2 = "http://" + IPaddress + ":8090/StreamingService/web/EchoWithGet"
@@ -154,19 +155,19 @@
             });
             break;
 
-        case 'GetUserModelPaths':
+        case 'ExtendSim/getUserModelPaths':
 
             axios({
                 url: proxyurl + queryURL_root + this.id,
                 method: 'post',
                 accept : 'application/json',
                 contentType: 'application/json;charset=utf-8',
-                params: {
+                data: {
                     username : $("#username").val(),
                 }
             })
             .then(function(response) {
-                var userModelPaths = response.data;
+                var userModelPaths = response.data.userModelPaths;
                 for (var i = 0; i < userModelPaths.length; i++) {
                     $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i] + '</option>');
                 }

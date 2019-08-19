@@ -142,6 +142,28 @@ module.exports = {
             return res.json({ modelDatabases: response.data });
         })
     },
+    getUserModelPaths: function(req, res) {
+        var myheaders = { 
+            accept: "application/json", 
+        }; 
+        console.log('getUserModelPaths: username=' + req.body.username);
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetUserModelPaths"
+        axios({
+            url: queryURL,
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params : {
+                username : req.body.username,
+            }
+        })
+        .then(function(response) {
+            console.log('user model paths=' + response.data);
+            return res.json({ userModelPaths: response.data });
+        })
+    },
     createScenarioFolder: function(req, res) {
         const { userLoginSessionID, scenarioFolderName } = req.body;
         console.log("createScenarioFolder: userLoginSessionID=" + userLoginSessionID + " folder name=" + scenarioFolderName);

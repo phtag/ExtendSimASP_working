@@ -6,6 +6,7 @@ router.route('/getmodeldatabases').post(ExtendSimController.getmodeldatabases);
 router.route('/getmodeldatabasetables').post(ExtendSimController.getmodeldatabasetables);
 router.route('/getmodeldatabasetablefields').post(ExtendSimController.getmodeldatabasetablefields);
 router.route('/getmodelinfo').post(ExtendSimController.getmodelinfo);
+router.route('/getUserModelPaths').post(ExtendSimController.getUserModelPaths);
 router.route('/createScenarioFolder').post(ExtendSimController.createScenarioFolder);
 router.route('/copyModelToScenarioFolder').post(ExtendSimController.copyModelToScenarioFolder);
 router.route('/sendfile').post(ExtendSimController.sendfile);
