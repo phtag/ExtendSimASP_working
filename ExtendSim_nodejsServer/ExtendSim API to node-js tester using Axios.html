@@ -248,21 +248,25 @@
             break;
 
         case 'ExtendSim/submitsimulationscenario':
-        axios({
-            url: proxyurl + queryURL_root + this.id,
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data: {
-                userLoginSessionID: $("#user-login-session-id").val(),
-                modelPathname:  $("#user-models").val(),
-                removeFolderOnCompletion: false
-            }
-        })
-        .then(function(response) {
-            $("#scenario-id").val(response.data.scenarioID);
-        });
-        break;
+
+            var modelName =  $("#user-models").val();
+            modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+            alert('modelName=' + modelName);
+            axios({
+                url: proxyurl + queryURL_root + this.id,
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data: {
+                    userLoginSessionID: $("#user-login-session-id").val(),
+                    modelPathname:  $("#user-scenario-folder-pathname").val() + "\\" + modelName,
+                    removeFolderOnCompletion: false
+                }
+            })
+            .then(function(response) {
+                $("#scenario-id").val(response.data.scenarioID);
+            });
+            break;
       }
     });
 
