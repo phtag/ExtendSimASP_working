@@ -9,23 +9,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>        
     <div id="extendsim-asp-axios-tester-frame">
-        <form>
+        <form id="user-form">
             Username: <input class="login" id="username" type="text" name="username" value=""></input>
             <br></br>
             Password: <input class="login" id="password" type="password" name="password" value=""></input>
-            <br></br>
         </form>
         <button class="buttons" id="users/login">Login to server</button>
         <label id="user-login-session-id-label">User Login Session ID:</label>
         <input id="user-login-session-id"></input>
         <br></br>
+        <button class="buttons" id="ExtendSim/getUserModelPaths">Get user model paths</button>
+        <label id="user-models-label" >User models:</label>
+        <select id="user-models"></select>   
+        <br></br> 
         <button class="buttons" id="ExtendSim/createScenarioFolder">Create scenario folder</button>
         <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
         <input id="user-scenario-folder-pathname"></input>
-        <br></br>
-        <button class="buttons" id="ExtendSim/getUserModelPaths">Get user model paths</button>
-        <label id="user-models-label" >User models:</label>
-        <select id="user-models"></select>
         <br></br>
         <button class="buttons" id="ExtendSim/copyModelToScenarioFolder">Copy model to scenario folder</button>
         <label id="model-copied-status-label">Model copied:</label>
@@ -121,6 +120,14 @@
         reader.readAsText(selectedFiles[fileIndex]);
     }
 
+    $("#user-form").width(250);
+    $("#user-form").css("padding", 20);
+    $("#user-form").css("margin-bottom", 20);
+    $("#user-form").css({"border-color": "black", 
+                        "border-width":"2px", 
+                        "border-style":"solid",
+                        "border-radius": 10,
+                        "background-color": '#c9ffd6'});
     $("#user-login-session-id").width(300);
     $("#user-login-session-id-label").css("margin-left", 20);
     $("#user-scenario-folder-pathname").width(600);
