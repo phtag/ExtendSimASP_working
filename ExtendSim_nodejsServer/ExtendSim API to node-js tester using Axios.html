@@ -27,7 +27,7 @@
         <label id="user-models-label" >User models:</label>
         <select id="user-models"></select>
         <br></br>
-        <button id="CopyModelToScenarioFolder">Copy model to scenario folder</button>
+        <button id="ExtendSim/copyModelToScenarioFolder">Copy model to scenario folder</button>
         <label id="model-copied-status-label">Model copied:</label>
         <input id="model-copied-status" type="checkbox"></input>
         <br></br>
@@ -178,17 +178,17 @@
             });
             break;
 
-        case 'CopyModelToScenarioFolder':
+        case 'ExtendSim/copyModelToScenarioFolder':
 
             axios({
                 url: proxyurl + queryURL_root + this.id,
                 method: 'post',
                 accept : 'application/json',
                 contentType: 'application/json;charset=utf-8',
-                params: {
+                data: {
                     modelPathname: $("#user-models").val(),
-                    scenarioFolderPath: $("#user-scenario-folder-pathname").val(),
-                    CopyFolderContents: true
+                    scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
+                    copyFolderContents: true
                 }
             })
             .then(function(response) {
