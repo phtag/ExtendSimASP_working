@@ -32,17 +32,22 @@
         <input id="model-copied-status" type="checkbox"></input>
         <br></br>
         <input type="file" onchange="filesSelected(event)" multiple>
-        <button class="upload-files" id="ExtendSim/sendfile">Upload files to server</button>
+        <button class="upload-files" id="ExtendSim/sendfile">Upload scenario input files to server</button>
         <label id="files-uploaded-status-label">Files uploaded:</label>
         <input id="files-uploaded-status" type="checkbox"></input>
         <br></br>
         <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
         <label id="scenario-id-label">Scenario ID:</label>
         <input id="scenario-id"></input>
+        <button class="buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
+        <label id="scenario-status-label">Scenario status:</label>
+        <input id="scenario-status"></input>
+
     </div>
     <script type="text/javascript">
     var uploadedFiles = [];
     var selectedFiles = [];
+    const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
     function filesSelected(event) {
         var files = $('input[type=file]')[0].files;
@@ -132,6 +137,8 @@
     $("#upload-filename-label").css("margin-left", 20);
     $("#files-uploaded-status-label").css("margin-left", 20);
     $("#scenario-id-label").css("margin-left", 20);
+    $("#scenario-id").css("margin-right", 20);
+    $("#scenario-status-label").css("margin-left", 20);
 
     const IPaddress = "http://184.171.246.58";
     // const IPaddress = "localhost";
@@ -252,7 +259,6 @@
 
             var modelName =  $("#user-models").val();
             modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-            alert('modelName=' + modelName);
             axios({
                 url: proxyurl + queryURL_root + this.id,
                 method: 'post',
@@ -268,31 +274,25 @@
                 $("#scenario-id").val(response.data.scenarioID);
             });
             break;
+
+        case 'ExtendSim/checkmodelrunstatus':
+        
+            axios({
+                url: proxyurl + queryURL_root + this.id,
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data: {
+                    scenarioID: $("#scenario-id").val(),
+                }
+            })
+            .then(function(response) {
+                $("#scenario-status").val(scenarioStatusValues[response.data.modelRunStatus - 1]);
+            });
+           break;
       }
     });
 
-
-  //  // Performing our AJAX GET request
-  //     $.ajax({
-  //       url: proxyurl + queryURL,
-  //       Accept: "application/json",
-  //       method: "POST",
-  //       contentType: 'application/json; charset=utf-8',
-  //       processData: false,
-  //       crossDomain: true,
-  //       // contentType: "application/json; charset=utf-8",
-  //       // dataType: "json",
-  //       data: JSON.stringify({
-  //         username: 'analyst1',
-  //         password: 'model'
-  //       })
-  //     })
-  //       // After the data comes back from the API
-  //       .then(function(response) {
-  //         // Storing an array of results in the results variable
-  //         alert('AJAX POST parameters test=' + JSON.stringify(response));
-  //       });
-  //   });
   $('.login').keyup(function () {
     if (($("#username").val() === '') || ($("#password").val() === '')) {
         //Check to see if there is any text entered
@@ -302,8 +302,6 @@
         //If there is text in the input, then enable the button
         $('.buttons').prop('disabled', false);
     }
-
-
 });
   </script>
 </body>
