@@ -4,6 +4,30 @@
 <head>
   <meta charset="utf-8">
   <title>ExtendSim ASP API tester</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      margin-top: 10px;
+      /* margin-bottom: 10px; */
+    }
+    th, td {
+      padding: 5px;
+      text-align: left;    
+    }
+    .input-file-row {
+        width: 400px;
+    }
+    #scenario-input-files {
+        border: 2px solid blue;
+        border-radius: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        width: 50%;
+    }
+    </style>
 </head>
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -30,6 +54,18 @@
         <label id="model-copied-status-label">Model copied:</label>
         <input id="model-copied-status" type="checkbox"></input>
         <br></br>
+        <div id="scenario-input-files">
+            <h3>Scenario Input Files</h3>
+            <button onclick='addNewTableRow()'>Add row</button>
+            <button>Delete row</button>
+            <table id="input-files-table" style="width:auto">
+                <tr>
+                <td>
+                    <input type="file" id="input-button-0" onchange="filesSelected(event)" class="input-file-row">
+                </td>
+                </tr>
+            </table>
+        </div>
         <input type="file" onchange="filesSelected(event)" multiple>
         <button class="upload-files" id="ExtendSim/sendfile">Upload scenario input files to server</button>
         <label id="files-uploaded-status-label">Files uploaded:</label>
@@ -46,10 +82,12 @@
     <script type="text/javascript">
     var uploadedFiles = [];
     var selectedFiles = [];
+    var inputButtonID = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
     function filesSelected(event) {
-        var files = $('input[type=file]')[0].files;
+        var files = $("#" + event.target.id)[0].files;
+        // var files = $('input[type=file]')[0].files;
         if (files) {
             [].forEach.call(files, readAndPreview);
         }
@@ -60,7 +98,6 @@
         reader.onload = function(event) {
             var contents = event.target.result;
             uploadedFiles[numFilesUploaded].data = contents;
-            // alert('file name=' + uploadedFiles[numFilesUploaded].name);
            numFilesUploaded++;
         };
 
@@ -89,7 +126,12 @@
         //     $('#ExtendSim/CopyModelToScenarioFolder').prop('disabled', false);
         // }
     }
-
+    function addNewTableRow() {
+        var table = $("#input-files-table");
+        inputButtonID++;
+        var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="input-file-row" id="input-button-' + inputButtonID + '"></td></tr>';
+        table.append(newrow);
+        }
     function CopyTextFilesToServer(fileIndex) {
         var reader = new FileReader();
 
