@@ -14,4 +14,5 @@ form#cms {
 button.edit {
   float: right;
   margin: 5px;
+  color: rgb(173, 250, 177);
 }

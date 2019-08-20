@@ -56,6 +56,12 @@ app.use(function(req, res, next) {
 });
 // Add routes, both API and view
 app.use(routes);
+var winax = require('winax');
+var ExtendSimApp = new winax.Object('Extendsim.Application', {
+  Arguments: '-platform offscreen'
+});
+
+ExtendSimApp.Execute('OpenExtendFile("C:\\Users\\peter\\Desktop\\ExtendSim ASP License\\ExtendSim ASP server\\ExtendSim models\\ASP v10 models\\ASP example model (GS).mox")');
 
 // Syncing our sequelize models and then starting our Express app
 // =============================================================
