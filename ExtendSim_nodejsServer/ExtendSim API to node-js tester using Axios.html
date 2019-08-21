@@ -17,14 +17,14 @@
     .input-file-row {
         width: 400px;
     }
-    .dialog-input-row {
+    .database-input-row {
         width: 400px;
     }
     .upload-files {
         margin-top: 10px;
         margin-right: 10px;
     }
-    .upload-dialog-inputs {
+    .upload-database-inputs {
         margin-top: 10px;
         margin-right: 10px;
     }
@@ -39,7 +39,7 @@
         background-color: rgb(248, 179, 179);
         float: left;
     }
-    #scenario-dialog-inputs {
+    #scenario-database-inputs {
         border: 2px solid blue;
         border-radius: 10px;
         padding-left: 20px;
@@ -83,8 +83,8 @@
         <br></br>
         <div id="scenario-input-files">
             <h3>Scenario Input Files</h3>
-            <button onclick='addNewTableRow()'>Add row</button>
-            <button>Delete row</button>
+            <button onclick='addInputFilesTableRow()'>Add row</button>
+            <button onclick='deleteInputFilesTableRow()''>Delete row</button>
             <table id="input-files-table" style="width:auto">
                 <tr>
                 <td>
@@ -96,20 +96,20 @@
             <label id="files-uploaded-status-label">Files uploaded:</label>
             <input id="files-uploaded-status" type="checkbox"></input>
         </div>
-        <div id="scenario-dialog-inputs">
-            <h3>Scenario Dialog Inputs</h3>
-            <button onclick='addNewDialogInputsTableRow()'>Add row</button>
-            <button>Delete row</button>
-            <table id="dialog-inputs-table" style="width:auto">
+        <div id="scenario-database-inputs">
+            <h3>Scenario Database Inputs</h3>
+            <button onclick='addNewDatabaseInputsTableRow()'>Add row</button>
+            <button onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
+            <table id="database-inputs-table" style="width:auto">
                 <tr>
                 <td>
-                    <input type="file" id="dialog-input-button-0" onchange="filesSelected(event)" class="input-file-row">
+                    <input type="file" id="database-input-button-0" onchange="filesSelected(event)" class="input-file-row">
                 </td>
                 </tr>
             </table>
-            <button class="upload-dialog-inputs" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
-            <label id="dialog-inputs-uploaded-status-label">Files uploaded:</label>
-            <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
+            <button class="upload-database-inputs" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+            <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
+            <input id="database-inputs-uploaded-status" type="checkbox"></input>
         </div>
         <br></br>
         <div id="submit-simulation">
@@ -160,18 +160,26 @@
         const scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         const userModelPathname = $("#user-models").val();
     }
-    function addNewTableRow() {
+    function addInputFilesTableRow() {
         var table = $("#input-files-table");
         inputButtonID++;
         var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="input-file-row" id="input-button-' + inputButtonID + '"></td></tr>';
         table.append(newrow);
     }
 
-    function addNewDialogInputsTableRow() {
-        var table = $("#dialog-inputs-table");
+    function deleteInputFilesTableRow(event) {
+        $("#input-files-table tr:last").remove();
+    }
+
+    function addNewDatabaseInputsTableRow() {
+        var table = $("#database-inputs-table");
         inputButtonID++;
-        var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="dialog-input-row" id="dialog-input-button-' + inputButtonID + '"></td></tr>';
+        var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="database-input-row" id="database-input-button-' + inputButtonID + '"></td></tr>';
         table.append(newrow);
+    }
+
+    function deleteDatabaseInputsTableRow(event) {
+        $("#database-inputs-table tr:last").remove();  
     }
     function CopyTextFilesToServer(fileIndex) {
         var reader = new FileReader();
@@ -226,7 +234,7 @@
     $("#model-copied-status-label").css("margin-left", 20);
     $("#upload-filename-label").css("margin-left", 20);
     // $("#files-uploaded-status-label").css("margin-left", 20);
-    // $("#dialog-inputs-uploaded-status-label").css("margin-left", 20);
+    // $("#database-inputs-uploaded-status-label").css("margin-left", 20);
     $("#scenario-id-label").css("margin-left", 20);
     $("#scenario-id").css("margin-right", 20);
     $("#scenario-status-label").css("margin-left", 20);
