@@ -91,6 +91,7 @@
         padding-right: 20px;
         padding-bottom: 20px;
         margin-bottom: 20px;
+        margin-right: 10px;
         width: auto;
         background-color:rgb(202, 202, 202);
         float: left;
@@ -101,7 +102,6 @@
         padding-left: 20px;
         padding-right: 20px;
         padding-bottom: 20px;
-        margin-left: 10px;
         margin-bottom: 20px;
         background-color:rgb(202, 202, 202);
         width: auto;
@@ -243,11 +243,20 @@
         var newrow = 
         '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="filesSelected(event)" class="input-file-row"></td><td><select id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table' + databaseInputsTableRows + '"></select></td></tr>'
         table.append(newrow);
+        var targetDatabase = '#target-database-' + databaseInputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
-            $('#user-models').append('<option value="' + modelDatabases[i] + '">' + modelDatabases[i] + '</option>');
+            $(targetDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
         }
-        if (userModelPaths.length > 0) {
-            $('#user-models').val(modelDatabases[0]);
+        if (modelDatabases.length > 0) {
+            $(targetDatabase).val(modelDatabases[0].name);
+        }
+        alert("Num tables = " + modelDatabases[0].tableNames.length);
+        var targetTable = '#target-table-' + databaseInputsTableRows;
+        for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
+            $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
+        }
+        if (modelDatabases[0].tableNames.length > 0) {
+            $(targetTable).val(modelDatabases[0].tableNames[0]);
         }
     }
 
@@ -285,7 +294,6 @@
     }
     
     function getmodeldatabases() {
-        alert($("#user-models").val());
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabases",
             method: 'post',
@@ -297,9 +305,34 @@
             }
         })
         .then(function(response) {
-            modelDatabases = response.data.modelDatabases;
+            modelDatabases= [];
+            for (var i=0;i<response.data.modelDatabases.length;i++) {
+                if (response.data.modelDatabases[i].charAt(0) !== "_") {
+                    modelDatabases.push({ name: response.data.modelDatabases[i],
+                                          tableNames: [] })
+                    .then(getDatabaseTables(modelDatabases.length - 1));
+                }
+            };
         });
     }
+
+    function getDatabaseTables(databaseIndex) {
+        axios({
+            url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetables",
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                modelPathname: $("#user-models").val(),
+                database: modelDatabases[databaseIndex].name,
+                closeModel: true
+            }
+        })
+        .then(function(response) {
+            modelDatabases[databaseIndex].tableNames = response.data.modelDatabaseTables;
+        });
+    }
+
 
     const IPaddress = "http://184.171.246.58";
     // const IPaddress = "localhost";
