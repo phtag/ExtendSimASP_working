@@ -40,7 +40,6 @@
         border-radius: 10px;
         background-color: #c9d6ff;
     }
-
     #user-form {
         width: auto;
         padding: 20px;
@@ -51,7 +50,9 @@
         border-radius: 10px;
         background-color: #c9ffd6;
     }
-
+    #scenario-name {
+        width: 30%;
+    }
     #scenario-input-files {
         border: 2px solid blue;
         border-radius: 10px;
@@ -90,7 +91,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>        
     <div id="extendsim-asp-axios-tester-frame">
-        <form id="user-form">
+        <div id="user-form">
             Username: <input class="login" id="username" type="text" name="username" value=""></input>
             Password: <input class="login" id="password" type="password" name="password" value=""></input>
             <br></br>
@@ -99,9 +100,11 @@
             <input id="user-login-session-id"></input>    
             <br></br> 
             <button class="buttons" id="ExtendSim/getUserModelPaths">Get user model paths</button>
-            <label id="user-models-label" >User models:</label>
-            <select id="user-models"></select>   
-            </form>
+            <select id="user-models"></select>
+            <br></br>   
+            <label id="scenario-name-label">Scenario name:</label>
+            <input id="scenario-name"></input>
+        </div>
         <button class="buttons" id="ExtendSim/createScenarioFolder">Create scenario folder</button>
         <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
         <input id="user-scenario-folder-pathname"></input>
@@ -146,10 +149,10 @@
                         <input type="file" id="database-input-button-0" onchange="filesSelected(event)" class="input-file-row">
                     </td>
                     <td>
-
+                        <select id="target-database"></select>
                     </td>
                     <td>
-
+                        <select id="target-table"></select>
                     </td>
                 </tr>
             </table>
@@ -220,7 +223,8 @@
     function addNewDatabaseInputsTableRow() {
         var table = $("#database-inputs-table");
         inputButtonID++;
-        var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="database-input-row" id="database-input-button-' + inputButtonID + '"></td></tr>';
+        var newrow = 
+        '<tr><td><input type="file" id="database-input-button-0" onchange="filesSelected(event)" class="input-file-row"></td><td><select id="target-database"></select></td><td><select id="target-table"></select></td></tr>'
         table.append(newrow);
     }
 
