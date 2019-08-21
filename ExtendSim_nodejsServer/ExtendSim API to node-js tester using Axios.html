@@ -53,6 +53,37 @@
     #scenario-name {
         width: 30%;
     }
+
+    #user-login-session-id {
+        width: 300px;
+    }
+    #user-login-session-id-label {
+        margin-left: 20px;
+    }
+    #user-scenario-folder-pathname {
+        width: 600px;
+    }
+    #user-scenario-folder-pathname-label {
+        margin-left: 20px;
+    }
+    #user-models-label {
+        margin-left: 20px;
+    }
+    #model-copied-status-label {
+        margin-left: 20px;
+    }
+    #upload-filename-label {
+        margin-left: 20px;
+    }
+    #scenario-id-label {
+        margin-left: 20px;
+    }
+    #scenario-id {
+        margin-right: 20px;
+    }
+    #scenario-status-label {
+        margin-left: 20px;
+    }
     #scenario-input-files {
         border: 2px solid blue;
         border-radius: 10px;
@@ -260,19 +291,23 @@
         // alert('Reading uploaded file...');
         reader.readAsText(selectedFiles[fileIndex]);
     }
-
-    $("#user-login-session-id").width(300);
-    $("#user-login-session-id-label").css("margin-left", 20);
-    $("#user-scenario-folder-pathname").width(600);
-    $("#user-scenario-folder-pathname-label").css("margin-left", 20);
-    $("#user-models-label").css("margin-left", 20);
-    $("#model-copied-status-label").css("margin-left", 20);
-    $("#upload-filename-label").css("margin-left", 20);
-    // $("#files-uploaded-status-label").css("margin-left", 20);
-    // $("#database-inputs-uploaded-status-label").css("margin-left", 20);
-    $("#scenario-id-label").css("margin-left", 20);
-    $("#scenario-id").css("margin-right", 20);
-    $("#scenario-status-label").css("margin-left", 20);
+    
+    function getmodeldatabases() {
+        alert($("#user-models").val());
+        axios({
+            url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabases",
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                modelPathname: $("#user-models").val(),
+                closeModel: true
+            }
+        })
+        .then(function(response) {
+            alert("Number of dBs=" + response.data.modelDatabases.length);
+        });
+    }
 
     const IPaddress = "http://184.171.246.58";
     // const IPaddress = "localhost";
@@ -302,22 +337,23 @@
       switch (this.id) {
         case 'users/login':
 
-          axios({
-            url: proxyurl + queryURL_root + this.id,
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data : {
-                username:  $("#username").val(),
-                password: $("#password").val()
-            }
+            axios({
+                url: proxyurl + queryURL_root + this.id,
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    username:  $("#username").val(),
+                    password: $("#password").val()
+                }
             })
             .then(function(response) {
                 // Storing an array of results in the results variable
                 // alert('Axios POST parameters result=' + JSON.stringify(response.data));
                 $("#user-login-session-id").val(response.data.userLoginSessionID);
-              });
+            });
           break;
+          
         case 'ExtendSim/createScenarioFolder':
 
             axios({
@@ -359,6 +395,7 @@
                     $('#user-models').val(userModelPaths[0]);
                 }
                 this.enableDisableCopyModelToScenarioFolderButton();
+                getmodeldatabases();
             });
             break;
 
