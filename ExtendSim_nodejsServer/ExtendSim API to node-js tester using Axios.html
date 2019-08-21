@@ -149,11 +149,6 @@
             <button onclick='addInputFilesTableRow()'>Add row</button>
             <button onclick='deleteInputFilesTableRow()''>Delete row</button>
             <table id="input-files-table" style="width:auto">
-                <tr>
-                <td>
-                    <input type="file" id="input-button-0" onchange="filesSelected(event)" class="input-file-row">
-                </td>
-                </tr>
             </table>
             <button class="upload-files" id="ExtendSim/sendfile">Upload scenario input files to server</button>
             <label id="files-uploaded-status-label">Files uploaded:</label>
@@ -175,17 +170,6 @@
                         Target Table
                     </th>
                 </tr>
-                <tr>
-                    <td>
-                        <input type="file" id="database-input-button-0" onchange="filesSelected(event)" class="input-file-row">
-                    </td>
-                    <td>
-                        <select id="target-database"></select>
-                    </td>
-                    <td>
-                        <select id="target-table"></select>
-                    </td>
-                </tr>
             </table>
             <button class="upload-database-inputs" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
             <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
@@ -204,7 +188,9 @@
     <script type="text/javascript">
     var uploadedFiles = [];
     var selectedFiles = [];
-    var inputButtonID = 0;
+    var modelDatabases = [];
+    var inputFileTableRows = 0;
+    var databaseInputsTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
     function filesSelected(event) {
@@ -242,8 +228,8 @@
     }
     function addInputFilesTableRow() {
         var table = $("#input-files-table");
-        inputButtonID++;
-        var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="input-file-row" id="input-button-' + inputButtonID + '"></td></tr>';
+        inputFileTableRows++;
+        var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="input-file-row" id="input-button-' + inputFileTableRows + '"></td></tr>';
         table.append(newrow);
     }
 
@@ -253,10 +239,16 @@
 
     function addNewDatabaseInputsTableRow() {
         var table = $("#database-inputs-table");
-        inputButtonID++;
+        databaseInputsTableRows++;
         var newrow = 
-        '<tr><td><input type="file" id="database-input-button-0" onchange="filesSelected(event)" class="input-file-row"></td><td><select id="target-database"></select></td><td><select id="target-table"></select></td></tr>'
+        '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="filesSelected(event)" class="input-file-row"></td><td><select id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table' + databaseInputsTableRows + '"></select></td></tr>'
         table.append(newrow);
+        for (var i = 0; i < modelDatabases.length; i++) {
+            $('#user-models').append('<option value="' + modelDatabases[i] + '">' + modelDatabases[i] + '</option>');
+        }
+        if (userModelPaths.length > 0) {
+            $('#user-models').val(modelDatabases[0]);
+        }
     }
 
     function deleteDatabaseInputsTableRow(event) {
@@ -305,7 +297,7 @@
             }
         })
         .then(function(response) {
-            alert("Number of dBs=" + response.data.modelDatabases.length);
+            modelDatabases = response.data.modelDatabases;
         });
     }
 
@@ -353,7 +345,7 @@
                 $("#user-login-session-id").val(response.data.userLoginSessionID);
             });
           break;
-          
+
         case 'ExtendSim/createScenarioFolder':
 
             axios({
@@ -363,8 +355,8 @@
                 contentType: 'application/json;charset=utf-8',
                 // params: {
                 data: {
-                    userLoginSessionID :  $("#user-login-session-id").val(),
-                    scenarioFolderName : 'myTestScenario',
+                    userLoginSessionID : $("#user-login-session-id").val(),
+                    scenarioFolderName : $("#scenario-name").val(),
                 }
             })
             .then(function(response) {
