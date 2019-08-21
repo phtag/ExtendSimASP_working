@@ -146,8 +146,8 @@
         <br></br>
         <div id="scenario-input-files">
             <h3>Scenario Input Files</h3>
-            <button onclick='addInputFilesTableRow()'>Add row</button>
-            <button onclick='deleteInputFilesTableRow()''>Delete row</button>
+            <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
+            <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
             <table id="input-files-table" style="width:auto">
             </table>
             <button class="upload-files" id="ExtendSim/sendfile">Upload scenario input files to server</button>
@@ -156,8 +156,8 @@
         </div>
         <div id="scenario-database-inputs">
             <h3>Scenario Database Inputs</h3>
-            <button onclick='addNewDatabaseInputsTableRow()'>Add row</button>
-            <button onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
+            <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
+            <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
             <table id="database-inputs-table" style="width:auto">
                 <tr>
                     <th>
@@ -234,6 +234,9 @@
     }
 
     function deleteInputFilesTableRow(event) {
+        if (inputFileTableRows > 0) {
+            inputFileTableRows--;
+        }
         $("#input-files-table tr:last").remove();
     }
 
@@ -241,7 +244,7 @@
         var table = $("#database-inputs-table");
         databaseInputsTableRows++;
         var newrow = 
-        '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="filesSelected(event)" class="input-file-row"></td><td><select id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table' + databaseInputsTableRows + '"></select></td></tr>'
+        '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="filesSelected(event)" class="input-file-row"></td><td><select id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
         table.append(newrow);
         var targetDatabase = '#target-database-' + databaseInputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -250,7 +253,6 @@
         if (modelDatabases.length > 0) {
             $(targetDatabase).val(modelDatabases[0].name);
         }
-        alert("Num tables = " + modelDatabases[0].tableNames.length);
         var targetTable = '#target-table-' + databaseInputsTableRows;
         for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
             $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
@@ -261,6 +263,9 @@
     }
 
     function deleteDatabaseInputsTableRow(event) {
+        if (databaseInputsTableRows > 0) {
+            databaseInputsTableRows--;
+        }
         $("#database-inputs-table tr:last").remove();  
     }
     function CopyTextFilesToServer(fileIndex) {
@@ -333,7 +338,6 @@
         });
     }
 
-
     const IPaddress = "http://184.171.246.58";
     // const IPaddress = "localhost";
     // var queryURL_root = "http://" + IPaddress + ":8090/StreamingService/web/"
@@ -347,10 +351,12 @@
     const proxyurl = "";
     const pathname = "C:\Users\Administrator\Documents\ExtendSim10ASP_Prod\ASP\ASP Servers\ExtendSim Models\Analyst 1";
 
-    const username = 'analyst1';
-    const password = 'model';
+    // const username = 'analyst1';
+    // const password = 'model';
 
     $('.buttons').prop('disabled', true);
+    $('.scenario-input-file-buttons').prop('disabled', true);
+    $('.scenario-database-input-buttons').prop('disabled', true);
     $('.upload-files').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
 
