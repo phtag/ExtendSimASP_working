@@ -9,7 +9,6 @@
       border: 1px solid black;
       border-collapse: collapse;
       margin-top: 10px;
-      /* margin-bottom: 10px; */
     }
     th, td {
       padding: 5px;
@@ -18,6 +17,15 @@
     .input-file-row {
         width: 400px;
     }
+    .dialog-input-row {
+        width: 400px;
+    }
+    .upload-files {
+        margin-top: 10px;
+    }
+    .upload-dialog-inputs {
+        margin-top: 10px;
+    }
     #scenario-input-files {
         border: 2px solid blue;
         border-radius: 10px;
@@ -25,7 +33,24 @@
         padding-right: 20px;
         padding-bottom: 20px;
         margin-bottom: 20px;
-        width: 50%;
+        width: auto;
+        background-color: rgb(248, 179, 179);
+        float: left;
+    }
+    #scenario-dialog-inputs {
+        border: 2px solid blue;
+        border-radius: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        margin-left: 10px;
+        margin-bottom: 20px;
+        background-color:rgb(202, 202, 202);
+        width: auto;
+        float: left;
+    }
+    #submit-simulation {
+        clear: left;
     }
     </style>
 </head>
@@ -65,19 +90,34 @@
                 </td>
                 </tr>
             </table>
+            <button class="upload-files" id="ExtendSim/sendfile">Upload scenario input files to server</button>
+            <label id="files-uploaded-status-label">Files uploaded:</label>
+            <input id="files-uploaded-status" type="checkbox"></input>
         </div>
-        <input type="file" onchange="filesSelected(event)" multiple>
-        <button class="upload-files" id="ExtendSim/sendfile">Upload scenario input files to server</button>
-        <label id="files-uploaded-status-label">Files uploaded:</label>
-        <input id="files-uploaded-status" type="checkbox"></input>
+        <div id="scenario-dialog-inputs">
+            <h3>Scenario Dialog Inputs</h3>
+            <button onclick='addNewDialogInputsTableRow()'>Add row</button>
+            <button>Delete row</button>
+            <table id="dialog-inputs-table" style="width:auto">
+                <tr>
+                <td>
+                    <input type="file" id="dialog-input-button-0" onchange="filesSelected(event)" class="input-file-row">
+                </td>
+                </tr>
+            </table>
+            <button class="upload-dialog-inputs" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+            <label id="dialog-inputs-uploaded-status-label">Files uploaded:</label>
+            <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
+        </div>
         <br></br>
-        <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
-        <label id="scenario-id-label">Scenario ID:</label>
-        <input id="scenario-id"></input>
-        <button class="buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
-        <label id="scenario-status-label">Scenario status:</label>
-        <input id="scenario-status"></input>
-
+        <div id="submit-simulation">
+            <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
+            <label id="scenario-id-label">Scenario ID:</label>
+            <input id="scenario-id"></input>
+            <button class="buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
+            <label id="scenario-status-label">Scenario status:</label>
+            <input id="scenario-status"></input>
+        </div>
     </div>
     <script type="text/javascript">
     var uploadedFiles = [];
@@ -87,7 +127,6 @@
     var numFilesUploaded = 0;
     function filesSelected(event) {
         var files = $("#" + event.target.id)[0].files;
-        // var files = $('input[type=file]')[0].files;
         if (files) {
             [].forEach.call(files, readAndPreview);
         }
@@ -118,20 +157,20 @@
     function enableDisableCopyModelToScenarioFolderButton() {
         const scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         const userModelPathname = $("#user-models").val();
-        // if ((scenarioFolderPathname.length === 0) ||
-        //     (userModelPathname.length === 0)) {
-        //     $('#ExtendSim/CopyModelToScenarioFolder').prop('disabled', true);
-        // }
-        // else {
-        //     $('#ExtendSim/CopyModelToScenarioFolder').prop('disabled', false);
-        // }
     }
     function addNewTableRow() {
         var table = $("#input-files-table");
         inputButtonID++;
         var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="input-file-row" id="input-button-' + inputButtonID + '"></td></tr>';
         table.append(newrow);
-        }
+    }
+
+    function addNewDialogInputsTableRow() {
+        var table = $("#dialog-inputs-table");
+        inputButtonID++;
+        var newrow = '<tr><td><input type="file" onchange="filesSelected(event)" class="dialog-input-row" id="dialog-input-button-' + inputButtonID + '"></td></tr>';
+        table.append(newrow);
+    }
     function CopyTextFilesToServer(fileIndex) {
         var reader = new FileReader();
 
@@ -207,10 +246,7 @@
 
     $('.buttons').prop('disabled', true);
     $('.upload-files').prop('disabled', true);
-    // $('#CopyModelToScenarioFolder').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
-    // $("#model-copied-status").prop('disabled', true);
-    // $("#ExtendSim/sendfile").prop('disabled', true);
 
     enableDisableUploadFilesButton();
 
