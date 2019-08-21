@@ -23,11 +23,11 @@
     .database-input-row {
         width: 350px;
     }
-    .upload-files {
+    .upload-files-button {
         margin-top: 10px;
         margin-right: 10px;
     }
-    .upload-database-inputs {
+    .upload-database-inputs-button {
         margin-top: 10px;
         margin-right: 10px;
     }
@@ -150,7 +150,7 @@
             <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
             <table id="input-files-table" style="width:auto">
             </table>
-            <button class="upload-files" id="ExtendSim/sendfile">Upload scenario input files to server</button>
+            <button class="upload-files-button" id="ExtendSim/sendfile">Upload scenario input files to server</button>
             <label id="files-uploaded-status-label">Files uploaded:</label>
             <input id="files-uploaded-status" type="checkbox"></input>
         </div>
@@ -171,7 +171,7 @@
                     </th>
                 </tr>
             </table>
-            <button class="upload-database-inputs" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+            <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
             <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
             <input id="database-inputs-uploaded-status" type="checkbox"></input>
         </div>
@@ -216,10 +216,10 @@
     }
     function enableDisableUploadFilesButton() {
         if (selectedFiles.length === 0)  {
-            $('.upload-files').prop('disabled', true);
+            $('.upload-files-button').prop('disabled', true);
         }
         else {
-            $('.upload-files').prop('disabled', false);
+            $('.upload-files-button').prop('disabled', false);
         }
     }
     function enableDisableCopyModelToScenarioFolderButton() {
@@ -357,6 +357,8 @@
     $('.buttons').prop('disabled', true);
     $('.scenario-input-file-buttons').prop('disabled', true);
     $('.scenario-database-input-buttons').prop('disabled', true);
+    $('.upload-database-inputs-button').prop('disabled', true);
+    $('.upload-files-button').prop('disabled', true);
     $('.upload-files').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
 
@@ -492,17 +494,25 @@
       }
     });
 
-  $('.login').keyup(function () {
-    if (($("#username").val() === '') || ($("#password").val() === '')) {
-        //Check to see if there is any text entered
-        // If there is no text within the input ten disable the button
-        $('.buttons').prop('disabled', true);
-    } else {
-        //If there is text in the input, then enable the button
-        $('.buttons').prop('disabled', false);
-    }
-});
-  </script>
+    $('.login').keyup(function () {
+        if (($("#username").val() === '') || ($("#password").val() === '')) {
+            //Check to see if there is any text entered
+            // If there is no text within the input ten disable the button
+            $('.buttons').prop('disabled', true);
+        } else {
+            //If there is text in the input, then enable the button
+            $('.buttons').prop('disabled', false);
+        }
+    });
+    $('#scenario-name').keyup(function () {
+        if ($("#scenario-name").val() !== '') {
+            if ($('#user-models').val() !== '') {
+                $('.scenario-input-file-buttons').prop('disabled', false);
+                $('.scenario-database-input-buttons').prop('disabled', false);
+            }
+        }
+    });
+</script>
 </body>
 
 </html>
