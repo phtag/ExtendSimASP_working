@@ -233,6 +233,8 @@
         </div>
     </div>
     <script type="text/javascript">
+    var modelBlocks = [];
+    var blockNumbers = [];
     var uploadedFiles = [];
     var uploadedDatabaseFiles = [];
     var selectedFiles = [];
@@ -355,6 +357,25 @@
         var newrow = 
         '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="variable-type-select-' + dialogInputsTableRows + '" onchange="variableTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td></tr>'     
         table.append(newrow);
+        var blockType = '#block-type-select-' + dialogInputsTableRows;
+        for (var i = 0; i < modelBlocks.length; i++) {
+            $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
+        }
+        if (modelBlocks.length > 0) {
+            $(blockType).val(modelBlocks[0]);
+            blockNumbers = [];
+            for (var i=0;i<modelBlockInfo.length;i++) {
+                if ($(blockType).val() === modelBlockInfo[i].blockName) {
+                    blockNumbers.push(modelBlockInfo[i].blockNumber);
+                }
+            }
+            blockNumbers.sort();
+            var blockNumber = '#block-number-select-' + dialogInputsTableRows;
+            for (var i = 0; i < blockNumbers.length; i++) {
+                $(blockNumber).append('<option value="' + blockNumbers[i] + '">' + blockNumbers[i] + '</option>');
+        }
+
+        }
     }
 
     function deleteDialogInputsTableRow(event) {
@@ -413,9 +434,9 @@
                                           tableNames: [] });
                     if (modelDatabases.length === 1) {
                         getDatabaseTables(modelDatabases.length - 1, getModelInfo);
+                        // getDatabaseTables(modelDatabases.length - 1, '');
                     } else {
                         getDatabaseTables(modelDatabases.length - 1, '');
-
                     }
                 }
             };
@@ -443,7 +464,6 @@
     }
 
     function getModelInfo() {
-        alert('GetModelInfo');
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getmodelinfo",
             method: 'post',
@@ -473,8 +493,28 @@
             }
         })
         .then(function(response) {
-            modelBlockInfo = response.data.tableDataArray;
-            alert('ModelBlockInfo=' + modelBlockInfo);
+            modelBlockInfo = [];
+            response.data.tableDataArray.forEach(function(elements, index) {
+                modelBlockInfo.push(
+                {
+                    variableName: elements[0],
+                    dialogItemType: elements[1],
+                    blockName: elements[2],
+                    blockNumber: elements[3],
+                    tabname: elements[4],
+                    blockLabel: elements[5],
+                    enclosingHblockNumber: elements[6],
+                    enclosingHblockLabel: elements[7],  
+                });
+            })
+            modelBlocks = [];
+            var tempArray = [];
+            for (var i=0;i<modelBlockInfo.length;i++) {
+                tempArray.push(modelBlockInfo[i].blockName);
+            }
+            modelBlocks = Array.from(new Set(tempArray));
+            modelBlocks.sort();
+            alert(modelBlocks);
         });       
     }
     const IPaddress = "http://184.171.246.58";
