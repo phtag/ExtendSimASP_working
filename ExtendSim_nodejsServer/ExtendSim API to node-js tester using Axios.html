@@ -356,7 +356,7 @@
         var table = $("#dialog-inputs-table");
         dialogInputsTableRows++;
         var newrow = 
-        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="dialog-item-type-select-' + dialogInputsTableRows + '" onchange="variableTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td></tr>'     
+        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="dialog-item-type-select-' + dialogInputsTableRows + '" onchange="dialogItemTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td></tr>'     
         table.append(newrow);
         var blockType = '#block-type-select-' + dialogInputsTableRows;
         for (var i = 0; i < modelBlocks.length; i++) {
@@ -415,6 +415,10 @@
         }
     }
 
+    function updateDialogVariableDropdown() {
+        
+    }
+    
     function blockTypeSelected(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
@@ -424,6 +428,12 @@
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
         updateDialogItemTypeDropdown(rowIndex);
+    }
+
+    function dialogItemTypeSelected(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        updateDialogVariableDropdown(rowIndex);  
     }
 
     function CopyTextFilesToServer(fileIndex) {
