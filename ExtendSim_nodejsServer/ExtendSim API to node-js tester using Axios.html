@@ -525,6 +525,7 @@
         })
         .then(function(response) {
             modelDatabases[databaseIndex].tableNames = response.data.modelDatabaseTables;
+            modelDatabases[databaseIndex].tableNames.sort();
             if (callback !== '') {
                 callback();
             }
