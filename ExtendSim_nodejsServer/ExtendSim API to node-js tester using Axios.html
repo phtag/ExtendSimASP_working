@@ -235,6 +235,7 @@
     <script type="text/javascript">
     var modelBlocks = [];
     var blockNumbers = [];
+    var dialogItemTypes = [];
     var uploadedFiles = [];
     var uploadedDatabaseFiles = [];
     var selectedFiles = [];
@@ -355,7 +356,7 @@
         var table = $("#dialog-inputs-table");
         dialogInputsTableRows++;
         var newrow = 
-        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="variable-type-select-' + dialogInputsTableRows + '" onchange="variableTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td></tr>'     
+        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="dialog-item-type-select-' + dialogInputsTableRows + '" onchange="variableTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td></tr>'     
         table.append(newrow);
         var blockType = '#block-type-select-' + dialogInputsTableRows;
         for (var i = 0; i < modelBlocks.length; i++) {
@@ -363,18 +364,9 @@
         }
         if (modelBlocks.length > 0) {
             $(blockType).val(modelBlocks[0]);
-            blockNumbers = [];
-            for (var i=0;i<modelBlockInfo.length;i++) {
-                if ($(blockType).val() === modelBlockInfo[i].blockName) {
-                    blockNumbers.push(modelBlockInfo[i].blockNumber);
-                }
-            }
-            blockNumbers.sort();
             var blockNumber = '#block-number-select-' + dialogInputsTableRows;
-            for (var i = 0; i < blockNumbers.length; i++) {
-                $(blockNumber).append('<option value="' + blockNumbers[i] + '">' + blockNumbers[i] + '</option>');
-        }
-
+            updateBlockNumbersDropdown(dialogInputsTableRows);
+            updateDialogItemTypeDropdown(dialogInputsTableRows);
         }
     }
 
@@ -383,6 +375,55 @@
             dialogInputsTableRows--;
         }
         $("#dialog-inputs-table tr:last").remove();  
+    }
+
+    function updateBlockNumbersDropdown(rowIndex) {
+        var blockType = '#block-type-select-' + rowIndex;
+        var blockNumber = '#block-number-select-' + rowIndex;
+
+        blockNumbers = [];
+        var tempArray = [];
+        for (var i=0;i<modelBlockInfo.length;i++) {
+            if ($(blockType).val() === modelBlockInfo[i].blockName) {
+                tempArray.push(modelBlockInfo[i].blockNumber);
+            }
+        }
+        blockNumbers = Array.from(new Set(tempArray));
+        blockNumbers.sort();
+        $(blockNumber).empty();
+        for (var i = 0; i < blockNumbers.length; i++) {
+            $(blockNumber).append('<option value="' + blockNumbers[i] + '">' + blockNumbers[i] + '</option>');
+        }
+        updateDialogItemTypeDropdown(rowIndex);
+    }
+
+    function updateDialogItemTypeDropdown(rowIndex) {
+        var blockNumber = '#block-number-select-' + rowIndex;
+        var dialogItemType = '#dialog-item-type-select-' + rowIndex;
+        dialogItemTypes = [];
+        var tempArray = [];
+        for (var i=0;i<modelBlockInfo.length;i++) {
+            if ($(blockNumber).val() === modelBlockInfo[i].blockNumber) {
+                tempArray.push(modelBlockInfo[i].dialogItemType);
+            }
+        }
+        dialogItemTypes = Array.from(new Set(tempArray));
+        dialogItemTypes.sort();
+        $(dialogItemType).empty();
+        for (var i = 0; i < dialogItemTypes.length; i++) {
+            $(dialogItemType).append('<option value="' + dialogItemTypes[i] + '">' + dialogItemTypes[i] + '</option>');
+        }
+    }
+
+    function blockTypeSelected(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        updateBlockNumbersDropdown(rowIndex);
+    }
+    function blockNumberSelected(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        updateDialogItemTypeDropdown(rowIndex);
     }
 
     function CopyTextFilesToServer(fileIndex) {
@@ -514,7 +555,6 @@
             }
             modelBlocks = Array.from(new Set(tempArray));
             modelBlocks.sort();
-            alert(modelBlocks);
         });       
     }
     const IPaddress = "http://184.171.246.58";
