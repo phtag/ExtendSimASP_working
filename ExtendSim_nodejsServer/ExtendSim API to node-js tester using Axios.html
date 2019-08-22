@@ -31,6 +31,10 @@
         margin-top: 10px;
         margin-right: 10px;
     }
+    .upload-dialog-inputs-button {
+        margin-top: 10px;
+        margin-right: 10px;
+    }
     #extendsim-asp-axios-tester-frame {
         width: 90%;
         padding: 10px;
@@ -107,6 +111,17 @@
         width: auto;
         float: left;
     }
+    #scenario-dialog-inputs {
+        border: 2px solid blue;
+        border-radius: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        background-color:rgb(202, 202, 202);
+        width: auto;
+        float: left;
+    }
     #submit-simulation {
         border: 2px solid blue;
         border-radius: 10px;
@@ -149,6 +164,11 @@
             <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
             <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
             <table id="input-files-table" style="width:auto">
+                <tr>
+                    <th>
+                        Source data file
+                    </th>
+                </tr>
             </table>
             <button class="upload-files-button" id="ExtendSim/sendfile">Upload scenario input files to server</button>
             <label id="files-uploaded-status-label">Files uploaded:</label>
@@ -171,9 +191,36 @@
                     </th>
                 </tr>
             </table>
-            <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+            <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to database tables</button>
             <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
             <input id="database-inputs-uploaded-status" type="checkbox"></input>
+        </div>
+        <div id="scenario-dialog-inputs">
+            <h3>Scenario Dialog Inputs</h3>
+            <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
+            <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
+            <table id="dialog-inputs-table" style="width:auto">
+                <tr>
+                    <th>
+                        Block Type
+                    </th>
+                    <th>
+                        Block Number
+                    </th>
+                    <th>
+                        Variable Type
+                    </th>
+                    <th>
+                        Dialog Variable
+                    </th>
+                    <th>
+                        Input Value
+                    </th>
+                </tr>
+            </table>
+            <button class="upload-dialog-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+            <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
+            <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
         </div>
         <br></br>
         <div id="submit-simulation">
@@ -193,6 +240,7 @@
     var modelDatabases = [];
     var inputFileTableRows = 0;
     var databaseInputsTableRows = 0;
+    var dialogInputsTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
 
@@ -299,6 +347,22 @@
         }
         $("#database-inputs-table tr:last").remove();  
     }
+
+    function addNewDialogInputsTableRow() {
+        var table = $("#dialog-inputs-table");
+        dialogInputsTableRows++;
+        var newrow = 
+        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="variable-type-select-' + dialogInputsTableRows + '" onchange="variableTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td></tr>'     
+        table.append(newrow);
+    }
+
+    function deleteDialogInputsTableRow(event) {
+        if (dialogInputsTableRows > 0) {
+            dialogInputsTableRows--;
+        }
+        $("#dialog-inputs-table tr:last").remove();  
+    }
+
     function CopyTextFilesToServer(fileIndex) {
         var reader = new FileReader();
 
@@ -388,6 +452,8 @@
     $('.buttons').prop('disabled', true);
     $('.scenario-input-file-buttons').prop('disabled', true);
     $('.scenario-database-input-buttons').prop('disabled', true);
+    $('.scenario-dialog-input-buttons').prop('disabled', true);
+    $('.upload-dialog-inputs-button').prop('disabled', true);
     $('.upload-database-inputs-button').prop('disabled', true);
     $('.upload-files-button').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
@@ -539,6 +605,7 @@
             if ($('#user-models').val() !== '') {
                 $('.scenario-input-file-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
+                $('.scenario-dialog-input-buttons').prop('disabled', false);
             }
         }
     });
