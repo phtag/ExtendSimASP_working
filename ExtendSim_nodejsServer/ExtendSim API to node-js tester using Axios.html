@@ -413,12 +413,29 @@
         for (var i = 0; i < dialogItemTypes.length; i++) {
             $(dialogItemType).append('<option value="' + dialogItemTypes[i] + '">' + dialogItemTypes[i] + '</option>');
         }
+        updateDialogVariableDropdown(rowIndex);
     }
 
-    function updateDialogVariableDropdown() {
-        
+    function updateDialogVariableDropdown(rowIndex) {
+        var blockNumber = '#block-number-select-' + rowIndex;
+        var dialogItemType = '#dialog-item-type-select-' + rowIndex;
+        var dialogVariable = '#dialog-variable-select-' + rowIndex;
+        dialogVariables = [];
+        var tempArray = [];
+        for (var i=0;i<modelBlockInfo.length;i++) {
+            if (($(blockNumber).val() === modelBlockInfo[i].blockNumber) &&
+                ($(dialogItemType).val() === modelBlockInfo[i].dialogItemType)) {
+                tempArray.push(modelBlockInfo[i].variableName);
+            }
+        }
+        dialogVariables = Array.from(new Set(tempArray));
+        dialogVariables.sort();
+        $(dialogVariable).empty();
+        for (var i = 0; i < dialogVariables.length; i++) {
+            $(dialogVariable).append('<option value="' + dialogVariables[i] + '">' + dialogVariables[i] + '</option>');
+        }      
     }
-    
+
     function blockTypeSelected(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
