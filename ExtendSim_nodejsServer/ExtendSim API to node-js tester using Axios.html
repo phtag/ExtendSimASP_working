@@ -238,6 +238,7 @@
     var selectedFiles = [];
     var selectedDatabaseFiles = [];
     var modelDatabases = [];
+    var modelBlockInfo;
     var inputFileTableRows = 0;
     var databaseInputsTableRows = 0;
     var dialogInputsTableRows = 0;
@@ -409,14 +410,19 @@
             for (var i=0;i<response.data.modelDatabases.length;i++) {
                 if (response.data.modelDatabases[i].charAt(0) !== "_") {
                     modelDatabases.push({ name: response.data.modelDatabases[i],
-                                          tableNames: [] })
-                    .then(getDatabaseTables(modelDatabases.length - 1));
+                                          tableNames: [] });
+                    if (modelDatabases.length === 1) {
+                        getDatabaseTables(modelDatabases.length - 1, getModelInfo);
+                    } else {
+                        getDatabaseTables(modelDatabases.length - 1, '');
+
+                    }
                 }
             };
         });
     }
 
-    function getDatabaseTables(databaseIndex) {
+    function getDatabaseTables(databaseIndex, callback) {
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetables",
             method: 'post',
@@ -430,9 +436,47 @@
         })
         .then(function(response) {
             modelDatabases[databaseIndex].tableNames = response.data.modelDatabaseTables;
+            if (callback !== '') {
+                callback();
+            }
         });
     }
 
+    function getModelInfo() {
+        alert('GetModelInfo');
+        axios({
+            url: proxyurl + queryURL_root + "ExtendSim/getmodelinfo",
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                modelpathname: $("#user-models").val(),
+                closeModel: true
+            }
+        })
+        .then(function(response) {
+            modelInfo = response.data.ModelInfo;
+            console.log("ModelInfo: " + JSON.stringify(modelInfo));
+            getDatabaseTableContentsStream(response.data.ModelInfo);
+        });
+    }
+    function getDatabaseTableContentsStream(modelInfo) {
+        axios({
+            url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                modelpathname: $("#user-models").val(),
+                databaseName: modelInfo.Databasename,
+                tableName: modelInfo.Tablename
+            }
+        })
+        .then(function(response) {
+            modelBlockInfo = response.data.tableDataArray;
+            alert('ModelBlockInfo=' + modelBlockInfo);
+        });       
+    }
     const IPaddress = "http://184.171.246.58";
     // const IPaddress = "localhost";
     // var queryURL_root = "http://" + IPaddress + ":8090/StreamingService/web/"

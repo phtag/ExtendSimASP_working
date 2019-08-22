@@ -14,6 +14,6 @@ router.route('/senddatastream').post(ExtendSimController.senddatastream);
 router.route('/senddialogvariabledata').post(ExtendSimController.senddialogvariabledata);
 router.route('/submitsimulationscenario').post(ExtendSimController.submitsimulationscenario);
 router.route('/checkmodelrunstatus').post(ExtendSimController.checkmodelrunstatus);
-router.route('/getdtabasetablecontentsstream').post(ExtendSimController.getdtabasetablecontentsstream);
+router.route('/getdatabasetablecontentsstream').post(ExtendSimController.getdatabasetablecontentsstream);
 
 module.exports = router;

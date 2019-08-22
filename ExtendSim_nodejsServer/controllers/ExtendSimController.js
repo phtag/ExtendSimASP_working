@@ -401,12 +401,12 @@ module.exports = {
             return res.json({modelRunStatus: response.data});
         });
     },
-    getdtabasetablecontentsstream: function(req, res) {
+    getdatabasetablecontentsstream: function(req, res) {
         var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/ReceiveDataTableESdataStream2";
         var myheaders = { 
             accept: "application/json", 
             }; 
-        console.log("getdtabasetablecontentsstream: Getting database table contents for table=" + req.body.tableName);
+        console.log("getdatabasetablecontentsstream: Getting database table contents for table=" + req.body.tableName);
         return axios({
             url: queryURL,
             method: 'get',
