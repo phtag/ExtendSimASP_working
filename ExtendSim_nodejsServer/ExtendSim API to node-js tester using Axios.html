@@ -35,7 +35,20 @@
         margin-top: 10px;
         margin-right: 10px;
     }
+    #extendsim-asp-header {
+        background-image:url(https://extendsim.com/templates/extendsim/images/ES_logo.gif);
+        background-repeat:no-repeat;
+        width: 100%;
+        margin-top: -30px;
+        margin-left: -10px;
+        height: 100px;
+        position: fixed;
+        background-color: whitesmoke;
+        z-index: 10;
+    }
     #extendsim-asp-axios-tester-frame {
+        position: absolute;
+        top: 80px;
         width: 90%;
         padding: 10px;
         border-color: blue,;
@@ -59,7 +72,7 @@
         border-width: 2px;
         border-style: solid;
         border-radius: 10px;
-        background-color: #c9ffd6;
+        background-color:rgb(221, 220, 220);
     }
     #scenario-name {
         width: 30%;
@@ -99,6 +112,16 @@
         background-color:rgb(221, 220, 220);
         overflow: auto;
     }
+    #scenario-responses {
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        /* margin-right: 10px; */
+        width: auto;
+        background-color:rgb(221, 220, 220);
+        overflow: auto;
+    }
     #scenario-id-label {
         margin-left: 20px;
     }
@@ -119,7 +142,7 @@
         margin-right: 20px;
     }
     #scenario-input-files {
-        border: 2px solid blue;
+        border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
         padding-left: 20px;
         padding-right: 20px;
@@ -131,7 +154,7 @@
         float: left;
     }
     #scenario-database-inputs {
-        border: 2px solid blue;
+        border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
         padding-left: 20px;
         padding-right: 20px;
@@ -142,8 +165,9 @@
         width: auto;
         float: left;
     }
+
     #scenario-dialog-inputs {
-        border: 2px solid blue;
+        border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
         padding-left: 20px;
         padding-right: 20px;
@@ -153,8 +177,20 @@
         width: auto;
         float: left;
     }
+    #scenario-database-outputs {
+        border: 2px solid rgb(13, 88, 0);
+        border-radius: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        margin-right: 10px;
+        background-color:rgb(211, 253, 204);
+        width: auto;
+        float: left;
+    }
     #submit-simulation {
-        border: 2px solid blue;
+        border: 2px solid rgb(0, 0, 0);
         border-radius: 10px;
         padding: 20px;
         margin-bottom: 20px;
@@ -166,7 +202,8 @@
 </head>
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>        
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
+    <header class="header" id="extendsim-asp-header"></header>     
     <div id="extendsim-asp-axios-tester-frame">
         <div id="user-form">
             Username: <input class="login" id="username" type="text" name="username" value=""></input>
@@ -270,6 +307,26 @@
             <button class="buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
             <label id="scenario-status-label">Scenario status:</label>
             <input id="scenario-status"></input>
+        </div>
+        <div id="scenario-responses">
+            <div id="scenario-database-outputs">
+                <h3>Scenario Database Outputs</h3>
+                <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
+                <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
+                <table id="database-outputs-table" style="width:auto">
+                    <tr>
+                        <th>
+                            Source Database
+                        </th>
+                        <th>
+                            Source Table
+                        </th>
+                    </tr>
+                </table>
+                <button class="upload-database-outputs-button" id="ExtendSim/sendfile">Download outputs from database tables</button>
+                <label id="database-outputs-uploaded-status-label">Files uploaded:</label>
+                <input id="database-outputs-uploaded-status" type="checkbox"></input>
+            </div>           
         </div>
     </div>
     <script type="text/javascript">
