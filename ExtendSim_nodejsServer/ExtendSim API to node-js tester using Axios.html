@@ -44,10 +44,14 @@
         border-radius: 10px;
         background-color: #c9d6ff;
     }
+    #input-files-table, #database-inputs-table, #dialog-inputs-table {
+        background-color: #ecedf0;
+    }
     #user-form {
         width: auto;
         padding: 20px;
         margin-bottom: 20px;
+        /* margin-right: 10px; */
         border-color: black;
         border-width: 2px;
         border-style: solid;
@@ -79,6 +83,19 @@
     #upload-filename-label {
         margin-left: 20px;
     }
+    #user-scenario-folder-pathname {
+        margin-right: 20px;
+    }
+    #scenario-factors {
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        /* margin-right: 10px; */
+        width: auto;
+        background-color:rgb(221, 220, 220);
+        overflow: auto;
+    }
     #scenario-id-label {
         margin-left: 20px;
     }
@@ -87,6 +104,10 @@
     }
     #scenario-status-label {
         margin-left: 20px;
+    }
+    #show-input-files, #show-database-inputs, #show-dialog-inputs {
+        margin-bottom: 10px;
+        margin-right: 20px;
     }
     #scenario-input-files {
         border: 2px solid blue;
@@ -97,7 +118,7 @@
         margin-bottom: 20px;
         margin-right: 10px;
         width: auto;
-        background-color:rgb(202, 202, 202);
+        background-color:rgb(253, 246, 204);
         float: left;
     }
     #scenario-database-inputs {
@@ -107,7 +128,8 @@
         padding-right: 20px;
         padding-bottom: 20px;
         margin-bottom: 20px;
-        background-color:rgb(202, 202, 202);
+        margin-right: 10px;
+        background-color:rgb(253, 246, 204);
         width: auto;
         float: left;
     }
@@ -118,7 +140,7 @@
         padding-right: 20px;
         padding-bottom: 20px;
         margin-bottom: 20px;
-        background-color:rgb(202, 202, 202);
+        background-color: rgb(253, 246, 204);
         width: auto;
         float: left;
     }
@@ -150,79 +172,88 @@
             <br></br>   
             <label id="scenario-name-label">Scenario name:</label>
             <input id="scenario-name"></input>
+            <br></br>
+            <button class="buttons" id="ExtendSim/createScenarioFolder">Create scenario folder</button>
+            <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
+            <input id="user-scenario-folder-pathname"></input>
+            <br></br>
+            <button class="buttons" id="ExtendSim/copyModelToScenarioFolder">Copy model to scenario folder</button>
+            <label id="model-copied-status-label">Model copied:</label>
+            <input id="model-copied-status" type="checkbox"></input>    
         </div>
-        <button class="buttons" id="ExtendSim/createScenarioFolder">Create scenario folder</button>
-        <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
-        <input id="user-scenario-folder-pathname"></input>
-        <br></br>
-        <button class="buttons" id="ExtendSim/copyModelToScenarioFolder">Copy model to scenario folder</button>
-        <label id="model-copied-status-label">Model copied:</label>
-        <input id="model-copied-status" type="checkbox"></input>
-        <br></br>
-        <div id="scenario-input-files">
-            <h3>Scenario Input Files</h3>
-            <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
-            <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
-            <table id="input-files-table" style="width:auto">
-                <tr>
-                    <th>
-                        Source data file
-                    </th>
-                </tr>
-            </table>
-            <button class="upload-files-button" id="ExtendSim/sendfile">Upload scenario input files to server</button>
-            <label id="files-uploaded-status-label">Files uploaded:</label>
-            <input id="files-uploaded-status" type="checkbox"></input>
+        <div id="scenario-factors">
+            <div>
+                <label id="show-input-files-label">Show scenario input files table</label>
+                <input id="show-input-files" type="checkbox" onclick='updateInputFilesTableVisibility()'></input>    
+                <label id="show-database-inputs-label">Show scenario database inputs table</label>
+                <input id="show-database-inputs" type="checkbox" onclick='updateDatabaseInputsTableVisibility()'></input>    
+                <label id="show-dialog-inputs-label">Show scenario dialog inputs table</label>
+                <input id="show-dialog-inputs" type="checkbox" onclick='updateDialogInputsTableVisibility()'></input>    
+            </div>
+            <div id="scenario-input-files">
+                <h3>Scenario Input Files</h3>
+                <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
+                <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
+                <table id="input-files-table" style="width:auto">
+                    <tr>
+                        <th>
+                            Source data file
+                        </th>
+                    </tr>
+                </table>
+                <button class="upload-files-button" id="ExtendSim/sendfile">Upload scenario input files to server</button>
+                <label id="files-uploaded-status-label">Files uploaded:</label>
+                <input id="files-uploaded-status" type="checkbox"></input>
+            </div>
+            <div id="scenario-database-inputs">
+                <h3>Scenario Database Inputs</h3>
+                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
+                <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
+                <table id="database-inputs-table" style="width:auto">
+                    <tr>
+                        <th>
+                            Source data file
+                        </th>
+                        <th>
+                            Target Database
+                        </th>
+                        <th>
+                            Target Table
+                        </th>
+                    </tr>
+                </table>
+                <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to database tables</button>
+                <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
+                <input id="database-inputs-uploaded-status" type="checkbox"></input>
+            </div>
+            <div id="scenario-dialog-inputs">
+                <h3>Scenario Dialog Inputs</h3>
+                <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
+                <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
+                <table id="dialog-inputs-table" style="width:auto">
+                    <tr>
+                        <th>
+                            Block Type
+                        </th>
+                        <th>
+                            Block Number
+                        </th>
+                        <th>
+                            Variable Type
+                        </th>
+                        <th>
+                            Dialog Variable
+                        </th>
+                        <th>
+                            Input Value
+                        </th>
+                    </tr>
+                </table>
+                <button class="upload-dialog-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+                <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
+                <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
+            </div>
         </div>
-        <div id="scenario-database-inputs">
-            <h3>Scenario Database Inputs</h3>
-            <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
-            <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
-            <table id="database-inputs-table" style="width:auto">
-                <tr>
-                    <th>
-                        Source data file
-                    </th>
-                    <th>
-                        Target Database
-                    </th>
-                    <th>
-                        Target Table
-                    </th>
-                </tr>
-            </table>
-            <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to database tables</button>
-            <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
-            <input id="database-inputs-uploaded-status" type="checkbox"></input>
-        </div>
-        <div id="scenario-dialog-inputs">
-            <h3>Scenario Dialog Inputs</h3>
-            <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
-            <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
-            <table id="dialog-inputs-table" style="width:auto">
-                <tr>
-                    <th>
-                        Block Type
-                    </th>
-                    <th>
-                        Block Number
-                    </th>
-                    <th>
-                        Variable Type
-                    </th>
-                    <th>
-                        Dialog Variable
-                    </th>
-                    <th>
-                        Input Value
-                    </th>
-                </tr>
-            </table>
-            <button class="upload-dialog-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
-            <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
-            <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
-        </div>
-        <br></br>
         <div id="submit-simulation">
             <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
             <label id="scenario-id-label">Scenario ID:</label>
@@ -247,6 +278,34 @@
     var dialogInputsTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
+
+    const IPaddress = "http://184.171.246.58";
+    // const IPaddress = "localhost";
+    // var queryURL_root = "http://" + IPaddress + ":8090/StreamingService/web/"
+    var queryURL_root =  IPaddress + ":3001/api/"
+    var queryURL_root2 = "http://" + IPaddress + ":3001/api/users/login/"
+    var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer"
+    var queryURL2 = "http://" + IPaddress + ":8090/StreamingService/web/EchoWithGet"
+    var queryURL3 = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
+    // var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer?username=analyst1&password=model"
+    // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const proxyurl = "";
+    const pathname = "C:\Users\Administrator\Documents\ExtendSim10ASP_Prod\ASP\ASP Servers\ExtendSim Models\Analyst 1";
+
+    // const username = 'analyst1';
+    // const password = 'model';
+
+    $('.buttons').prop('disabled', true);
+    $('#show-input-files').prop('checked', true);
+    $('#show-database-inputs').prop('checked', true);
+    $('#show-dialog-inputs').prop('checked', true);
+    $('.scenario-input-file-buttons').prop('disabled', true);
+    $('.scenario-database-input-buttons').prop('disabled', true);
+    $('.scenario-dialog-input-buttons').prop('disabled', true);
+    $('.upload-dialog-inputs-button').prop('disabled', true);
+    $('.upload-database-inputs-button').prop('disabled', true);
+    $('.upload-files-button').prop('disabled', true);
+    $("#model-copied-status").prop('checked', false);
 
     function databasefilesSelected(event) {
         var files = $("#" + event.target.id)[0].files;
@@ -310,6 +369,27 @@
         const scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         const userModelPathname = $("#user-models").val();
     }
+    function updateInputFilesTableVisibility() {
+        if ($('#show-input-files'). prop("checked") == true) {
+            $("#scenario-input-files").show();
+        } else {
+            $("#scenario-input-files").hide();
+        }
+    }
+    function updateDatabaseInputsTableVisibility() {
+        if ($('#show-database-inputs'). prop("checked") == true) {
+            $("#scenario-database-inputs").show();
+        } else {
+            $("#scenario-database-inputs").hide();
+        }
+    }
+    function updateDialogInputsTableVisibility() {
+        if ($('#show-dialog-inputs'). prop("checked") == true) {
+            $("#scenario-dialog-inputs").show();
+        } else {
+            $("#scenario-dialog-inputs").hide();
+        }
+    }
     function addInputFilesTableRow() {
         var table = $("#input-files-table");
         inputFileTableRows++;
@@ -356,7 +436,7 @@
         var table = $("#dialog-inputs-table");
         dialogInputsTableRows++;
         var newrow = 
-        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="dialog-item-type-select-' + dialogInputsTableRows + '" onchange="dialogItemTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td></tr>'     
+        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="dialog-item-type-select-' + dialogInputsTableRows + '" onchange="dialogItemTypeSelected(event)"></select></td><td><select id="dialog-variable-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="dialog-input-' + dialogInputsTableRows + '"></input></td></tr>'     
         table.append(newrow);
         var blockType = '#block-type-select-' + dialogInputsTableRows;
         for (var i = 0; i < modelBlocks.length; i++) {
@@ -585,30 +665,6 @@
             modelBlocks.sort();
         });       
     }
-    const IPaddress = "http://184.171.246.58";
-    // const IPaddress = "localhost";
-    // var queryURL_root = "http://" + IPaddress + ":8090/StreamingService/web/"
-    var queryURL_root =  IPaddress + ":3001/api/"
-    var queryURL_root2 = "http://" + IPaddress + ":3001/api/users/login/"
-    var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer"
-    var queryURL2 = "http://" + IPaddress + ":8090/StreamingService/web/EchoWithGet"
-    var queryURL3 = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
-    // var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer?username=analyst1&password=model"
-    // const proxyurl = "https://cors-anywhere.herokuapp.com/";
-    const proxyurl = "";
-    const pathname = "C:\Users\Administrator\Documents\ExtendSim10ASP_Prod\ASP\ASP Servers\ExtendSim Models\Analyst 1";
-
-    // const username = 'analyst1';
-    // const password = 'model';
-
-    $('.buttons').prop('disabled', true);
-    $('.scenario-input-file-buttons').prop('disabled', true);
-    $('.scenario-database-input-buttons').prop('disabled', true);
-    $('.scenario-dialog-input-buttons').prop('disabled', true);
-    $('.upload-dialog-inputs-button').prop('disabled', true);
-    $('.upload-database-inputs-button').prop('disabled', true);
-    $('.upload-files-button').prop('disabled', true);
-    $("#model-copied-status").prop('checked', false);
 
     enableDisableUploadFilesButton();
 
