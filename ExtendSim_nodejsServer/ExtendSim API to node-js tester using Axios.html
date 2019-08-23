@@ -595,7 +595,7 @@
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
         var newrow = 
-        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button>View data</button></td></tr>'
+        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="viewSourceDatabaseTableDataClicked(event)">View data</button></td></tr>'
         table.append(newrow);
         var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -620,6 +620,17 @@
         $("#database-outputs-table tr:last").remove();  
     }
 
+    function viewSourceDatabaseTableDataClicked(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+
+        var modelInfo = {
+            Modelpathname: $("#user-models").val(),
+            Databasename:  $("#source-database-" + rowIndex).val(),
+            Tablename: $("#source-table-" + rowIndex).val()
+        }
+        getDatabaseTableContentsStream(modelInfo);
+    }
     function updateBlockNumbersDropdown(rowIndex) {
         var blockType = '#block-type-select-' + rowIndex;
         var blockNumber = '#block-number-select-' + rowIndex;
@@ -787,45 +798,52 @@
             }
         })
         .then(function(response) {
-            modelInfo = response.data.ModelInfo;
+            var modelInfo = {
+                Modelpathname: $("#user-models").val(),
+                Databasename: response.data.ModelInfo.Databasename,
+                Tablename: response.data.ModelInfo.Tablename
+            }
             console.log("ModelInfo: " + JSON.stringify(modelInfo));
-            getDatabaseTableContentsStream(response.data.ModelInfo);
+            getDatabaseTableContentsStream(modelInfo)
         });
     }
     function getDatabaseTableContentsStream(modelInfo) {
+        alert('getDatabaseTableContentsStream: model pathname=' + modelInfo.Modelpathname + ' database=' + modelInfo.Databasename + ' table=' + modelInfo.Tablename);
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
             method: 'post',
             accept : 'application/json',
             contentType: 'application/json;charset=utf-8',
             data : {
-                modelpathname: $("#user-models").val(),
+                modelPathname: modelInfo.Modelpathname, 
                 databaseName: modelInfo.Databasename,
                 tableName: modelInfo.Tablename
             }
         })
         .then(function(response) {
-            modelBlockInfo = [];
-            response.data.tableDataArray.forEach(function(elements, index) {
-                modelBlockInfo.push(
-                {
-                    variableName: elements[0],
-                    dialogItemType: elements[1],
-                    blockName: elements[2],
-                    blockNumber: elements[3],
-                    tabname: elements[4],
-                    blockLabel: elements[5],
-                    enclosingHblockNumber: elements[6],
-                    enclosingHblockLabel: elements[7],  
-                });
-            })
-            modelBlocks = [];
-            var tempArray = [];
-            for (var i=0;i<modelBlockInfo.length;i++) {
-                tempArray.push(modelBlockInfo[i].blockName);
+            if (modelInfo.Tablename === 'ModelDialogVariables') {
+                modelBlockInfo = [];
+                response.data.tableDataArray.forEach(function(elements, index) {
+                    modelBlockInfo.push(
+                    {
+                        variableName: elements[0],
+                        dialogItemType: elements[1],
+                        blockName: elements[2],
+                        blockNumber: elements[3],
+                        tabname: elements[4],
+                        blockLabel: elements[5],
+                        enclosingHblockNumber: elements[6],
+                        enclosingHblockLabel: elements[7],  
+                    });
+                })
+                modelBlocks = [];
+                var tempArray = [];
+                for (var i=0;i<modelBlockInfo.length;i++) {
+                    tempArray.push(modelBlockInfo[i].blockName);
+                }
+                modelBlocks = Array.from(new Set(tempArray));
+                modelBlocks.sort();
             }
-            modelBlocks = Array.from(new Set(tempArray));
-            modelBlocks.sort();
         });       
     }
 

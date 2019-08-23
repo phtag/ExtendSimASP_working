@@ -406,7 +406,7 @@ module.exports = {
         var myheaders = { 
             accept: "application/json", 
             }; 
-        console.log("getdatabasetablecontentsstream: Getting database table contents for table=" + req.body.tableName);
+        console.log("getdatabasetablecontentsstream:  model pathname=" + req.body.modelPathname + " database=" + req.body.databaseName + " table=" + req.body.tableName);
         return axios({
             url: queryURL,
             method: 'get',
