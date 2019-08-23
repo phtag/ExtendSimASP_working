@@ -35,6 +35,36 @@
         margin-top: 10px;
         margin-right: 10px;
     }
+    #extendsim-asp-title-heading {
+        font-size: 23px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    #user-login-title-heading {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    #scenario-factors-title-heading {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    #submit-scenario-title-heading {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }    
+    #scenario-responses-title-heading {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
     #extendsim-asp-header {
         background-image:url(https://extendsim.com/templates/extendsim/images/ES_logo.gif);
         background-repeat:no-repeat;
@@ -141,6 +171,16 @@
         margin-bottom: 20px;
         margin-right: 20px;
     }
+    #show-database-outputs-label, #show-dialog-outputs-label {
+        font-size: 16px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    #show-database-outputs, #show-dialog-outputs {
+        margin-bottom: 20px;
+        margin-right: 20px;
+    }
     #scenario-input-files {
         border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
@@ -205,7 +245,9 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
     <header class="header" id="extendsim-asp-header"></header>     
     <div id="extendsim-asp-axios-tester-frame">
+        <header id="extendsim-asp-title-heading">ExtendSim ASP client testing interface</header>
         <div id="user-form">
+            <header id="user-login-title-heading">User Login</header>
             Username: <input class="login" id="username" type="text" name="username" value=""></input>
             Password: <input class="login" id="password" type="password" name="password" value=""></input>
             <br></br>
@@ -228,6 +270,7 @@
             <input id="model-copied-status" type="checkbox"></input>    
         </div>
         <div id="scenario-factors">
+            <header id="scenario-factors-title-heading">Scenario Factors</header>
             <div>
                 <label id="show-input-files-label">Show scenario input files table</label>
                 <input id="show-input-files" type="checkbox" onclick='updateInputFilesTableVisibility()'></input>    
@@ -301,6 +344,7 @@
             </div>
         </div>
         <div id="submit-simulation">
+            <header id="submit-scenario-title-heading">Scenario Submission</header>
             <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
             <label id="scenario-id-label">Scenario ID:</label>
             <input id="scenario-id"></input>
@@ -309,10 +353,15 @@
             <input id="scenario-status"></input>
         </div>
         <div id="scenario-responses">
+            <header id="scenario-responses-title-heading">Scenario Responses</header>
+            <div>
+                <label id="show-database-outputs-label">Show scenario database outputs table</label>
+                <input id="show-database-outputs" type="checkbox" onclick='updateDatabaseOutputsTableVisibility()'></input>    
+            </div>   
             <div id="scenario-database-outputs">
                 <h3>Scenario Database Outputs</h3>
-                <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
-                <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
+                <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow()'>Add row</button>
+                <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseOutputsTableRow()'>Delete row</button>
                 <table id="database-outputs-table" style="width:auto">
                     <tr>
                         <th>
@@ -321,11 +370,11 @@
                         <th>
                             Source Table
                         </th>
+                        <th>
+                            Data
+                        </th>
                     </tr>
                 </table>
-                <button class="upload-database-outputs-button" id="ExtendSim/sendfile">Download outputs from database tables</button>
-                <label id="database-outputs-uploaded-status-label">Files uploaded:</label>
-                <input id="database-outputs-uploaded-status" type="checkbox"></input>
             </div>           
         </div>
     </div>
@@ -342,6 +391,7 @@
     var inputFileTableRows = 0;
     var databaseInputsTableRows = 0;
     var dialogInputsTableRows = 0;
+    var databaseOutputsTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
 
@@ -362,16 +412,24 @@
     // const password = 'model';
 
     $('.buttons').prop('disabled', true);
-    $('#show-input-files').prop('checked', true);
-    $('#show-database-inputs').prop('checked', true);
-    $('#show-dialog-inputs').prop('checked', true);
+    $('#show-input-files').prop('checked', false);
+    $('#show-database-inputs').prop('checked', false);
+    $('#show-dialog-inputs').prop('checked', false);
+    $('#show-database-outputs').prop('checked', false);
     $('.scenario-input-file-buttons').prop('disabled', true);
     $('.scenario-database-input-buttons').prop('disabled', true);
     $('.scenario-dialog-input-buttons').prop('disabled', true);
+    $('.scenario-database-output-buttons').prop('disabled', true);
+    $('.scenario-dialog-output-buttons').prop('disabled', true);
     $('.upload-dialog-inputs-button').prop('disabled', true);
     $('.upload-database-inputs-button').prop('disabled', true);
     $('.upload-files-button').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
+
+    updateInputFilesTableVisibility();
+    updateDatabaseInputsTableVisibility();
+    updateDialogInputsTableVisibility();
+    updateDatabaseOutputsTableVisibility();
 
     function databasefilesSelected(event) {
         var files = $("#" + event.target.id)[0].files;
@@ -456,6 +514,14 @@
             $("#scenario-dialog-inputs").hide();
         }
     }
+    function updateDatabaseOutputsTableVisibility() {
+        if ($('#show-database-outputs'). prop("checked") == true) {
+            $("#scenario-database-outputs").show();
+        } else {
+            $("#scenario-database-outputs").hide();
+        }
+    }
+
     function addInputFilesTableRow() {
         var table = $("#input-files-table");
         inputFileTableRows++;
@@ -521,6 +587,35 @@
             dialogInputsTableRows--;
         }
         $("#dialog-inputs-table tr:last").remove();  
+    }
+
+    function addNewDatabaseOutputsTableRow() {
+        var table = $("#database-outputs-table");
+        databaseOutputsTableRows++;
+        var newrow = 
+        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button>View data</button></td></tr>'
+        table.append(newrow);
+        var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
+        for (var i = 0; i < modelDatabases.length; i++) {
+            $(sourceDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
+        }
+        if (modelDatabases.length > 0) {
+            $(sourceDatabase).val(modelDatabases[0].name);
+        }
+        var sourceTable = '#source-table-' + databaseOutputsTableRows;
+        for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
+            $(sourceTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
+        }
+        if (modelDatabases[0].tableNames.length > 0) {
+            $(sourceTable).val(modelDatabases[0].tableNames[0]);
+        }
+    }
+
+    function deleteDatabaseOutputsTableRow(event) {
+        if (databaseOutputsTableRows > 0) {
+            databaseOutputsTableRows--;
+        }
+        $("#database-outputs-table tr:last").remove();  
     }
 
     function updateBlockNumbersDropdown(rowIndex) {
@@ -880,6 +975,7 @@
                 $('.scenario-input-file-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
                 $('.scenario-dialog-input-buttons').prop('disabled', false);
+                $('.scenario-database-output-buttons').prop('disabled', false);
             }
         }
     });
