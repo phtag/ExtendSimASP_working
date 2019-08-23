@@ -250,17 +250,14 @@
             <header id="user-login-title-heading">User Login</header>
             Username: <input class="login" id="username" type="text" name="username" value=""></input>
             Password: <input class="login" id="password" type="password" name="password" value=""></input>
-            <br></br>
             <button class="buttons" id="users/login">Login to server</button>
             <label id="user-login-session-id-label">User Login Session ID:</label>
-            <input id="user-login-session-id"></input>    
-            <br></br> 
+            <input id="user-login-session-id"></input>
+            <br></br>  
             <button class="buttons" id="ExtendSim/getUserModelPaths">Get user model paths</button>
             <select id="user-models"></select>
-            <br></br>   
-            <label id="scenario-name-label">Scenario name:</label>
-            <input id="scenario-name"></input>
-            <br></br>
+        </div>
+        <div id="server-actions">
             <button class="buttons" id="ExtendSim/createScenarioFolder">Create scenario folder</button>
             <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
             <input id="user-scenario-folder-pathname"></input>
@@ -343,15 +340,6 @@
                 <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
             </div>
         </div>
-        <div id="submit-simulation">
-            <header id="submit-scenario-title-heading">Scenario Submission</header>
-            <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
-            <label id="scenario-id-label">Scenario ID:</label>
-            <input id="scenario-id"></input>
-            <button class="buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
-            <label id="scenario-status-label">Scenario status:</label>
-            <input id="scenario-status"></input>
-        </div>
         <div id="scenario-responses">
             <header id="scenario-responses-title-heading">Scenario Responses</header>
             <div>
@@ -377,6 +365,18 @@
                 </table>
             </div>           
         </div>
+        <div id="submit-simulation">
+            <header id="submit-scenario-title-heading">Scenario Submission</header>
+            <label id="scenario-name-label">Scenario name:</label>
+            <input id="scenario-name"></input>
+            <br></br>
+            <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
+            <label id="scenario-id-label">Scenario ID:</label>
+            <input id="scenario-id"></input>
+            <button class="buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
+            <label id="scenario-status-label">Scenario status:</label>
+            <input id="scenario-status"></input>
+        </div>    
     </div>
     <script type="text/javascript">
     var modelBlocks = [];
@@ -425,6 +425,8 @@
     $('.upload-database-inputs-button').prop('disabled', true);
     $('.upload-files-button').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
+
+    $("#server-actions").hide();
 
     updateInputFilesTableVisibility();
     updateDatabaseInputsTableVisibility();
