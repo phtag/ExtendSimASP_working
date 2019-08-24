@@ -35,6 +35,45 @@
         margin-top: 10px;
         margin-right: 10px;
     }
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  overflow: scroll;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 70%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
     #extendsim-asp-title-heading {
         font-size: 23px;
         font-weight: bold;
@@ -238,12 +277,25 @@
         width: auto;
         clear: left;
     }
+    #myModel {
+        overflow: scroll;
+    }
     </style>
 </head>
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
-    <header class="header" id="extendsim-asp-header"></header>     
+    <header class="header" id="extendsim-asp-header"></header>   
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div>
+                <table id="selected-database-outputs-table" style="width:auto">  
+                </table>
+            </div>
+            <button id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+        </div>
+    </div>  
     <div id="extendsim-asp-axios-tester-frame">
         <header id="extendsim-asp-title-heading">ExtendSim ASP client testing interface</header>
         <div id="user-form">
@@ -377,10 +429,6 @@
             <label id="scenario-status-label">Scenario status:</label>
             <input id="scenario-status"></input>
         </div>    
-        <div>
-            <table id="selected-database-outputs-table" style="width:auto">  
-            </table>
-        </div>
     </div>
     <script type="text/javascript">
     var modelBlocks = [];
@@ -601,7 +649,7 @@
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
         var newrow = 
-        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="viewSourceDatabaseTableDataClicked(event)">View data</button></td></tr>'
+        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td></tr>'
         table.append(newrow);
         var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -626,7 +674,13 @@
         $("#database-outputs-table tr:last").remove();  
     }
 
-    function viewSourceDatabaseTableDataClicked(event) {
+    function openViewDatabaseTableContentsForm() {
+        
+    }
+    function closeDatabaseTableContentsModal() {
+        $("#myModal").hide();
+    }
+    function openDatabaseTableContentsModal(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
 
@@ -636,7 +690,6 @@
             Tablename: $("#source-table-" + rowIndex).val()
         }
         getDatabaseTableContentsStream(modelInfo);
-
     }
     function updateBlockNumbersDropdown(rowIndex) {
         var blockType = '#block-type-select-' + rowIndex;
@@ -815,7 +868,6 @@
         });
     }
     function getDatabaseTableContentsStream(modelInfo) {
-        alert('getDatabaseTableContentsStream: model pathname=' + modelInfo.Modelpathname + ' database=' + modelInfo.Databasename + ' table=' + modelInfo.Tablename);
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
             method: 'post',
@@ -867,6 +919,7 @@
                 });
                 $("#selected-database-outputs-table").empty(); 
                 $("#selected-database-outputs-table").append(tableDataHtmlCode); 
+                $("#myModal").show();
             }
         });       
     }
