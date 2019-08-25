@@ -46,7 +46,7 @@
         top: 0;
         width: 100%; /* Full width */
         height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
+        /* overflow: auto;  */
         background-color: rgb(0,0,0); /* Fallback color */
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
@@ -55,29 +55,32 @@
     .modal-content {
         background-color: #fefefe;
         margin: auto;
-        overflow: scroll;
+        overflow: auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 70%;
+        width: 80%;
+        height: 80%;
     }
-    th {
+    #selected-database-outputs-table {
+    }
+    #database-outputs-table th {
         background-color: #4CAF50;
         color: white;
     }
 /* The Close Button */
-.close {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
 
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
     #extendsim-asp-title-heading {
         font-size: 23px;
         font-weight: bold;
@@ -136,6 +139,11 @@
     #input-files-table, #database-inputs-table, #dialog-inputs-table {
         background-color: #ecedf0;
     }
+    #input-files-table th, #database-inputs-table th, #dialog-inputs-table th {
+        background-color: rgb(251, 140, 76);
+        color: white;
+    }
+
     #user-form {
         width: auto;
         padding: 20px;
@@ -293,11 +301,12 @@
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <div class="modal-content">
-            <div>
+            <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+            <!-- <div style="overflow:auto"> -->
+            <div >
                 <table id="selected-database-outputs-table" style="width:auto">  
                 </table>
             </div>
-            <button id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
         </div>
     </div>  
     <div id="extendsim-asp-axios-tester-frame">
@@ -803,7 +812,6 @@
     }
     
     function getModelDatabaseTableFields(modelpathname, databasename, tablename) {   
-        alert('Calling getModelDatabaseTableFields...');
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetablefields",
             method: 'post',
@@ -817,7 +825,6 @@
             }
         })
         .then(function(response) {
-            alert('Hep deh');
             tableSchema = response.data.modelDatabaseTableFields;
             tableDataHtmlCode = '';
             tableDataHtmlCode += '<tr>';
