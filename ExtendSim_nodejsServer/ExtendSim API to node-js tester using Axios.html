@@ -439,6 +439,7 @@
     var selectedFiles = [];
     var selectedDatabaseFiles = [];
     var modelDatabases = [];
+    var tableSchema = {};
     var modelBlockInfo;
     var tableDataArray = [];
     var inputFileTableRows = 0;
@@ -689,7 +690,7 @@
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
-        getDatabaseTableContentsStream(modelInfo);
+        getDatabaseTableContentsStream(modelInfo, true);
     }
     function updateBlockNumbersDropdown(rowIndex) {
         var blockType = '#block-type-select-' + rowIndex;
@@ -797,6 +798,41 @@
         reader.readAsText(selectedFiles[fileIndex]);
     }
     
+    function getModelDatabaseTableFields(modelpathname, databasename, tablename) {   
+        alert('Calling getModelDatabaseTableFields...');
+        axios({
+            url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetablefields",
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                modelpathname: modelpathname,
+                databasename: databasename,
+                tablename: tablename,
+                closeModel: true
+            }
+        })
+        .then(function(response) {
+            alert('Hep deh');
+            tableSchema = response.data.modelDatabaseTableFields;
+            tableDataHtmlCode = '';
+            tableDataHtmlCode += '<tr>';
+            for (var i=0;i<tableSchema.fields.length;i++) {
+                tableDataHtmlCode += '<th>' + tableSchema.fields[i] + '</th>';
+            }
+            tableDataArray.forEach(function(elements, index) {
+                tableDataHtmlCode += '<tr>';
+                    for (var i=0;i<elements.length;i++) {
+                        tableDataHtmlCode += '<td>' + elements[i] + '</td>';
+                    }
+                // }
+                tableDataHtmlCode += '</tr>';
+            });
+            $("#selected-database-outputs-table").empty(); 
+            $("#selected-database-outputs-table").append(tableDataHtmlCode); 
+            $("#myModal").show();
+        });
+    }
     function getmodeldatabases() {
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabases",
@@ -867,7 +903,7 @@
             getDatabaseTableContentsStream(modelInfo)
         });
     }
-    function getDatabaseTableContentsStream(modelInfo) {
+    function getDatabaseTableContentsStream(modelInfo, getFieldInfo) {
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
             method: 'post',
@@ -903,23 +939,25 @@
                 modelBlocks = Array.from(new Set(tempArray));
                 modelBlocks.sort();
             } else {
-                tableDataHtmlCode = '';
-                response.data.tableDataArray.forEach(function(elements, index) {
-                    tableDataHtmlCode += '<tr>';
+                tableDataArray = response.data.tableDataArray;
+                getModelDatabaseTableFields(modelInfo.Modelpathname, modelInfo.Databasename, modelInfo.Tablename);
+                // tableDataHtmlCode = '';
+                // response.data.tableDataArray.forEach(function(elements, index) {
+                //     tableDataHtmlCode += '<tr>';
                     // if (index === 0) {
                     //     for (var i=0;i<elements.length;i++) {
                     //         tableDataHtmlCode += '<th>' + elements[i] + '</th>';
                     //     }
                     // } else {
-                        for (var i=0;i<elements.length;i++) {
-                            tableDataHtmlCode += '<td>' + elements[i] + '</td>';
-                        }
-                    // }
-                    tableDataHtmlCode += '</tr>';
-                });
-                $("#selected-database-outputs-table").empty(); 
-                $("#selected-database-outputs-table").append(tableDataHtmlCode); 
-                $("#myModal").show();
+            //             for (var i=0;i<elements.length;i++) {
+            //                 tableDataHtmlCode += '<td>' + elements[i] + '</td>';
+            //             }
+            //         // }
+            //         tableDataHtmlCode += '</tr>';
+            //     });
+            //     $("#selected-database-outputs-table").empty(); 
+            //     $("#selected-database-outputs-table").append(tableDataHtmlCode); 
+            //     $("#myModal").show();
             }
         });       
     }
