@@ -4,6 +4,8 @@
 <head>
   <meta charset="utf-8">
   <title>ExtendSim ASP API tester</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <style>
     table, th, td {
       border: 1px solid black;
@@ -42,7 +44,7 @@
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
-        padding-top: 100px; /* Location of the box */
+        padding-top: 200px; /* Location of the box */
         left: 0;
         top: 0;
         width: 100%; /* Full width */
@@ -62,6 +64,7 @@
         border: 1px solid #888;
         width: 80%;
         height: 60%;
+        align-content: center;
     }
     div#load_screen {
         background: black;
@@ -82,14 +85,22 @@
         height: 20px;
         margin: 300px auto;
     }
+    #selected-response-table-name-label {
+        font-size: 18px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
     #model-buttons {
-        margin-left: 10%;
-        margin-top: 0%;
-        margin-bottom: 20px;
-        position: absolute;
+        padding: 20px;
+        /* margin-left: 20px;
+        margin-top: -80px;
+        margin-bottom: 10px; */
+        margin: -80px auto 10px;
+        width: 30%;
+        /* position: absolute; */
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 20px;
+        font-size: 14px;
+        background-color: #FFFFFF;
     }
     #selected-database-outputs-table th {
         background-color: rgb(251, 119, 119);
@@ -202,7 +213,7 @@
         width: 300px;
     }
     #user-login-session-id-label {
-        margin-left: 20px;
+        /* margin-left: 20px; */
     }
     #user-scenario-folder-pathname {
         width: 600px;
@@ -337,19 +348,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
     <header class="header" id="extendsim-asp-header"></header>   
-    <div id="load_screen"><div id="loading">Loading data from server...</div></div>
+    <div id="load_screen"><div id="loading">Loading data from server. Please wait...</div></div>
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <div id="model-buttons">
             <!-- <button class="buttons" id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export table data</button> -->
-            <button id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export table data</button>
-            <button id="chart-database-table-contents-modal" onclick="chartDatabaseTableContentsModal(event)">Show chart</button>        
-            <button id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
-        </div>  
+            <!-- <button id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export table data</button>
+            <button id="chart-database-table-contents-modal" onclick="showDatabaseTableContentsChartModal(event)">Show chart</button>         -->
+            <label id="selected-response-table-name-label">Table name:</label>
+            <input id="selected-response-table-name"></input>
+            <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+       </div>  
         <div class="modal-content">
             <div id="modal-table">
                 <table id="selected-database-outputs-table" style="width:auto">  
                 </table>
+            </div>
+            <div class="container">
+                <canvas id="myChart"></canvas>
             </div>
         </div>
     </div>  
@@ -360,6 +376,7 @@
             Username: <input class="login" id="username" type="text" name="username" value=""></input>
             Password: <input class="login" id="password" type="password" name="password" value=""></input>
             <button class="buttons" id="users/login">Login to server</button>
+            <br></br>
             <label id="user-login-session-id-label">User Login Session ID:</label>
             <input id="user-login-session-id"></input>
             <br></br>  
@@ -473,6 +490,12 @@
                         <th>
                             Data
                         </th>
+                        <th>
+                            Chart
+                        </th>
+                        <th>
+                            Export
+                        </th>           
                     </tr>
                 </table>
             </div>           
@@ -538,6 +561,7 @@
     $('.upload-files-button').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
     $("#server-actions").hide();
+    $('#myChart').hide();
 
     updateInputFilesTableVisibility();
     updateDatabaseInputsTableVisibility();
@@ -545,6 +569,10 @@
     updateDatabaseOutputsTableVisibility();
     updateLoadingDivVisibility(false);
 
+    function showDatabaseTableContentsChartModal() {
+        $('#myChart').show();
+        $('#modal-table').hide();
+    }
     function updateLoadingDivVisibility(show) {
         if (show) {
             $('#load_screen').show();
@@ -717,7 +745,7 @@
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
         var newrow = 
-        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td></tr>'
+        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onclick="openExportDatabaseTableContentsModal(event)">Export data</button></td></tr>'
         table.append(newrow);
         var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -757,6 +785,8 @@
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
+        $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
+        updateLoadingDivVisibility(true);
         getDatabaseTableContentsStream(modelInfo, true);
     }
     function updateBlockNumbersDropdown(rowIndex) {
@@ -896,6 +926,7 @@
             $("#selected-database-outputs-table").empty(); 
             $("#selected-database-outputs-table").append(tableDataHtmlCode); 
             $("#myModal").show();
+            updateLoadingDivVisibility(false);
         });
     }
     function getmodeldatabases() {
