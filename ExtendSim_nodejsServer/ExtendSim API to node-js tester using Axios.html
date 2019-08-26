@@ -38,6 +38,7 @@
     /* The Modal (background) */
     .modal {
         font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
@@ -94,6 +95,12 @@
         background-color: rgb(251, 119, 119);
         color: white;
         position: sticky; top: -20px;
+    }
+    #selected-database-outputs-table tb {
+        background-color: rgb(255, 255, 255);
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
     }
     #database-outputs-table th {
         background-color: #4CAF50;
@@ -340,11 +347,6 @@
             <button id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
         </div>  
         <div class="modal-content">
-            <!-- <div id="model-buttons">
-                <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
-                <button class="buttons" id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export</button>
-                <button class="buttons" id="chart-database-table-contents-modal" onclick="chartDatabaseTableContentsModal(event)">Chart</button>        
-            </div>   -->
             <div id="modal-table">
                 <table id="selected-database-outputs-table" style="width:auto">  
                 </table>
@@ -1005,23 +1007,6 @@
             } else {
                 tableDataArray = response.data.tableDataArray;
                 getModelDatabaseTableFields(modelInfo.Modelpathname, modelInfo.Databasename, modelInfo.Tablename);
-                // tableDataHtmlCode = '';
-                // response.data.tableDataArray.forEach(function(elements, index) {
-                //     tableDataHtmlCode += '<tr>';
-                    // if (index === 0) {
-                    //     for (var i=0;i<elements.length;i++) {
-                    //         tableDataHtmlCode += '<th>' + elements[i] + '</th>';
-                    //     }
-                    // } else {
-            //             for (var i=0;i<elements.length;i++) {
-            //                 tableDataHtmlCode += '<td>' + elements[i] + '</td>';
-            //             }
-            //         // }
-            //         tableDataHtmlCode += '</tr>';
-            //     });
-            //     $("#selected-database-outputs-table").empty(); 
-            //     $("#selected-database-outputs-table").append(tableDataHtmlCode); 
-            //     $("#myModal").show();
             }
         });       
     }
