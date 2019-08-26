@@ -50,7 +50,8 @@
         background-color: rgb(0,0,0); /* Fallback color */
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
-
+    #modal-table {
+    }
     /* Modal Content */
     .modal-content {
         background-color: #fefefe;
@@ -59,7 +60,7 @@
         padding: 20px;
         border: 1px solid #888;
         width: 80%;
-        height: 80%;
+        height: 60%;
     }
     div#load_screen {
         background: black;
@@ -80,13 +81,19 @@
         height: 20px;
         margin: 300px auto;
     }
-
-    #close-database-table-contents-modal, #export-database-table-contents-modal, #chart-database-table-contents-modal {
-        /* position: fixed; */
+    #model-buttons {
+        margin-left: 10%;
+        margin-top: 0%;
+        margin-bottom: 20px;
+        position: absolute;
+        z-index: 100;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
     }
     #selected-database-outputs-table th {
-        background-color: rgb(255, 66, 66);
+        background-color: rgb(251, 119, 119);
         color: white;
+        position: sticky; top: -20px;
     }
     #database-outputs-table th {
         background-color: #4CAF50;
@@ -326,11 +333,19 @@
     <div id="load_screen"><div id="loading">Loading data from server...</div></div>
     <!-- The Modal -->
     <div id="myModal" class="modal">
+        <div id="model-buttons">
+            <!-- <button class="buttons" id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export table data</button> -->
+            <button id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export table data</button>
+            <button id="chart-database-table-contents-modal" onclick="chartDatabaseTableContentsModal(event)">Show chart</button>        
+            <button id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+        </div>  
         <div class="modal-content">
-            <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
-            <button class="buttons" id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export</button>
-            <button class="buttons" id="chart-database-table-contents-modal" onclick="chartDatabaseTableContentsModal(event)">Chart</button>
-            <div >
+            <!-- <div id="model-buttons">
+                <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+                <button class="buttons" id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export</button>
+                <button class="buttons" id="chart-database-table-contents-modal" onclick="chartDatabaseTableContentsModal(event)">Chart</button>        
+            </div>   -->
+            <div id="modal-table">
                 <table id="selected-database-outputs-table" style="width:auto">  
                 </table>
             </div>
