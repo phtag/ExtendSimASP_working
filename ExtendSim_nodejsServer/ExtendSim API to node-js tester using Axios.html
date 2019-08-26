@@ -61,7 +61,32 @@
         width: 80%;
         height: 80%;
     }
-    #selected-database-outputs-table {
+    div#load_screen {
+        background: black;
+        opacity: .8;
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 20;
+    }
+    div#load_screen > #loading {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 30px;
+        text-align: center;
+        font-weight: bold;
+        color: #FFFFFF;
+        width: 50%;
+        height: 20px;
+        margin: 300px auto;
+    }
+
+    #close-database-table-contents-modal, #export-database-table-contents-modal, #chart-database-table-contents-modal {
+        /* position: fixed; */
+    }
+    #selected-database-outputs-table th {
+        background-color: rgb(255, 66, 66);
+        color: white;
     }
     #database-outputs-table th {
         background-color: #4CAF50;
@@ -298,11 +323,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
     <header class="header" id="extendsim-asp-header"></header>   
+    <div id="load_screen"><div id="loading">Loading data from server...</div></div>
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <div class="modal-content">
             <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
-            <!-- <div style="overflow:auto"> -->
+            <button class="buttons" id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export</button>
+            <button class="buttons" id="chart-database-table-contents-modal" onclick="chartDatabaseTableContentsModal(event)">Chart</button>
             <div >
                 <table id="selected-database-outputs-table" style="width:auto">  
                 </table>
@@ -493,13 +520,23 @@
     $('.upload-database-inputs-button').prop('disabled', true);
     $('.upload-files-button').prop('disabled', true);
     $("#model-copied-status").prop('checked', false);
-
     $("#server-actions").hide();
 
     updateInputFilesTableVisibility();
     updateDatabaseInputsTableVisibility();
     updateDialogInputsTableVisibility();
     updateDatabaseOutputsTableVisibility();
+    updateLoadingDivVisibility(false);
+
+    function updateLoadingDivVisibility(show) {
+        if (show) {
+            $('#load_screen').show();
+            $('#loading').show();
+        } else {
+            $('#load_screen').hide();
+            $('#loading').hide();
+        }
+    }
 
     function databasefilesSelected(event) {
         var files = $("#" + event.target.id)[0].files;
@@ -949,6 +986,7 @@
                 }
                 modelBlocks = Array.from(new Set(tempArray));
                 modelBlocks.sort();
+                updateLoadingDivVisibility(false);
             } else {
                 tableDataArray = response.data.tableDataArray;
                 getModelDatabaseTableFields(modelInfo.Modelpathname, modelInfo.Databasename, modelInfo.Tablename);
@@ -1021,6 +1059,7 @@
 
         case 'ExtendSim/getUserModelPaths':
 
+            updateLoadingDivVisibility(true);
             axios({
                 url: proxyurl + queryURL_root + this.id,
                 method: 'post',
