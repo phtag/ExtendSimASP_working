@@ -449,6 +449,7 @@
                 <h3>Scenario Dialog Inputs</h3>
                 <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
                 <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
+                <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
                 <table id="dialog-inputs-table" style="width:auto">
                     <tr>
                         <th>
@@ -523,9 +524,9 @@
     var selectedFiles = [];
     var selectedDatabaseFiles = [];
     var modelDatabases = [];
-    var tableSchema = {};
+    var g_tableSchema = {};
+    var g_tableDataArray = [];
     var modelBlockInfo;
-    var tableDataArray = [];
     var inputFileTableRows = 0;
     var databaseInputsTableRows = 0;
     var dialogInputsTableRows = 0;
@@ -572,6 +573,32 @@
     updateDialogInputsTableVisibility();
     updateDatabaseOutputsTableVisibility();
     updateLoadingDivVisibility(false);
+
+    function displayTableContents(modelDatabaseTableFields) {
+        g_tableSchema = modelDatabaseTableFields;
+        tableDataHtmlCode = '';
+        tableDataHtmlCode += '<tr>';
+        for (var i=0;i<g_tableSchema.fields.length;i++) {
+            tableDataHtmlCode += '<th>' + g_tableSchema.fields[i] + '</th>';
+        }
+        g_tableDataArray.forEach(function(elements, index) {
+            tableDataHtmlCode += '<tr>';
+                for (var i=0;i<elements.length;i++) {
+                    tableDataHtmlCode += '<td>' + elements[i] + '</td>';
+                }
+            // }
+            tableDataHtmlCode += '</tr>';
+        });
+        $("#selected-database-outputs-table").empty(); 
+        $("#selected-database-outputs-table").append(tableDataHtmlCode); 
+        $("#myModal").show();
+        updateLoadingDivVisibility(false);
+    }
+
+    function displayTableChart(modelDatabaseTableFields) {
+        g_tableSchema = modelDatabaseTableFields;
+        updateLoadingDivVisibility(false);
+    }
 
     function showDatabaseTableContentsChartModal() {
         $('#myChart').show();
@@ -791,8 +818,23 @@
         }
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
         updateLoadingDivVisibility(true);
-        getDatabaseTableContentsStream(modelInfo, true);
+        getDatabaseTableContentsStream(modelInfo, true, displayTableContents);
     }
+    
+    function openViewDatabaseTableChartModal(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+
+        var modelInfo = {
+            Modelpathname: $("#user-models").val(),
+            Databasename:  $("#source-database-" + rowIndex).val(),
+            Tablename: $("#source-table-" + rowIndex).val()
+        }
+        $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
+        updateLoadingDivVisibility(true);
+        getDatabaseTableContentsStream(modelInfo, true, displayTableChart);
+    }
+
     function updateBlockNumbersDropdown(rowIndex) {
         var blockType = '#block-type-select-' + rowIndex;
         var blockNumber = '#block-number-select-' + rowIndex;
@@ -899,7 +941,7 @@
         reader.readAsText(selectedFiles[fileIndex]);
     }
     
-    function getModelDatabaseTableFields(modelpathname, databasename, tablename) {   
+    function getModelDatabaseTableFields(modelpathname, databasename, tablename, callback) {   
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetablefields",
             method: 'post',
@@ -913,27 +955,28 @@
             }
         })
         .then(function(response) {
-            tableSchema = response.data.modelDatabaseTableFields;
-            tableDataHtmlCode = '';
-            tableDataHtmlCode += '<tr>';
-            for (var i=0;i<tableSchema.fields.length;i++) {
-                tableDataHtmlCode += '<th>' + tableSchema.fields[i] + '</th>';
-            }
-            tableDataArray.forEach(function(elements, index) {
-                tableDataHtmlCode += '<tr>';
-                    for (var i=0;i<elements.length;i++) {
-                        tableDataHtmlCode += '<td>' + elements[i] + '</td>';
-                    }
-                // }
-                tableDataHtmlCode += '</tr>';
-            });
-            $("#selected-database-outputs-table").empty(); 
-            $("#selected-database-outputs-table").append(tableDataHtmlCode); 
-            $("#myModal").show();
-            updateLoadingDivVisibility(false);
+            callback(response.data.modelDatabaseTableFields);
+            // g_tableSchema = response.data.modelDatabaseTableFields;
+            // tableDataHtmlCode = '';
+            // tableDataHtmlCode += '<tr>';
+            // for (var i=0;i<g_tableSchema.fields.length;i++) {
+            //     tableDataHtmlCode += '<th>' + g_tableSchema.fields[i] + '</th>';
+            // }
+            // g_tableDataArray.forEach(function(elements, index) {
+            //     tableDataHtmlCode += '<tr>';
+            //         for (var i=0;i<elements.length;i++) {
+            //             tableDataHtmlCode += '<td>' + elements[i] + '</td>';
+            //         }
+            //     // }
+            //     tableDataHtmlCode += '</tr>';
+            // });
+            // $("#selected-database-outputs-table").empty(); 
+            // $("#selected-database-outputs-table").append(tableDataHtmlCode); 
+            // $("#myModal").show();
+            // updateLoadingDivVisibility(false);
         });
     }
-    function getmodeldatabases() {
+    function getmodeldatabases(callback) {
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabases",
             method: 'post',
@@ -950,12 +993,7 @@
                 if (response.data.modelDatabases[i].charAt(0) !== "_") {
                     modelDatabases.push({ name: response.data.modelDatabases[i],
                                           tableNames: [] });
-                    if (modelDatabases.length === 1) {
-                        getDatabaseTables(modelDatabases.length - 1, getModelInfo);
-                        // getDatabaseTables(modelDatabases.length - 1, '');
-                    } else {
-                        getDatabaseTables(modelDatabases.length - 1, '');
-                    }
+                    getDatabaseTables(modelDatabases.length - 1, callback);
                 }
             };
         });
@@ -976,9 +1014,7 @@
         .then(function(response) {
             modelDatabases[databaseIndex].tableNames = response.data.modelDatabaseTables;
             modelDatabases[databaseIndex].tableNames.sort();
-            if (callback !== '') {
-                callback();
-            }
+            callback();
         });
     }
 
@@ -1000,10 +1036,10 @@
                 Tablename: response.data.ModelInfo.Tablename
             }
             console.log("ModelInfo: " + JSON.stringify(modelInfo));
-            getDatabaseTableContentsStream(modelInfo)
+            getDatabaseTableContentsStream(modelInfo, false, "");
         });
     }
-    function getDatabaseTableContentsStream(modelInfo, getFieldInfo) {
+    function getDatabaseTableContentsStream(modelInfo, getFieldInfo, callback) {
         axios({
             url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
             method: 'post',
@@ -1040,8 +1076,9 @@
                 modelBlocks.sort();
                 updateLoadingDivVisibility(false);
             } else {
-                tableDataArray = response.data.tableDataArray;
-                getModelDatabaseTableFields(modelInfo.Modelpathname, modelInfo.Databasename, modelInfo.Tablename);
+                // save results globally
+                g_tableDataArray = response.data.tableDataArray;
+                getModelDatabaseTableFields(modelInfo.Modelpathname, modelInfo.Databasename, modelInfo.Tablename, callback);
             }
         });       
     }
@@ -1113,7 +1150,7 @@
                     $('#user-models').val(userModelPaths[0]);
                 }
                 this.enableDisableCopyModelToScenarioFolderButton();
-                getmodeldatabases();
+                getmodeldatabases(getModelInfo);
             });
             break;
 
