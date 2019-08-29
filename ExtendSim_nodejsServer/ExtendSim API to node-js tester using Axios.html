@@ -52,8 +52,6 @@
         background-color: rgb(0,0,0); /* Fallback color */
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
-    #model-form-contents {
-    }
     /* Modal Content */
     .modal-content {
         background-color: #fefefe;
@@ -90,12 +88,8 @@
     }
     #model-buttons {
         padding: 20px;
-        /* margin-left: 20px;
-        margin-top: -80px;
-        margin-bottom: 10px; */
         margin: -80px auto 10px;
         width: 30%;
-        /* position: absolute; */
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
@@ -119,7 +113,6 @@
         color: white;
         text-align: center;
     }
-/* The Close Button */
     .close {
         color: #aaaaaa;
         float: right;
@@ -145,11 +138,10 @@
         text-align: center;
         margin-bottom: 20px;
     }
-    #scenario-factors-title-heading {
+    #scenario-factors-title-heading, #scenario-responses-title-heading {
         font-size: 20px;
         font-weight: bold;
         text-align: center;
-        /* margin-bottom: 20px; */
     }
     #submit-scenario-title-heading {
         font-size: 20px;
@@ -157,12 +149,6 @@
         text-align: center;
         margin-bottom: 20px;
     }    
-    #scenario-responses-title-heading {
-        font-size: 20px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 20px;
-    }
     #extendsim-asp-header {
         background-image:url(https://extendsim.com/templates/extendsim/images/ES_logo.gif);
         background-repeat:no-repeat;
@@ -196,7 +182,6 @@
         color: white;
         text-align: center;
     }
-
     #user-form {
         width: auto;
         padding: 20px;
@@ -214,9 +199,6 @@
 
     #user-login-session-id {
         width: 300px;
-    }
-    #user-login-session-id-label {
-        /* margin-left: 20px; */
     }
     #user-scenario-folder-pathname {
         width: 600px;
@@ -245,16 +227,6 @@
     }
     #scenario-status-label {
         margin-left: 20px;
-    }
-    #show-input-files-label, #show-database-inputs-label, #show-dialog-inputs-label {
-        font-size: 16px;
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-    #show-input-files, #show-database-inputs, #show-dialog-inputs {
-        margin-bottom: 20px;
-        margin-right: 20px;
     }
     #scenario-factors, #scenario-responses {
         border: 2px solid rgb(0, 0, 0);
@@ -367,7 +339,7 @@
             <header id="scenario-factors-title-heading">Factors</header>
             <div id="scenario-file-inputs">
                 <div id="scenario-file-inputs-header">
-                    <label id="scenario-file-inputs-checkbox-label">Files</label>
+                    <label id="scenario-file-inputs-checkbox-label">Model Files</label>
                     <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'></input>    
                 </div>
                 <div id="scenario-file-inputs-body">
@@ -509,6 +481,7 @@
     var databaseOutputsTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
+    var numDatabaseFilesUploaded = 0;
     var tableDataHtmlCode = "";
 
     const IPaddress = "http://184.171.246.58";
@@ -635,6 +608,8 @@
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
+            alert('Uploading contents=' + contents);
+
             uploadedFiles[numFilesUploaded].data = contents;
            numFilesUploaded++;
         };
@@ -649,8 +624,9 @@
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
-            uploadedDatabaseFiles[numFilesUploaded].data = contents;
-           numFilesUploaded++;
+            alert('Uploading contents=' + contents);
+            uploadedDatabaseFiles[numDatabaseFilesUploaded].data = contents;
+            numDatabaseFilesUploaded++;
         };
 
         if (file) {
