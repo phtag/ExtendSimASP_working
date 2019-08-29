@@ -20,10 +20,10 @@
         margin-right: 20px;
     }
     .input-file-row {
-        width: 350px;
+        width: auto;
     }
     .database-input-row {
-        width: 350px;
+        width: auto;
     }
     .upload-files-button {
         margin-top: 10px;
@@ -49,7 +49,6 @@
         top: 0;
         width: 100%; /* Full width */
         height: 100%; /* Full height */
-        /* overflow: auto;  */
         background-color: rgb(0,0,0); /* Fallback color */
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
@@ -150,7 +149,7 @@
         font-size: 20px;
         font-weight: bold;
         text-align: center;
-        margin-bottom: 20px;
+        /* margin-bottom: 20px; */
     }
     #submit-scenario-title-heading {
         font-size: 20px;
@@ -189,10 +188,10 @@
         font-family: Arial, Helvetica, sans-serif;
         font-weight: bold;
     }
-    #input-files-table, #database-inputs-table, #dialog-inputs-table {
+    #file-inputs-table, #database-inputs-table, #dialog-inputs-table {
         background-color: #ecedf0;
     }
-    #input-files-table th, #database-inputs-table th, #dialog-inputs-table th {
+    #file-inputs-table th, #database-inputs-table th, #dialog-inputs-table th {
         background-color: rgb(251, 140, 76);
         color: white;
         text-align: center;
@@ -237,20 +236,10 @@
     #user-scenario-folder-pathname {
         margin-right: 20px;
     }
-    #scenario-factors {
-        border: 2px solid rgb(0, 0, 0);
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        /* margin-right: 10px; */
-        width: auto;
-        background-color:rgb(221, 220, 220);
-        overflow: auto;
-    }
     #scenario-responses {
         border: 2px solid rgb(0, 0, 0);
         border-radius: 10px;
-        padding: 20px;
+        padding-top: 20px; 
         margin-bottom: 20px;
         /* margin-right: 10px; */
         width: auto;
@@ -276,7 +265,7 @@
         margin-bottom: 20px;
         margin-right: 20px;
     }
-    #show-files-checkbox {
+    #scenario-file-inputs-checkbox {
         /* margin-bottom: 20px; */
     }
     #show-database-outputs-label, #show-dialog-outputs-label {
@@ -289,48 +278,35 @@
         margin-bottom: 20px;
         margin-right: 20px;
     }
-    #scenario-input-files {
+    #scenario-factors {
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 10px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        width: auto;
+        background-color:rgb(221, 220, 220);
+        overflow: auto;    
+        text-align: center;    
+    }
+    #scenario-file-inputs, #scenario-database-inputs, #scenario-dialog-inputs {
         border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-bottom: 20px;
-        padding-top: 20px;
-        margin-bottom: 20px;
-        margin-right: 10px;
-        width: auto;
+        padding: 20px;
+        margin: 1%;
+        /* width: auto; */
+        width: 25%;
         background-color:rgb(253, 246, 204);
-        float: left;
+        display: inline-block;
     }
-    #scenario-input-files-header {
+    #scenario-file-inputs-header, #scenario-database-inputs-header, #scenario-dialog-inputs-header, #scenario-database-outputs-header {
         text-align: center;
     }
-    #scenario-input-files-body {
+    #scenario-file-inputs-body, #scenario-database-inputs-body, #scenario-dialog-inputs-body, #scenario-database-outputs-body {
         margin: 20px;
-    }
-    #scenario-database-inputs {
-        border: 2px solid rgb(255, 94, 0);
-        border-radius: 10px;
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-bottom: 20px;
-        margin-bottom: 20px;
-        margin-right: 10px;
-        background-color:rgb(253, 246, 204);
         width: auto;
-        float: left;
-    }
-
-    #scenario-dialog-inputs {
-        border: 2px solid rgb(255, 94, 0);
-        border-radius: 10px;
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-bottom: 20px;
-        margin-bottom: 20px;
-        background-color: rgb(253, 246, 204);
-        width: auto;
-        float: left;
+        text-align: left;
+        overflow-x: auto;
     }
     #scenario-database-outputs {
         border: 2px solid rgb(13, 88, 0);
@@ -394,7 +370,7 @@
             <label id="user-login-session-id-label">User Login Session ID:</label>
             <input id="user-login-session-id"></input>
             <br></br>  
-            <button class="buttons" id="ExtendSim/getUserModelPaths">Get user model paths</button>
+            <button class="buttons" id="ExtendSim/getUserModelPaths">Get user models</button>
             <select id="user-models"></select>
             <br></br>
             <label id="scenario-name-label">Scenario name:</label>
@@ -411,23 +387,24 @@
         </div>
         <div id="scenario-factors">
             <header id="scenario-factors-title-heading">Factors</header>
-            <div>
+            <!-- <div>
                 <label id="show-input-files-label">Show scenario input files table</label>
                 <input id="show-input-files" type="checkbox" onclick='updateInputFilesTableVisibility()'></input>    
                 <label id="show-database-inputs-label">Show scenario database inputs table</label>
                 <input id="show-database-inputs" type="checkbox" onclick='updateDatabaseInputsTableVisibility()'></input>    
                 <label id="show-dialog-inputs-label">Show scenario dialog inputs table</label>
                 <input id="show-dialog-inputs" type="checkbox" onclick='updateDialogInputsTableVisibility()'></input>    
-            </div>
-            <div id="scenario-input-files">
-                <div id="scenario-input-files-header">
-                    <label id="show-files-checkbox-label">Input Files</label>
-                    <input id="show-files-checkbox" type="checkbox" onclick='updateFilesInputBodyVisibility()'></input>    
+            </div> -->
+            <div id="scenario-file-inputs">
+                <div id="scenario-file-inputs-header">
+                    <label id="scenario-file-inputs-checkbox-label">Files</label>
+                    <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'></input>    
                 </div>
-                <div id="scenario-input-files-body">
+                <div id="scenario-file-inputs-body">
                     <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
                     <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
-                    <table id="input-files-table" style="width:auto">
+                    <!-- <table id="file-inputs-table" style="width:auto"> -->
+                    <table id="file-inputs-table">
                         <tr>
                             <th>
                                 Source data file
@@ -440,85 +417,99 @@
                 </div>
             </div>
             <div id="scenario-database-inputs">
-                <h3>Scenario Database Inputs</h3>
-                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
-                <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
-                <table id="database-inputs-table" style="width:auto">
-                    <tr>
-                        <th>
-                            Source data file
-                        </th>
-                        <th>
-                            Target Database
-                        </th>
-                        <th>
-                            Target Table
-                        </th>
-                    </tr>
-                </table>
-                <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to database tables</button>
-                <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
-                <input id="database-inputs-uploaded-status" type="checkbox"></input>
+                <!-- <h3>Scenario Database Inputs</h3> -->
+                <div id="scenario-database-inputs-header">
+                    <label id="scenario-database-inputs-checkbox-label">Database Tables</label>
+                    <input id="scenario-database-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'></input>    
+                </div>
+                <div id="scenario-database-inputs-body">
+                    <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
+                    <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
+                    <!-- <table id="database-inputs-table" style="width:auto"> -->
+                    <table id="database-inputs-table">
+                        <tr>
+                            <th>
+                                Source data file
+                            </th>
+                            <th>
+                                Target Database
+                            </th>
+                            <th>
+                                Target Table
+                            </th>
+                        </tr>
+                    </table>
+                    <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to database tables</button>
+                    <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
+                    <input id="database-inputs-uploaded-status" type="checkbox"></input>
+                </div>
             </div>
             <div id="scenario-dialog-inputs">
-                <h3>Scenario Dialog Inputs</h3>
-                <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
-                <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
-                <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
-                <table id="dialog-inputs-table" style="width:auto">
-                    <tr>
-                        <th>
-                            Block Type
-                        </th>
-                        <th>
-                            Block Number
-                        </th>
-                        <th>
-                            Variable Type
-                        </th>
-                        <th>
-                            Dialog Variable
-                        </th>
-                        <th>
-                            Input Value
-                        </th>
-                    </tr>
-                </table>
-                <button class="upload-dialog-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
-                <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
-                <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
+                <div id="scenario-dialog-inputs-header">
+                    <label id="scenario-dialog-inputs-checkbox-label">Dialog Variables</label>
+                    <input id="scenario-dialog-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-inputs")'></input>    
+                </div>
+                <div id="scenario-dialog-inputs-body">
+                    <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
+                    <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
+                    <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
+                    <table id="dialog-inputs-table" style="width:auto">
+                        <tr>
+                            <th>
+                                Block Type
+                            </th>
+                            <th>
+                                Block Number
+                            </th>
+                            <th>
+                                Variable Type
+                            </th>
+                            <th>
+                                Dialog Variable
+                            </th>
+                            <th>
+                                Input Value
+                            </th>
+                        </tr>
+                    </table>
+                    <button class="upload-dialog-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+                    <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
+                    <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
+                </div>
             </div>
         </div>
         <div id="scenario-responses">
             <header id="scenario-responses-title-heading">Responses</header>
-            <div>
-                <label id="show-database-outputs-label">Show scenario database outputs table</label>
-                <input id="show-database-outputs" type="checkbox" onclick='updateDatabaseOutputsTableVisibility()'></input>    
-            </div>   
             <div id="scenario-database-outputs">
-                <h3>Scenario Database Outputs</h3>
-                <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow()'>Add row</button>
-                <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseOutputsTableRow()'>Delete row</button>
-                <table id="database-outputs-table" style="width:auto">
-                    <tr>
-                        <th>
-                            Source Database
-                        </th>
-                        <th>
-                            Source Table
-                        </th>
-                        <th>
-                            Data
-                        </th>
-                        <th>
-                            Chart
-                        </th>
-                        <th>
-                            Export
-                        </th>           
-                    </tr>
-                </table>
-            </div>           
+                <div id="scenario-database-outputs-header">
+                    <label id="scenario-database-outputs-checkbox-label">Database Tables</label>
+                    <input id="scenario-database-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-outputs")'></input>    
+                </div>
+                <div id="scenario-database-outputs-body">
+                    <!-- <h3>Scenario Database Outputs</h3> -->
+                    <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow()'>Add row</button>
+                    <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseOutputsTableRow()'>Delete row</button>
+                    <table id="database-outputs-table" style="width:auto">
+                        <tr>
+                            <th>
+                                Source Database
+                            </th>
+                            <th>
+                                Source Table
+                            </th>
+                            <th>
+                                Data
+                            </th>
+                            <th>
+                                Chart
+                            </th>
+                            <th>
+                                Export
+                            </th>           
+                        </tr>
+                    </table>
+                </div>  
+            </div>         
         </div>
         <div id="submit-simulation">
             <header id="submit-scenario-title-heading">Scenarios</header>
@@ -566,10 +557,7 @@
     // const username = 'analyst1';
     // const password = 'model';
     $('.buttons').prop('disabled', true);
-    $('#show-input-files').prop('checked', false);
-    $('#show-database-inputs').prop('checked', false);
-    $('#show-dialog-inputs').prop('checked', false);
-    $('#show-database-outputs').prop('checked', false);
+    $('#scenario-file-inputs-checkbox').prop('checked', false);
     $('.scenario-input-file-buttons').prop('disabled', true);
     $('.scenario-database-input-buttons').prop('disabled', true);
     $('.scenario-dialog-input-buttons').prop('disabled', true);
@@ -582,10 +570,10 @@
     $("#server-actions").hide();
     $('#model-form-chart').hide();
 
-    updateInputFilesTableVisibility();
-    updateDatabaseInputsTableVisibility();
-    updateDialogInputsTableVisibility();
-    updateDatabaseOutputsTableVisibility();
+    updateDOMelementVisibility("scenario-file-inputs");
+    updateDOMelementVisibility("scenario-database-inputs");
+    updateDOMelementVisibility("scenario-dialog-inputs");
+    updateDOMelementVisibility("scenario-database-outputs");
     updateLoadingDivVisibility(false);
 
     function displayTableContents(modelDatabaseTableFields) {
@@ -720,45 +708,26 @@
         const scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         const userModelPathname = $("#user-models").val();
     }
-    function updateInputFilesTableVisibility() {
-        if ($('#show-input-files'). prop("checked") == true) {
-            $("#scenario-input-files").show();
+    // function updateInputFilesTableVisibility() {
+    //     if ($('#show-input-files'). prop("checked") == true) {
+    //         $("#scenario-file-inputs").show();
+    //     } else {
+    //         $("#scenario-file-inputs").hide();
+    //     }
+    // }
+    function updateDOMelementVisibility(DOMelementIDname) {
+        if ($('#' + DOMelementIDname + '-checkbox'). prop("checked") == true) {
+            $('#' + DOMelementIDname + '-body').show();
+            $('#' + DOMelementIDname).width('auto');
         } else {
-            $("#scenario-input-files").hide();
-        }
-    }
-    function updateFilesInputBodyVisibility() {
-        if ($('#show-files-checkbox'). prop("checked") == true) {
-            $("#scenario-input-files-body").show();
-        } else {
-            $("#scenario-input-files-body").hide();
-        }     
-    }
+            $('#' + DOMelementIDname + '-body').hide();
+            $('#' + DOMelementIDname).width('25%');
 
-    function updateDatabaseInputsTableVisibility() {
-        if ($('#show-database-inputs'). prop("checked") == true) {
-            $("#scenario-database-inputs").show();
-        } else {
-            $("#scenario-database-inputs").hide();
-        }
-    }
-    function updateDialogInputsTableVisibility() {
-        if ($('#show-dialog-inputs'). prop("checked") == true) {
-            $("#scenario-dialog-inputs").show();
-        } else {
-            $("#scenario-dialog-inputs").hide();
-        }
-    }
-    function updateDatabaseOutputsTableVisibility() {
-        if ($('#show-database-outputs'). prop("checked") == true) {
-            $("#scenario-database-outputs").show();
-        } else {
-            $("#scenario-database-outputs").hide();
         }
     }
 
     function addInputFilesTableRow() {
-        var table = $("#input-files-table");
+        var table = $("#file-inputs-table");
         inputFileTableRows++;
         var newrow = '<tr><td><input type="file" onchange="inputFilesSelected(event)" class="input-file-row" id="input-button-' + inputFileTableRows + '"></td></tr>';
         table.append(newrow);
@@ -767,7 +736,7 @@
         if (inputFileTableRows > 0) {
             inputFileTableRows--;
         }
-        $("#input-files-table tr:last").remove();
+        $("#file-inputs-table tr:last").remove();
     }
 
     function addNewDatabaseInputsTableRow() {
@@ -1196,7 +1165,7 @@
             .then(function(response) {
                 var userModelPaths = response.data.userModelPaths;
                 for (var i = 0; i < userModelPaths.length; i++) {
-                    $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i] + '</option>');
+                    $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i].substring(userModelPaths[i].lastIndexOf("\\") + 1) + '</option>');
                 }
                 if (userModelPaths.length > 0) {
                     $('#user-models').val(userModelPaths[0]);
