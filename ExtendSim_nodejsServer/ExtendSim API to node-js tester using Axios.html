@@ -236,16 +236,7 @@
     #user-scenario-folder-pathname {
         margin-right: 20px;
     }
-    #scenario-responses {
-        border: 2px solid rgb(0, 0, 0);
-        border-radius: 10px;
-        padding-top: 20px; 
-        margin-bottom: 20px;
-        /* margin-right: 10px; */
-        width: auto;
-        background-color:rgb(221, 220, 220);
-        overflow: auto;
-    }
+
     #scenario-id-label {
         margin-left: 20px;
     }
@@ -265,20 +256,7 @@
         margin-bottom: 20px;
         margin-right: 20px;
     }
-    #scenario-file-inputs-checkbox {
-        /* margin-bottom: 20px; */
-    }
-    #show-database-outputs-label, #show-dialog-outputs-label {
-        font-size: 16px;
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-    #show-database-outputs, #show-dialog-outputs {
-        margin-bottom: 20px;
-        margin-right: 20px;
-    }
-    #scenario-factors {
+    #scenario-factors, #scenario-responses {
         border: 2px solid rgb(0, 0, 0);
         border-radius: 10px;
         padding-top: 20px;
@@ -287,17 +265,19 @@
         width: auto;
         background-color:rgb(221, 220, 220);
         overflow: auto;    
-        text-align: center;    
+        text-align: center; 
+        vertical-align:top;   
     }
     #scenario-file-inputs, #scenario-database-inputs, #scenario-dialog-inputs {
         border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
         padding: 20px;
         margin: 1%;
-        /* width: auto; */
         width: 25%;
         background-color:rgb(253, 246, 204);
         display: inline-block;
+        vertical-align:top;  
+        overflow: auto;    
     }
     #scenario-file-inputs-header, #scenario-database-inputs-header, #scenario-dialog-inputs-header, #scenario-database-outputs-header {
         text-align: center;
@@ -306,19 +286,16 @@
         margin: 20px;
         width: auto;
         text-align: left;
-        overflow-x: auto;
     }
     #scenario-database-outputs {
         border: 2px solid rgb(13, 88, 0);
         border-radius: 10px;
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-bottom: 20px;
-        margin-bottom: 20px;
-        margin-right: 10px;
+        padding: 20px;
+        margin: 1%;
+        width: 25%;
         background-color:rgb(211, 253, 204);
-        width: auto;
-        float: left;
+        display: inline-block;
+        vertical-align:top;   
     }
     #submit-simulation {
         border: 2px solid rgb(0, 0, 0);
@@ -370,7 +347,8 @@
             <label id="user-login-session-id-label">User Login Session ID:</label>
             <input id="user-login-session-id"></input>
             <br></br>  
-            <button class="buttons" id="ExtendSim/getUserModelPaths">Get user models</button>
+            <!-- <button class="buttons" id="ExtendSim/getUserModelPaths">Get user models</button> -->
+            <button class="user-login-buttons" id="ExtendSim/getUserModelPaths">Get user models</button>
             <select id="user-models"></select>
             <br></br>
             <label id="scenario-name-label">Scenario name:</label>
@@ -387,14 +365,6 @@
         </div>
         <div id="scenario-factors">
             <header id="scenario-factors-title-heading">Factors</header>
-            <!-- <div>
-                <label id="show-input-files-label">Show scenario input files table</label>
-                <input id="show-input-files" type="checkbox" onclick='updateInputFilesTableVisibility()'></input>    
-                <label id="show-database-inputs-label">Show scenario database inputs table</label>
-                <input id="show-database-inputs" type="checkbox" onclick='updateDatabaseInputsTableVisibility()'></input>    
-                <label id="show-dialog-inputs-label">Show scenario dialog inputs table</label>
-                <input id="show-dialog-inputs" type="checkbox" onclick='updateDialogInputsTableVisibility()'></input>    
-            </div> -->
             <div id="scenario-file-inputs">
                 <div id="scenario-file-inputs-header">
                     <label id="scenario-file-inputs-checkbox-label">Files</label>
@@ -557,6 +527,7 @@
     // const username = 'analyst1';
     // const password = 'model';
     $('.buttons').prop('disabled', true);
+    $('.user-login-buttons').prop('disabled', true);
     $('#scenario-file-inputs-checkbox').prop('checked', false);
     $('.scenario-input-file-buttons').prop('disabled', true);
     $('.scenario-database-input-buttons').prop('disabled', true);
@@ -708,13 +679,6 @@
         const scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         const userModelPathname = $("#user-models").val();
     }
-    // function updateInputFilesTableVisibility() {
-    //     if ($('#show-input-files'). prop("checked") == true) {
-    //         $("#scenario-file-inputs").show();
-    //     } else {
-    //         $("#scenario-file-inputs").hide();
-    //     }
-    // }
     function updateDOMelementVisibility(DOMelementIDname) {
         if ($('#' + DOMelementIDname + '-checkbox'). prop("checked") == true) {
             $('#' + DOMelementIDname + '-body').show();
@@ -1126,6 +1090,7 @@
                 // Storing an array of results in the results variable
                 // alert('Axios POST parameters result=' + JSON.stringify(response.data));
                 $("#user-login-session-id").val(response.data.userLoginSessionID);
+                $('.user-login-buttons').prop('disabled', false);
             });
           break;
 
