@@ -276,6 +276,9 @@
         margin-bottom: 20px;
         margin-right: 20px;
     }
+    #show-files-checkbox {
+        /* margin-bottom: 20px; */
+    }
     #show-database-outputs-label, #show-dialog-outputs-label {
         font-size: 16px;
         font-family: Arial, Helvetica, sans-serif;
@@ -292,11 +295,18 @@
         padding-left: 20px;
         padding-right: 20px;
         padding-bottom: 20px;
+        padding-top: 20px;
         margin-bottom: 20px;
         margin-right: 10px;
         width: auto;
         background-color:rgb(253, 246, 204);
         float: left;
+    }
+    #scenario-input-files-header {
+        text-align: center;
+    }
+    #scenario-input-files-body {
+        margin: 20px;
     }
     #scenario-database-inputs {
         border: 2px solid rgb(255, 94, 0);
@@ -400,7 +410,7 @@
             <input id="model-copied-status" type="checkbox"></input>    
         </div>
         <div id="scenario-factors">
-            <header id="scenario-factors-title-heading">Scenario Factors</header>
+            <header id="scenario-factors-title-heading">Factors</header>
             <div>
                 <label id="show-input-files-label">Show scenario input files table</label>
                 <input id="show-input-files" type="checkbox" onclick='updateInputFilesTableVisibility()'></input>    
@@ -410,19 +420,24 @@
                 <input id="show-dialog-inputs" type="checkbox" onclick='updateDialogInputsTableVisibility()'></input>    
             </div>
             <div id="scenario-input-files">
-                <h3>Scenario Input Files</h3>
-                <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
-                <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
-                <table id="input-files-table" style="width:auto">
-                    <tr>
-                        <th>
-                            Source data file
-                        </th>
-                    </tr>
-                </table>
-                <button class="upload-files-button" id="ExtendSim/sendfile">Upload scenario input files to server</button>
-                <label id="files-uploaded-status-label">Files uploaded:</label>
-                <input id="files-uploaded-status" type="checkbox"></input>
+                <div id="scenario-input-files-header">
+                    <label id="show-files-checkbox-label">Input Files</label>
+                    <input id="show-files-checkbox" type="checkbox" onclick='updateFilesInputBodyVisibility()'></input>    
+                </div>
+                <div id="scenario-input-files-body">
+                    <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
+                    <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
+                    <table id="input-files-table" style="width:auto">
+                        <tr>
+                            <th>
+                                Source data file
+                            </th>
+                        </tr>
+                    </table>
+                    <button class="upload-files-button" id="ExtendSim/sendfile">Upload scenario input files to server</button>
+                    <label id="files-uploaded-status-label">Files uploaded:</label>
+                    <input id="files-uploaded-status" type="checkbox"></input>
+                </div>
             </div>
             <div id="scenario-database-inputs">
                 <h3>Scenario Database Inputs</h3>
@@ -475,7 +490,7 @@
             </div>
         </div>
         <div id="scenario-responses">
-            <header id="scenario-responses-title-heading">Scenario Responses</header>
+            <header id="scenario-responses-title-heading">Responses</header>
             <div>
                 <label id="show-database-outputs-label">Show scenario database outputs table</label>
                 <input id="show-database-outputs" type="checkbox" onclick='updateDatabaseOutputsTableVisibility()'></input>    
@@ -506,7 +521,7 @@
             </div>           
         </div>
         <div id="submit-simulation">
-            <header id="submit-scenario-title-heading">Scenario Submission</header>
+            <header id="submit-scenario-title-heading">Scenarios</header>
             <button class="buttons" id="ExtendSim/submitsimulationscenario">Submit scenario</button>
             <label id="scenario-id-label">Scenario ID:</label>
             <input id="scenario-id"></input>
@@ -550,7 +565,6 @@
 
     // const username = 'analyst1';
     // const password = 'model';
-
     $('.buttons').prop('disabled', true);
     $('#show-input-files').prop('checked', false);
     $('#show-database-inputs').prop('checked', false);
@@ -597,6 +611,13 @@
 
     function displayTableChart(modelDatabaseTableFields) {
         g_tableSchema = modelDatabaseTableFields;
+        g_tableDataArray.forEach(function(elements, index) {
+            tableDataHtmlCode += '<tr>';
+                for (var i=0;i<elements.length;i++) {
+                    tableDataHtmlCode += '<td>' + elements[i] + '</td>';
+                }
+            });
+
         new Chart($("#model-form-chart"), {
             type: 'bar',
             data: {
@@ -706,6 +727,14 @@
             $("#scenario-input-files").hide();
         }
     }
+    function updateFilesInputBodyVisibility() {
+        if ($('#show-files-checkbox'). prop("checked") == true) {
+            $("#scenario-input-files-body").show();
+        } else {
+            $("#scenario-input-files-body").hide();
+        }     
+    }
+
     function updateDatabaseInputsTableVisibility() {
         if ($('#show-database-inputs'). prop("checked") == true) {
             $("#scenario-database-inputs").show();
