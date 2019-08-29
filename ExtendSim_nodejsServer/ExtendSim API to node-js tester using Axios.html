@@ -291,9 +291,6 @@
     <!-- The Modal -->
     <div id="database-table-model" class="modal">
         <div id="model-buttons">
-            <!-- <button class="buttons" id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export table data</button> -->
-            <!-- <button id="export-database-table-contents-modal" onclick="exportDatabaseTableContentsModal(event)">Export table data</button>
-            <button id="chart-database-table-contents-modal" onclick="showDatabaseTableChartModal(event)">Show chart</button>         -->
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
             <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
@@ -325,13 +322,13 @@
             <br></br>
             <label id="scenario-name-label">Scenario name:</label>
             <input id="scenario-name"></input>
+            <button class="buttons" id="create-scenario-folder-button" onclick='createScenarioFolder()'>Create scenario folder</button>
+            <button class="buttons" id="copy-model-to-scenario-folder" onclick='copyModelToScenarioFolder()'>Copy model to scenario folder</button>
         </div>
         <div id="server-actions">
-            <button class="buttons" id="ExtendSim/createScenarioFolder">Create scenario folder</button>
             <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
             <input id="user-scenario-folder-pathname"></input>
             <br></br>
-            <button class="buttons" id="ExtendSim/copyModelToScenarioFolder">Copy model to scenario folder</button>
             <label id="model-copied-status-label">Model copied:</label>
             <input id="model-copied-status" type="checkbox"></input>    
         </div>
@@ -353,7 +350,7 @@
                             </th>
                         </tr>
                     </table>
-                    <button class="upload-files-button" id="ExtendSim/sendfile">Upload scenario input files to server</button>
+                    <button class="upload-files-button" onclick='CopyDataFilesToServer(0)''>Upload scenario input files to server</button>
                     <label id="files-uploaded-status-label">Files uploaded:</label>
                     <input id="files-uploaded-status" type="checkbox"></input>
                 </div>
@@ -381,7 +378,7 @@
                             </th>
                         </tr>
                     </table>
-                    <button class="upload-database-inputs-button" id="ExtendSim/sendfile">Upload inputs to database tables</button>
+                    <button class="upload-database-inputs-button" onclick='CopyDataStreamsToServer(0)'>Upload inputs to database tables</button>
                     <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
                     <input id="database-inputs-uploaded-status" type="checkbox"></input>
                 </div>
@@ -608,8 +605,6 @@
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
-            alert('Uploading contents=' + contents);
-
             uploadedFiles[numFilesUploaded].data = contents;
            numFilesUploaded++;
         };
@@ -624,13 +619,12 @@
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
-            alert('Uploading contents=' + contents);
             uploadedDatabaseFiles[numDatabaseFilesUploaded].data = contents;
             numDatabaseFilesUploaded++;
         };
 
         if (file) {
-            uploadedFiles.push({ name: file.name });
+            uploadedDatabaseFiles.push({ name: file.name });
             selectedDatabaseFiles.push(file);
             reader.readAsText(file);
         }
@@ -872,7 +866,81 @@
         updateDialogVariableDropdown(rowIndex);  
     }
 
-    function CopyTextFilesToServer(fileIndex) {
+    function createScenarioFolder() {
+        axios({
+            url: proxyurl + queryURL_root + 'ExtendSim/createScenarioFolder',
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            // params: {
+            data: {
+                userLoginSessionID : $("#user-login-session-id").val(),
+                scenarioFolderName : $("#scenario-name").val(),
+            }
+        })
+        .then(function(response) {
+            // Storing an array of results in the results variable
+            $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
+            $('#create-scenario-folder-button').prop('disabled', true);
+            $('#copy-model-to-scenario-folder').prop('disabled', false);
+        })
+    }
+
+    function copyModelToScenarioFolder() {
+        axios({
+            url: proxyurl + queryURL_root + 'ExtendSim/copyModelToScenarioFolder',
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            // params: {
+            data: {
+                modelPathname: $("#user-models").val(),
+                scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
+                copyFolderContents: true
+            }
+        })
+        .then(function(response) {
+            // Storing an array of results in the results variable
+            $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
+            $('#copy-model-to-scenario-folder').prop('disabled', true);
+        })       
+    }
+    function CopyDataStreamsToServer(fileIndex) {
+        var reader = new FileReader();
+        var modelpathname = $('#user-models').val();
+        var databasename = $('#target-database-' + (fileIndex + 1)).val();
+        var tablename = $('#target-table-' + (fileIndex + 1)).val();
+        alert('Fileindex=' + fileIndex + ' Sending stream data to modelpathname=' + modelpathname + ' database=' + databasename + ' tablename=' + tablename);
+
+        reader.onload = function(event) {
+        event.preventDefault();
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/senddatastream",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    modelPathname: modelpathname,
+                    modelDatabaseName: databasename,
+                    databaseTableName: tablename,
+                    tabledata: reader.result
+                }
+            })
+            .then(function(response) {
+                fileIndex++;
+                if (fileIndex < selectedDatabaseFiles.length) {
+                    CopyDataStreamsToServer(fileIndex);
+                } else {
+                    $("#database-inputs-uploaded-status").prop('checked', true);
+                }
+            });
+        }
+        alert('Reading uploaded file=' + selectedDatabaseFiles[fileIndex]);
+        reader.readAsText(selectedDatabaseFiles[fileIndex]);
+    }
+
+
+    function CopyDataFilesToServer(fileIndex) {
         var reader = new FileReader();
 
         reader.onload = function(event) {
@@ -892,7 +960,7 @@
             .then(function(response) {
                 fileIndex++;
                 if (fileIndex < selectedFiles.length) {
-                    CopyTextFilesToServer(fileIndex);
+                    CopyDataFilesToServer(fileIndex);
                 } else {
                     $("#files-uploaded-status").prop('checked', true);
                 }
@@ -917,24 +985,6 @@
         })
         .then(function(response) {
             callback(response.data.modelDatabaseTableFields);
-            // g_tableSchema = response.data.modelDatabaseTableFields;
-            // tableDataHtmlCode = '';
-            // tableDataHtmlCode += '<tr>';
-            // for (var i=0;i<g_tableSchema.fields.length;i++) {
-            //     tableDataHtmlCode += '<th>' + g_tableSchema.fields[i] + '</th>';
-            // }
-            // g_tableDataArray.forEach(function(elements, index) {
-            //     tableDataHtmlCode += '<tr>';
-            //         for (var i=0;i<elements.length;i++) {
-            //             tableDataHtmlCode += '<td>' + elements[i] + '</td>';
-            //         }
-            //     // }
-            //     tableDataHtmlCode += '</tr>';
-            // });
-            // $("#selected-database-outputs-table").empty(); 
-            // $("#selected-database-outputs-table").append(tableDataHtmlCode); 
-            // $("#database-table-model").show();
-            // updateLoadingDivVisibility(false);
         });
     }
     function getmodeldatabases(callback) {
@@ -998,6 +1048,21 @@
             }
             console.log("ModelInfo: " + JSON.stringify(modelInfo));
             getDatabaseTableContentsStream(modelInfo, false, "");
+        });
+    }
+    function sendDataStreamToDatabaseTable(modelInfo, callback) {
+        axios({
+            url: proxyurl + queryURL_root + "ExtendSim/senddatastream",
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                modelPathname: modelInfo.Modelpathname, 
+                modelDatabaseName: modelInfo.Databasename,
+                databaseTableName: modelInfo.Tablename
+            }
+        })
+        .then(function(response) {
         });
     }
     function getDatabaseTableContentsStream(modelInfo, getFieldInfo, callback) {
@@ -1085,7 +1150,6 @@
             })
             .then(function(response) {
                 // Storing an array of results in the results variable
-                // alert('Axios POST parameters result=' + JSON.stringify(response.data));
                 $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
                 this.enableDisableCopyModelToScenarioFolderButton();
             });
@@ -1135,11 +1199,6 @@
             });
             break;
 
-        case 'ExtendSim/sendfile':
-
-            CopyTextFilesToServer(0);
-            break;
-
         case 'ExtendSim/submitsimulationscenario':
 
             var modelName =  $("#user-models").val();
@@ -1186,11 +1245,15 @@
         } else {
             //If there is text in the input, then enable the button
             $('.buttons').prop('disabled', false);
+            $('#create-scenario-folder-button').prop('disabled', true);
+            $('#copy-model-to-scenario-folder').prop('disabled', true);
+
         }
     });
     $('#scenario-name').keyup(function () {
         if ($("#scenario-name").val() !== '') {
             if ($('#user-models').val() !== '') {
+                $('#create-scenario-folder-button').prop('disabled', false);
                 $('.scenario-input-file-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
                 $('.scenario-dialog-input-buttons').prop('disabled', false);
