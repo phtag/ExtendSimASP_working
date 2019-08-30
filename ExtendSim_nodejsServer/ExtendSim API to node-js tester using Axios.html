@@ -881,6 +881,7 @@
         .then(function(response) {
             // Storing an array of results in the results variable
             $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
+            alert('Scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
             $('#create-scenario-folder-button').prop('disabled', true);
             $('#copy-model-to-scenario-folder').prop('disabled', false);
         })
@@ -901,17 +902,17 @@
         })
         .then(function(response) {
             // Storing an array of results in the results variable
-            $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
             $('#copy-model-to-scenario-folder').prop('disabled', true);
         })       
     }
     function CopyDataStreamsToServer(fileIndex) {
         var reader = new FileReader();
-        var modelpathname = $('#user-models').val();
+        var modelName =  $("#user-models").val();
+        modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+        var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
         var databasename = $('#target-database-' + (fileIndex + 1)).val();
         var tablename = $('#target-table-' + (fileIndex + 1)).val();
         alert('Fileindex=' + fileIndex + ' Sending stream data to modelpathname=' + modelpathname + ' database=' + databasename + ' tablename=' + tablename);
-
         reader.onload = function(event) {
         event.preventDefault();
             axios({
@@ -945,7 +946,7 @@
 
         reader.onload = function(event) {
         event.preventDefault();
-        // alert("Copying file=" + uploadedFiles[fileIndex].name);
+        alert("Copying file to scenario pathname=" + $("#user-scenario-folder-pathname").val());
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/sendfile",
                 method: 'post',
@@ -1151,7 +1152,7 @@
             .then(function(response) {
                 // Storing an array of results in the results variable
                 $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
-                this.enableDisableCopyModelToScenarioFolderButton();
+                alert('Scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
             });
             break;
 
