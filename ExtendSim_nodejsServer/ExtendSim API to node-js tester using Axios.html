@@ -1000,7 +1000,6 @@
 
     function copyModelToScenarioFolder() {
         return new Promise((resolve, reject) => {
-            alert('copyModelToScenarioFolder - ' + $("#user-scenario-folder-pathname").val());
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/copyModelToScenarioFolder',
                 method: 'post',
@@ -1032,40 +1031,41 @@
         return new Promise((resolve, reject) => {
             if (dialogInputsTableRows < 1) {
                 // Exit since there is not data to push 
+                alert('CopyDialogVariableDataToModel: resolve=true');
                 resolve(true);
+            } else {
+                var modelName =  $("#user-models").val();
+                modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
+                var variableName = $('#dialog-variable-name-select-' + (rowIndex + 1)).val();
+                var variableValue = $('#dialog-variable-value-select-' + (rowIndex + 1)).val();
+                var blockNumber = $('#"dialog-variable-block-number-select-' + (rowIndex + 1)).val();
+                alert('CopyDialogVariableDataToModel: row=' + rowIndex + ' variableName=' + variableName + ' variableValue=' + variableValue + ' blockNumber=' + blockNumber);
+                axios({
+                    url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
+                    method: 'post',
+                    accept : 'application/json',
+                    contentType: 'application/json;charset=utf-8',
+                    data : {
+                        variableName: variableName,
+                        variableValue: variableValue,
+                        blockNumber: blockNumber,
+                        row: 0,
+                        column: 0,
+                        modelPathname: modelpathname
+                    }
+                })
+                .then(function(response) {
+                //  Advance to the next row
+                    rowIndex++;
+                    if (rowIndex < dialogInputsTableRows) {
+                        CopyDialogVariableDataToModel(rowIndex);
+                    } else {
+                        // All dialog variable values pushed to server
+                        resolve(true);
+                    }
+                });
             }
-
-            var modelName =  $("#user-models").val();
-            modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-            var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-            var variableName = $('#dialog-variable-name-select-' + (rowIndex + 1)).val();
-            var variableValue = $('#dialog-variable-value-select-' + (rowIndex + 1)).val();
-            var blockNumber = $('#"dialog-variable-block-number-select-' + (rowIndex + 1)).val();
-            alert('CopyDialogVariableDataToModel: row=' + rowIndex + ' variableName=' + variableName + ' variableValue=' + variableValue + ' blockNumber=' + blockNumber);
-            axios({
-                url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
-                method: 'post',
-                accept : 'application/json',
-                contentType: 'application/json;charset=utf-8',
-                data : {
-                    variableName: variableName,
-                    variableValue: variableValue,
-                    blockNumber: blockNumber,
-                    row: 0,
-                    column: 0,
-                    modelPathname: modelpathname
-                }
-            })
-            .then(function(response) {
-            //  Advance to the next row
-                rowIndex++;
-                if (rowIndex < dialogInputsTableRows) {
-                    CopyDialogVariableDataToModel(rowIndex);
-                } else {
-                    // All dialog variable values pushed to server
-                    resolve(true);
-                }
-            });
         });
     }
 
@@ -1074,41 +1074,41 @@
             if (databaseInputsTableRows < 1) {
                 // Exit since there is not data to push 
                 resolve(true);
+            } else {
+                var reader = new FileReader();
+                var modelName =  $("#user-models").val();
+                modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
+                var databasename = $('#target-database-' + (fileIndex + 1)).val();
+                var tablename = $('#target-table-' + (fileIndex + 1)).val();
+                alert('Fileindex=' + fileIndex + ' Sending stream data to modelpathname=' + modelpathname + ' database=' + databasename + ' tablename=' + tablename);
+                reader.onload = function(event) {
+                event.preventDefault();
+                    axios({
+                        url: proxyurl + queryURL_root + "ExtendSim/senddatastream",
+                        method: 'post',
+                        accept : 'application/json',
+                        contentType: 'application/json;charset=utf-8',
+                        data : {
+                            modelPathname: modelpathname,
+                            modelDatabaseName: databasename,
+                            databaseTableName: tablename,
+                            tabledata: reader.result
+                        }
+                    })
+                    .then(function(response) {
+                        fileIndex++;
+                        if (fileIndex < databaseInputsTableRows) {
+                            CopyDataStreamsToModel(fileIndex);
+                        } else {
+                            // All data streams have been sent to the user's models on the server
+                            $("#database-inputs-uploaded-status").prop('checked', true);
+                            resolve(true);
+                        }
+                    });
+                }
+                reader.readAsText(selectedDatabaseFiles[fileIndex]);
             }
-            var reader = new FileReader();
-            var modelName =  $("#user-models").val();
-            modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-            var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-            var databasename = $('#target-database-' + (fileIndex + 1)).val();
-            var tablename = $('#target-table-' + (fileIndex + 1)).val();
-            alert('Fileindex=' + fileIndex + ' Sending stream data to modelpathname=' + modelpathname + ' database=' + databasename + ' tablename=' + tablename);
-            reader.onload = function(event) {
-            event.preventDefault();
-                axios({
-                    url: proxyurl + queryURL_root + "ExtendSim/senddatastream",
-                    method: 'post',
-                    accept : 'application/json',
-                    contentType: 'application/json;charset=utf-8',
-                    data : {
-                        modelPathname: modelpathname,
-                        modelDatabaseName: databasename,
-                        databaseTableName: tablename,
-                        tabledata: reader.result
-                    }
-                })
-                .then(function(response) {
-                    fileIndex++;
-                    if (fileIndex < databaseInputsTableRows) {
-                        CopyDataStreamsToModel(fileIndex);
-                    } else {
-                        // All data streams have been sent to the user's models on the server
-                        $("#database-inputs-uploaded-status").prop('checked', true);
-                        resolve(true);
-                    }
-                });
-            }
-            alert('Reading uploaded file=' + selectedDatabaseFiles[fileIndex]);
-            reader.readAsText(selectedDatabaseFiles[fileIndex]);
         });
     }
 
@@ -1116,37 +1116,39 @@
         return new Promise((resolve, reject) => {
             if (inputFileTableRows < 1) {
                 // Exit since there are no files to copy
-                return;
-            }
-            var reader = new FileReader();
+                resolve(true);
+            } else {
+                var reader = new FileReader();
 
-            reader.onload = function(event) {
-            event.preventDefault();
-            alert("Copying file to scenario pathname=" + $("#user-scenario-folder-pathname").val());
-                axios({
-                    url: proxyurl + queryURL_root + "ExtendSim/sendfile",
-                    method: 'post',
-                    accept : 'application/json',
-                    contentType: 'application/json;charset=utf-8',
-                    data : {
-                        scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
-                        filename: selectedFiles[fileIndex].name,
-                        filedata: reader.result
-                    }
-                })
-                .then(function(response) {
-                    fileIndex++;
-                    if (fileIndex < selectedFiles.length) {
-                        CopyDataFilesToServer(fileIndex);
-                    } else {
-                        $("#files-uploaded-status").prop('checked', true);
-                        resolve(true);
-                        // Kick off next type of data push to the server model
-                    }
-                });
+                reader.onload = function(event) {
+                event.preventDefault();
+                alert("Copying file to scenario pathname=" + $("#user-scenario-folder-pathname").val());
+                    axios({
+                        url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+                        method: 'post',
+                        accept : 'application/json',
+                        contentType: 'application/json;charset=utf-8',
+                        data : {
+                            scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
+                            filename: selectedFiles[fileIndex].name,
+                            filedata: reader.result
+                        }
+                    })
+                    .then(function(response) {
+                        fileIndex++;
+                        if (fileIndex < inputFileTableRows) {
+                            resolve(CopyDataFilesToServer(fileIndex));
+                        } else {
+                            $("#files-uploaded-status").prop('checked', true);
+                            alert('CopyDataFilesToServer: Resolving file sends...')
+                            resolve(true);
+                            // Kick off next type of data push to the server model
+                        }
+                    });
+                }
+                // alert('Reading uploaded file...');
+                reader.readAsText(selectedFiles[fileIndex]);
             }
-            // alert('Reading uploaded file...');
-            reader.readAsText(selectedFiles[fileIndex]);
         });
     }
 
@@ -1160,24 +1162,46 @@
         // create the scenario folder
         createScenarioFolder()
         .then(function(createScenarioFolderResponse) {
-            alert('createScenarioFolder: scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
+            // alert('createScenarioFolder: scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
             // Copy user selected server model into scenario folder
             copyModelToScenarioFolder()
             .then(function(copyModelToScenarioFolderResponse) {
-                alert('copyModelToScenarioFolder: response=' + response);
+                // alert('copyModelToScenarioFolder: response=' + copyModelToScenarioFolderResponse);
                 CopyDataStreamsToModel(0)
                 .then(function(CopyDataStreamsToModelResponse) {
+                    // alert('CopyDataStreamsToModel: response=' + CopyDataStreamsToModelResponse);
                     CopyDataFilesToServer(0)
                     .then(function(CopyDataFilesToServerResponse) {
+                        alert('CopyDataFilesToServer: response=' + CopyDataFilesToServerResponse);
                         CopyDialogVariableDataToModel(0)
                         .then(function(CopyDialogVariableDataToModelResponse) {
+                                // // Trigger the submission of the scenario
+                            var modelName =  $("#user-models").val();
+                            modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                            var modelPathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
+                            var userLoginSessionID = $("#user-login-session-id").val();
+                            alert('Submitting simulation scenario to server: userLoginSessionID=' + userLoginSessionID + ' modelPathname=' + modelPathname);
+                            axios({
+                                url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenario',
+                                method: 'post',
+                                accept : 'application/json',
+                                contentType: 'application/json;charset=utf-8',
+                                data: {
+                                    userLoginSessionID: userLoginSessionID,
+                                    modelPathname: modelPathname,
+                                    removeFolderOnCompletion: false
+                                }
+                            })
+                            .then(function(response) {
+                                $("#scenario-id").val(response.data.scenarioID);
+                            });
 
                         })
                     });
                 })
             })
-            .catch(function(error2) {
-                alert('copyModelToScenarioFolder error=' + error);
+            .catch(function(copyModelToScenarioFolderError) {
+                alert('copyModelToScenarioFolder error=' + copyModelToScenarioFolderError);
             })
         })
         .catch(function(error1) {
@@ -1389,7 +1413,6 @@
             .then(function(response) {
                 // Storing an array of results in the results variable
                 $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
-                alert('Scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
             });
             break;
 
