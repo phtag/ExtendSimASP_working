@@ -351,7 +351,7 @@
                 <input id="user-login-session-id"></input>
                 <br></br>  
                 <!-- <button class="buttons" id="ExtendSim/getUserModelPaths">Get user models</button> -->
-                <button class="user-login-buttons" id="ExtendSim/getUserModelPaths">Get user models</button>
+                <button class="user-login-buttons" id="get-user-models-button" onclick='getUserModelPaths()'>Get user models</button>
                 <select id="user-models"></select>
                 <br></br>
                 <label id="scenario-name-label">Scenario name:</label>
@@ -1205,108 +1205,151 @@
             alert('createScenarioFolder error=' + error1);
         });
 
-        // await copyModelToScenarioFolder();
-        // alert('Model copied to scenario folder');
-        // await CopyDataFilesToServer(0);
-        // await CopyDataStreamsToModel(0);
-        // await CopyDialogVariableDataToModel(0);
-        // // Trigger the submission of the scenario
-        // var modelName =  $("#user-models").val();
-        // modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-        // axios({
-        //     url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenario',
-        //     method: 'post',
-        //     accept : 'application/json',
-        //     contentType: 'application/json;charset=utf-8',
-        //     data: {
-        //         userLoginSessionID: $("#user-login-session-id").val(),
-        //         modelPathname:  $("#user-scenario-folder-pathname").val() + "\\" + modelName,
-        //         removeFolderOnCompletion: false
-        //     }
-        // })
-        // .then(function(response) {
-        //     $("#scenario-id").val(response.data.scenarioID);
-        // });
     }
 
-    function getModelDatabaseTableFields(modelpathname, databasename, tablename, callback) {   
-        axios({
-            url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetablefields",
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data : {
-                modelpathname: modelpathname,
-                databasename: databasename,
-                tablename: tablename,
-                closeModel: true
-            }
-        })
-        .then(function(response) {
-            callback(response.data.modelDatabaseTableFields);
+    function getModelDatabaseTableFields(modelpathname, databasename, tablename) {  
+        return new Promise((resolve, reject) => { 
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetablefields",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    modelpathname: modelpathname,
+                    databasename: databasename,
+                    tablename: tablename,
+                    closeModel: true
+                }
+            })
+            .then(function(response) {
+                resolve(response);
+            })
+            .catch(function(error) {
+                reject(error);
+            })
         });
     }
     function getmodeldatabases(callback) {
-        axios({
-            url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabases",
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data : {
-                modelPathname: $("#user-models").val(),
-                closeModel: true
-            }
-        })
-        .then(function(response) {
-            modelDatabases= [];
-            for (var i=0;i<response.data.modelDatabases.length;i++) {
-                if (response.data.modelDatabases[i].charAt(0) !== "_") {
-                    modelDatabases.push({ name: response.data.modelDatabases[i],
-                                          tableNames: [] });
-                    getDatabaseTables(modelDatabases.length - 1, callback);
+        return new Promise((resolve, reject) => { 
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabases",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    modelPathname: $("#user-models").val(),
+                    closeModel: true
                 }
-            };
+            })
+            .then(function(response) {
+                modelDatabases= [];
+                for (var i=0;i<response.data.modelDatabases.length;i++) {
+                    if (response.data.modelDatabases[i].charAt(0) !== "_") {
+                        modelDatabases.push({ name: response.data.modelDatabases[i],
+                                            tableNames: [] });
+                        getDatabaseTables(modelDatabases.length - 1, callback);
+                    }
+                };
+            });
         });
     }
 
     function getDatabaseTables(databaseIndex, callback) {
-        axios({
-            url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetables",
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data : {
-                modelPathname: $("#user-models").val(),
-                database: modelDatabases[databaseIndex].name,
-                closeModel: true
-            }
-        })
-        .then(function(response) {
-            modelDatabases[databaseIndex].tableNames = response.data.modelDatabaseTables;
-            modelDatabases[databaseIndex].tableNames.sort();
-            callback();
+        return new Promise((resolve, reject) => { 
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetables",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    modelPathname: $("#user-models").val(),
+                    database: modelDatabases[databaseIndex].name,
+                    closeModel: true
+                }
+            })
+            .then(function(response) {
+                modelDatabases[databaseIndex].tableNames = response.data.modelDatabaseTables;
+                modelDatabases[databaseIndex].tableNames.sort();
+                if (callback !== "") {
+                    callback()
+                    .then(function(callbackResponse) {
+                        resolve(response);
+                    });
+                } else {
+                    resolve(response);
+                }
+            })
+            .catch(function(error) {
+                reject(error);
+            })
+        });
+    }
+
+    function getUserModelPaths() {
+        return new Promise((resolve, reject) => { 
+            updateLoadingDivVisibility(true);
+            alert('getUserModelPaths entry...');
+            axios({
+                url: proxyurl + queryURL_root + 'ExtendSim/getUserModelPaths',
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data: {
+                    username : $("#username").val(),
+                }
+            })
+            .then(function(response) {
+                var userModelPaths = response.data.userModelPaths;
+                for (var i = 0; i < userModelPaths.length; i++) {
+                    $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i].substring(userModelPaths[i].lastIndexOf("\\") + 1) + '</option>');
+                }
+                if (userModelPaths.length > 0) {
+                    $('#user-models').val(userModelPaths[0]);
+                }
+                this.enableDisableCopyModelToScenarioFolderButton();
+                getmodeldatabases(getModelInfo)
+                .then(function(response) {
+                    resolve(response);
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
+            });
         });
     }
 
     function getModelInfo() {
-        axios({
-            url: proxyurl + queryURL_root + "ExtendSim/getmodelinfo",
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data : {
-                modelpathname: $("#user-models").val(),
-                closeModel: true
-            }
-        })
-        .then(function(response) {
-            var modelInfo = {
-                Modelpathname: $("#user-models").val(),
-                Databasename: response.data.ModelInfo.Databasename,
-                Tablename: response.data.ModelInfo.Tablename
-            }
-            console.log("ModelInfo: " + JSON.stringify(modelInfo));
-            getDatabaseTableContentsStream(modelInfo, false, "");
+        return new Promise((resolve, reject) => { 
+            alert('getModelInfo entry');
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/getmodelinfo",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    modelpathname: $("#user-models").val(),
+                    closeModel: true
+                }
+            })
+            .then(function(response) {
+                var modelInfo = {
+                    Modelpathname: $("#user-models").val(),
+                    Databasename: response.data.ModelInfo.Databasename,
+                    Tablename: response.data.ModelInfo.Tablename
+                }
+                console.log("ModelInfo: " + JSON.stringify(modelInfo));
+                getDatabaseTableContentsStream(modelInfo, false)
+                .then(function(getDatabaseTableContentsStreamResponse) {
+                    alert('getModelInfo: resolving...');
+                    resolve(getDatabaseTableContentsStreamResponse);
+                })
+                .catch(function(getDatabaseTableContentsStreamError) {
+                    reject(getDatabaseTableContentsStreamError);
+                })
+            })
+            .catch(function(error) {
+                reject(error);
+            })
         });
     }
     function sendDataStreamToDatabaseTable(modelInfo, callback) {
@@ -1325,47 +1368,56 @@
         });
     }
     function getDatabaseTableContentsStream(modelInfo, getFieldInfo, callback) {
-        axios({
-            url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data : {
-                modelPathname: modelInfo.Modelpathname, 
-                databaseName: modelInfo.Databasename,
-                tableName: modelInfo.Tablename
-            }
-        })
-        .then(function(response) {
-            if (modelInfo.Tablename === 'ModelDialogVariables') {
-                modelBlockInfo = [];
-                response.data.tableDataArray.forEach(function(elements, index) {
-                    modelBlockInfo.push(
-                    {
-                        variableName: elements[0],
-                        dialogVariableType: elements[1],
-                        blockName: elements[2],
-                        blockNumber: elements[3],
-                        tabname: elements[4],
-                        blockLabel: elements[5],
-                        enclosingHblockNumber: elements[6],
-                        enclosingHblockLabel: elements[7],  
-                    });
-                })
-                modelBlocks = [];
-                var tempArray = [];
-                for (var i=0;i<modelBlockInfo.length;i++) {
-                    tempArray.push(modelBlockInfo[i].blockName);
+        return new Promise((resolve, reject) => { 
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    modelPathname: modelInfo.Modelpathname, 
+                    databaseName: modelInfo.Databasename,
+                    tableName: modelInfo.Tablename
                 }
-                modelBlocks = Array.from(new Set(tempArray));
-                modelBlocks.sort();
-                updateLoadingDivVisibility(false);
-            } else {
-                // save results globally
-                g_tableDataArray = response.data.tableDataArray;
-                getModelDatabaseTableFields(modelInfo.Modelpathname, modelInfo.Databasename, modelInfo.Tablename, callback);
-            }
-        });       
+            })
+            .then(function(response) {
+                if (modelInfo.Tablename === 'ModelDialogVariables') {
+                    modelBlockInfo = [];
+                    response.data.tableDataArray.forEach(function(elements, index) {
+                        modelBlockInfo.push(
+                        {
+                            variableName: elements[0],
+                            dialogVariableType: elements[1],
+                            blockName: elements[2],
+                            blockNumber: elements[3],
+                            tabname: elements[4],
+                            blockLabel: elements[5],
+                            enclosingHblockNumber: elements[6],
+                            enclosingHblockLabel: elements[7],  
+                        });
+                    })
+                    modelBlocks = [];
+                    var tempArray = [];
+                    for (var i=0;i<modelBlockInfo.length;i++) {
+                        tempArray.push(modelBlockInfo[i].blockName);
+                    }
+                    modelBlocks = Array.from(new Set(tempArray));
+                    modelBlocks.sort();
+                    updateLoadingDivVisibility(false);
+                    resolve(response);
+                } else {
+                    // save results globally
+                    g_tableDataArray = response.data.tableDataArray;
+                    getModelDatabaseTableFields(modelInfo.Modelpathname, modelInfo.Databasename, modelInfo.Tablename)
+                    .then(function(getModelDatabaseTableFieldsResponse) {
+                        resolve(getModelDatabaseTableFieldsResponse);
+                    })
+                    .catch(function(error) {
+                        reject(error);
+                    })
+                }
+            });  
+        });     
     }
 
     enableDisableUploadFilesButton();
@@ -1410,31 +1462,6 @@
             .then(function(response) {
                 // Storing an array of results in the results variable
                 $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
-            });
-            break;
-
-        case 'ExtendSim/getUserModelPaths':
-
-            updateLoadingDivVisibility(true);
-            axios({
-                url: proxyurl + queryURL_root + this.id,
-                method: 'post',
-                accept : 'application/json',
-                contentType: 'application/json;charset=utf-8',
-                data: {
-                    username : $("#username").val(),
-                }
-            })
-            .then(function(response) {
-                var userModelPaths = response.data.userModelPaths;
-                for (var i = 0; i < userModelPaths.length; i++) {
-                    $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i].substring(userModelPaths[i].lastIndexOf("\\") + 1) + '</option>');
-                }
-                if (userModelPaths.length > 0) {
-                    $('#user-models').val(userModelPaths[0]);
-                }
-                this.enableDisableCopyModelToScenarioFolderButton();
-                getmodeldatabases(getModelInfo);
             });
             break;
 
