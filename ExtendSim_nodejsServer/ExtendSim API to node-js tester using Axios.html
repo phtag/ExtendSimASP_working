@@ -1069,7 +1069,7 @@
         });
     }
 
-    function CopyDataStreamsToModel(fileIndex) {
+    function CopyDataStreamsToModel(rowIndex) {
         return new Promise((resolve, reject) => {
             if (databaseInputsTableRows < 1) {
                 // Exit since there is not data to push 
@@ -1079,9 +1079,8 @@
                 var modelName =  $("#user-models").val();
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                var databasename = $('#target-database-' + (fileIndex + 1)).val();
-                var tablename = $('#target-table-' + (fileIndex + 1)).val();
-                alert('Fileindex=' + fileIndex + ' Sending stream data to modelpathname=' + modelpathname + ' database=' + databasename + ' tablename=' + tablename);
+                var databasename = $('#target-database-' + (rowIndex + 1)).val();
+                var tablename = $('#target-table-' + (rowIndex + 1)).val();
                 reader.onload = function(event) {
                 event.preventDefault();
                     axios({
@@ -1097,9 +1096,9 @@
                         }
                     })
                     .then(function(response) {
-                        fileIndex++;
-                        if (fileIndex < databaseInputsTableRows) {
-                            CopyDataStreamsToModel(fileIndex);
+                        rowIndex++;
+                        if (rowIndex < databaseInputsTableRows) {
+                            resolve(CopyDataStreamsToModel(rowIndex));
                         } else {
                             // All data streams have been sent to the user's models on the server
                             $("#database-inputs-uploaded-status").prop('checked', true);
@@ -1107,7 +1106,7 @@
                         }
                     });
                 }
-                reader.readAsText(selectedDatabaseFiles[fileIndex]);
+                reader.readAsText(selectedDatabaseFiles[rowIndex]);
             }
         });
     }
@@ -1122,7 +1121,6 @@
 
                 reader.onload = function(event) {
                 event.preventDefault();
-                alert("Copying file to scenario pathname=" + $("#user-scenario-folder-pathname").val());
                     axios({
                         url: proxyurl + queryURL_root + "ExtendSim/sendfile",
                         method: 'post',
@@ -1140,7 +1138,6 @@
                             resolve(CopyDataFilesToServer(fileIndex));
                         } else {
                             $("#files-uploaded-status").prop('checked', true);
-                            alert('CopyDataFilesToServer: Resolving file sends...')
                             resolve(true);
                             // Kick off next type of data push to the server model
                         }
