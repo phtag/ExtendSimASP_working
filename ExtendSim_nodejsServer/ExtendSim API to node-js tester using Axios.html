@@ -316,10 +316,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
     <header class="header" id="extendsim-asp-header"></header>
+    <div id="database-table-model" class="modal">
+            <div id="model-buttons">
+                <label id="selected-response-table-name-label">Table name:</label>
+                <input id="selected-response-table-name" type='text' readonly></input>
+                <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+           </div>  
+            <div class="modal-content">
+                <div id="model-form-contents">
+                    <table id="selected-database-outputs-table" style="width:auto">  s
+                    </table>
+                </div>
+                <div class="container">
+                    <canvas id="model-form-chart"  width=auto></canvas>
+                </div>
+            </div>
+        </div> 
+      
     <div id='page-container'>
     <div id="load_screen"><div id="loading">Loading data from server. Please wait...</div></div>
     <!-- The Modal -->
-    <div id="database-table-model" class="modal">
+    <!-- <div id="database-table-model" class="modal">
         <div id="model-buttons">
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
@@ -334,7 +351,7 @@
                 <canvas id="model-form-chart"  width=auto></canvas>
             </div>
         </div>
-    </div> 
+    </div>  -->
     <div id="extendsim-asp-axios-tester-frame">
         <div id="extendsim-asp-title-heading">ExtendSim ASP Scenario Manager</div>
         <div id="scenario-user-login">
@@ -595,6 +612,14 @@
     // const username = 'analyst1';
     // const password = 'model';
     $('.buttons').prop('disabled', true);
+    $('.scenario-input-file-buttons').prop('disabled', true);
+    $('.scenario-output-file-buttons').prop('disabled', true);
+    $('.scenario-database-input-buttons').prop('disabled', true);
+    $('.scenario-database-output-buttons').prop('disabled', true);
+    $('.scenario-dialog-input-buttons').prop('disabled', true);
+    $('.scenario-dialog-output-buttons').prop('disabled', true);
+    $('.scenario-input-file-buttons').prop('disabled', true);
+    
     $('#scenario-user-login-checkbox').prop('checked', false);
     $('#scenario-factors-checkbox').prop('checked', false);
     $('#scenario-responses-checkbox').prop('checked', false);
@@ -606,6 +631,7 @@
     $("#model-copied-status").prop('checked', false);
     $("#server-actions").hide();
     $('#model-form-chart').hide();
+    $("#database-table-model").hide();
 
     // page sections
     updateDOMelementVisibility("scenario-user-login");
@@ -879,7 +905,13 @@
         }
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
         updateLoadingDivVisibility(true);
-        getDatabaseTableContentsStream(modelInfo, true, displayTableContents);
+        getDatabaseTableContentsStream(modelInfo, true, displayTableContents)
+        .then(function(response) {
+            displayTableContents(response.data.modelDatabaseTableFields);
+            updateLoadingDivVisibility(false);
+            $("#database-table-model").show();
+            return(response);
+        })
     }
     
     function openViewDatabaseTableChartModal(event) {
@@ -1031,7 +1063,6 @@
         return new Promise((resolve, reject) => {
             if (dialogInputsTableRows < 1) {
                 // Exit since there is not data to push 
-                alert('CopyDialogVariableDataToModel: resolve=true');
                 resolve(true);
             } else {
                 var modelName =  $("#user-models").val();
@@ -1040,7 +1071,6 @@
                 var variableName = $('#dialog-variable-name-select-' + (rowIndex + 1)).val();
                 var variableValue = $('#dialog-variable-value-select-' + (rowIndex + 1)).val();
                 var blockNumber = $('#"dialog-variable-block-number-select-' + (rowIndex + 1)).val();
-                alert('CopyDialogVariableDataToModel: row=' + rowIndex + ' variableName=' + variableName + ' variableValue=' + variableValue + ' blockNumber=' + blockNumber);
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
                     method: 'post',
@@ -1176,7 +1206,6 @@
                             modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                             var modelPathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
                             var userLoginSessionID = $("#user-login-session-id").val();
-                            alert('Submitting simulation scenario to server: userLoginSessionID=' + userLoginSessionID + ' modelPathname=' + modelPathname);
                             axios({
                                 url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenario',
                                 method: 'post',
@@ -1258,7 +1287,6 @@
 
     function getDatabaseTables(databaseIndex, callback) {
         return new Promise((resolve, reject) => { 
-            alert('getDatabaseTables: databaseindex=' + databaseIndex);
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetables",
                 method: 'post',
@@ -1327,7 +1355,6 @@
 
     function getModelInfo() {
         return new Promise((resolve, reject) => { 
-            alert('getModelInfo entry');
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/getmodelinfo",
                 method: 'post',
@@ -1347,7 +1374,6 @@
                 console.log("ModelInfo: " + JSON.stringify(modelInfo));
                 getDatabaseTableContentsStream(modelInfo, false)
                 .then(function(getDatabaseTableContentsStreamResponse) {
-                    alert('getModelInfo: resolving...');
                     resolve(getDatabaseTableContentsStreamResponse);
                 })
                 .catch(function(getDatabaseTableContentsStreamError) {
@@ -1374,7 +1400,7 @@
         .then(function(response) {
         });
     }
-    function getDatabaseTableContentsStream(modelInfo, getFieldInfo, callback) {
+    function getDatabaseTableContentsStream(modelInfo, getFieldInfo) {
         return new Promise((resolve, reject) => { 
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/getdatabasetablecontentsstream",
