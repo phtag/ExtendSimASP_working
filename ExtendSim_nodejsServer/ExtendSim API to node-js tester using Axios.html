@@ -1049,6 +1049,10 @@
         var rowIndex = event.target.id.substring(index);
         updateDialogVariableDropdown(rowIndex);  
     }
+
+    function dialogVariableSelected(event) {
+
+    }
     function clearTableData() {
         $("#file-inputs-table").empty();
         $("#database-inputs-table").empty();
@@ -1132,7 +1136,7 @@
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
                 var variableName = $('#dialog-variable-name-select-' + (rowIndex + 1)).val();
                 var variableValue = $('#dialog-variable-value-select-' + (rowIndex + 1)).val();
-                var blockNumber = $('#"dialog-variable-block-number-select-' + (rowIndex + 1)).val();
+                var blockNumber = $('#dialog-variable-block-number-select-' + (rowIndex + 1)).val();
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
                     method: 'post',
@@ -1151,7 +1155,7 @@
                 //  Advance to the next row
                     rowIndex++;
                     if (rowIndex < dialogInputsTableRows) {
-                        CopyDialogVariableDataToModel(rowIndex);
+                        resolve(CopyDialogVariableDataToModel(rowIndex));
                     } else {
                         // All dialog variable values pushed to server
                         resolve(true);
@@ -1261,6 +1265,7 @@
                     // alert('CopyDataStreamsToModel: response=' + CopyDataStreamsToModelResponse);
                     CopyDataFilesToServer(0)
                     .then(function(CopyDataFilesToServerResponse) {
+                        alert('CopyDialogVariableDataToModel: response=' + CopyDataStreamsToModelResponse);
                         CopyDialogVariableDataToModel(0)
                         .then(function(CopyDialogVariableDataToModelResponse) {
                                 // // Trigger the submission of the scenario
@@ -1386,6 +1391,7 @@
     function getUserModelPaths() {
         return new Promise((resolve, reject) => { 
             clearTableData();
+            $("#get-user-models-button").prop('disabled', true);
             updateLoadingDivVisibility(true);
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/getUserModelPaths',
