@@ -1169,7 +1169,6 @@
                     // alert('CopyDataStreamsToModel: response=' + CopyDataStreamsToModelResponse);
                     CopyDataFilesToServer(0)
                     .then(function(CopyDataFilesToServerResponse) {
-                        alert('CopyDataFilesToServer: response=' + CopyDataFilesToServerResponse);
                         CopyDialogVariableDataToModel(0)
                         .then(function(CopyDialogVariableDataToModelResponse) {
                                 // // Trigger the submission of the scenario
@@ -1247,15 +1246,19 @@
                     if (response.data.modelDatabases[i].charAt(0) !== "_") {
                         modelDatabases.push({ name: response.data.modelDatabases[i],
                                             tableNames: [] });
-                        getDatabaseTables(modelDatabases.length - 1, callback);
                     }
-                };
+                }
+                getDatabaseTables(0, callback)
+                .then(function(getDatabaseTablesResponse) {
+                    resolve(getDatabaseTablesResponse);
+                });
             });
         });
     }
 
     function getDatabaseTables(databaseIndex, callback) {
         return new Promise((resolve, reject) => { 
+            alert('getDatabaseTables: databaseindex=' + databaseIndex);
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetables",
                 method: 'post',
@@ -1270,13 +1273,18 @@
             .then(function(response) {
                 modelDatabases[databaseIndex].tableNames = response.data.modelDatabaseTables;
                 modelDatabases[databaseIndex].tableNames.sort();
-                if (callback !== "") {
-                    callback()
-                    .then(function(callbackResponse) {
-                        resolve(response);
-                    });
+                var dbIndex = databaseIndex + 1;
+                if (dbIndex < modelDatabases.length) {
+                    resolve(getDatabaseTables(dbIndex, callback));
                 } else {
-                    resolve(response);
+                    if (callback !== "") {
+                        callback()
+                        .then(function(callbackResponse) {
+                            resolve(response);
+                        });
+                    } else {
+                        resolve(response);
+                    }
                 }
             })
             .catch(function(error) {
@@ -1288,7 +1296,6 @@
     function getUserModelPaths() {
         return new Promise((resolve, reject) => { 
             updateLoadingDivVisibility(true);
-            alert('getUserModelPaths entry...');
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/getUserModelPaths',
                 method: 'post',
