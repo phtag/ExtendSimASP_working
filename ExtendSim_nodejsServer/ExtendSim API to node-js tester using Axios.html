@@ -207,7 +207,9 @@
     #scenario-name {
         width: 30%;
     }
-
+    #user-login-session-id-label {
+        margin-left: 50px;
+    }
     #user-login-session-id {
         width: 300px;
     }
@@ -362,8 +364,9 @@
             <div id='scenario-user-login-body'>
                 Username: <input class="login" id="username" type="text" name="username" value=""></input>
                 Password: <input class="login" id="password" type="password" name="password" value=""></input>
-                <button class="buttons" id="users/login">Login to server</button>
+                IP address: <input class="login" id="ip-address"></input>
                 <br></br>
+                <button class="buttons" id="users/login">Login to server</button>
                 <label id="user-login-session-id-label">User Login Session ID:</label>
                 <input id="user-login-session-id"></input>
                 <br></br>  
@@ -596,14 +599,16 @@
     var numDatabaseFilesUploaded = 0;
     var tableDataHtmlCode = "";
 
-    const IPaddress = "http://184.171.246.58";
+    var IPaddress = "";
+    // var IPaddress = "http://184.171.246.58";
+
     // const IPaddress = "localhost";
     // var queryURL_root = "http://" + IPaddress + ":8090/StreamingService/web/"
     var queryURL_root =  IPaddress + ":3001/api/"
-    var queryURL_root2 = "http://" + IPaddress + ":3001/api/users/login/"
-    var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer"
-    var queryURL2 = "http://" + IPaddress + ":8090/StreamingService/web/EchoWithGet"
-    var queryURL3 = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
+    // var queryURL_root2 = "http://" + IPaddress + ":3001/api/users/login/"
+    // var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer"
+    // var queryURL2 = "http://" + IPaddress + ":8090/StreamingService/web/EchoWithGet"
+    // var queryURL3 = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
     // var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer?username=analyst1&password=model"
     // const proxyurl = "https://cors-anywhere.herokuapp.com/";
     const proxyurl = "";
@@ -648,6 +653,11 @@
     updateDOMelementVisibility("scenario-dialog-outputs");
 
     updateLoadingDivVisibility(false);
+
+    function ValidateIPaddress(inputText)
+    {
+        return /^(([1-9]?\d|1\d\d|2[0-4]\d|25[0-5])(\.(?!$)|(?=$))){4}$/.test(inputText||"");
+    }    
 
     function displayTableContents(modelDatabaseTableFields) {
         g_tableSchema = modelDatabaseTableFields;
@@ -1556,15 +1566,18 @@
     });
 
     $('.login').keyup(function () {
-        if (($("#username").val() === '') || ($("#password").val() === '')) {
+        if (($("#username").val() === '') || ($("#password").val() === '') || (!ValidateIPaddress($("#ip-address").val()))) {
             //Check to see if there is any text entered
             // If there is no text within the input ten disable the button
             $('.buttons').prop('disabled', true);
         } else {
             //If there is text in the input, then enable the button
+            IPaddress = "http://" + $("#ip-address").val();
+            queryURL_root =  IPaddress + ":3001/api/";
             $('.buttons').prop('disabled', false);
             $('#create-scenario-folder-button').prop('disabled', true);
             $('#copy-model-to-scenario-folder').prop('disabled', true);
+            alert('queryURL_root=' + queryURL_root);
 
         }
     });
