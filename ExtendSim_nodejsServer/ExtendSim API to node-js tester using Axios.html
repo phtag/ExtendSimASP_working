@@ -372,7 +372,7 @@
                 <br></br>  
                 <!-- <button class="buttons" id="ExtendSim/getUserModelPaths">Get user models</button> -->
                 <button class="user-login-buttons" id="get-user-models-button" onclick='getUserModelPaths()'>Get user models</button>
-                <select id="user-models"></select>
+                <select onchange="updateModelInfo()" id="user-models"></select>
                 <br></br>
                 <label id="scenario-name-label">Scenario name:</label>
                 <input id="scenario-name"></input>
@@ -624,6 +624,7 @@
     $('.scenario-dialog-input-buttons').prop('disabled', true);
     $('.scenario-dialog-output-buttons').prop('disabled', true);
     $('.scenario-input-file-buttons').prop('disabled', true);
+    $('.user-login-buttons').prop('disabled', true);
     
     $('#scenario-user-login-checkbox').prop('checked', false);
     $('#scenario-factors-checkbox').prop('checked', false);
@@ -819,7 +820,7 @@
         var table = $("#database-inputs-table");
         databaseInputsTableRows++;
         var newrow = 
-        '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="databasefilesSelected(event)" class="input-file-row"></td><td><select id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
+        '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="databasefilesSelected(event)" class="input-file-row"></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
         table.append(newrow);
         var targetDatabase = '#target-database-' + databaseInputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -873,7 +874,7 @@
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
         var newrow = 
-        '<tr><td><select id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onclick="openExportDatabaseTableContentsModal(event)">Export data</button></td></tr>'
+        '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onclick="openExportDatabaseTableContentsModal(event)">Export data</button></td></tr>'
         table.append(newrow);
         var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -888,6 +889,39 @@
         }
         if (modelDatabases[0].tableNames.length > 0) {
             $(sourceTable).val(modelDatabases[0].tableNames[0]);
+        }
+    }
+    function updateTargetTableSelect(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        var targetDatabase = '#target-database-' + rowIndex;
+        var matchindex = modelDatabases.findIndex(x => x.name === $(targetDatabase).val());
+        if (matchindex >= 0) {
+            var targetTable = '#target-table-' + rowIndex;
+            $(targetTable).empty();
+            for (var i = 0; i < modelDatabases[matchindex].tableNames.length; i++) {
+                $(targetTable).append('<option value="' + modelDatabases[matchindex].tableNames[i] + '">' + modelDatabases[matchindex].tableNames[i] + '</option>');
+            }
+            if (modelDatabases[matchindex].tableNames.length > 0) {
+                $(targetTable).val(modelDatabases[matchindex].tableNames[0]);
+            }
+        }     
+    }
+
+    function updateSourceTableSelect(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        var sourceDatabase = '#source-database-' + rowIndex;
+        var matchindex = modelDatabases.findIndex(x => x.name === $(sourceDatabase).val());
+        if (matchindex >= 0) {
+            var sourceTable = '#source-table-' + rowIndex;
+            $(sourceTable).empty();
+            for (var i = 0; i < modelDatabases[matchindex].tableNames.length; i++) {
+                $(sourceTable).append('<option value="' + modelDatabases[matchindex].tableNames[i] + '">' + modelDatabases[matchindex].tableNames[i] + '</option>');
+            }
+            if (modelDatabases[matchindex].tableNames.length > 0) {
+                $(sourceTable).val(modelDatabases[matchindex].tableNames[0]);
+            }
         }
     }
 
@@ -907,9 +941,11 @@
     function openDatabaseTableContentsModal(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
-
+        var modelName =  $("#user-models").val();
+        modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+        var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
         var modelInfo = {
-            Modelpathname: $("#user-models").val(),
+            Modelpathname: modelpathname,
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
@@ -1014,6 +1050,13 @@
         updateDialogVariableDropdown(rowIndex);  
     }
 
+    function updateModelInfo() {
+        updateLoadingDivVisibility(true);
+        getmodeldatabases(getModelInfo)
+        .then(function(response) {
+            updateLoadingDivVisibility(false);
+        })
+    }
     function createScenarioFolder() {
         return new Promise((resolve, reject) => {
             axios({
