@@ -1049,9 +1049,18 @@
         var rowIndex = event.target.id.substring(index);
         updateDialogVariableDropdown(rowIndex);  
     }
+    function clearTableData() {
+        $("#file-inputs-table").empty();
+        $("#database-inputs-table").empty();
+        $("#dialog-inputs-table").empty();
+        $("#file-outputs-table").empty();
+        $("#database-outputs-table").empty();
+        $("#dialog-outputs-table").empty();
+    }
 
     function updateModelInfo() {
         updateLoadingDivVisibility(true);
+        clearTableData();
         getmodeldatabases(getModelInfo)
         .then(function(response) {
             updateLoadingDivVisibility(false);
@@ -1376,6 +1385,7 @@
 
     function getUserModelPaths() {
         return new Promise((resolve, reject) => { 
+            clearTableData();
             updateLoadingDivVisibility(true);
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/getUserModelPaths',
@@ -1388,6 +1398,7 @@
             })
             .then(function(response) {
                 var userModelPaths = response.data.userModelPaths;
+                $('#user-models').empty(0);
                 for (var i = 0; i < userModelPaths.length; i++) {
                     $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i].substring(userModelPaths[i].lastIndexOf("\\") + 1) + '</option>');
                 }
