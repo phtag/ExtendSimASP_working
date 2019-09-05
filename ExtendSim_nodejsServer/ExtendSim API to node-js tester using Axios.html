@@ -326,7 +326,7 @@
            </div>  
             <div class="modal-content">
                 <div id="model-form-contents">
-                    <table id="selected-database-outputs-table" style="width:auto">  s
+                    <table id="selected-database-outputs-table" style="width:auto">
                     </table>
                 </div>
                 <div class="container">
@@ -534,9 +534,8 @@
                         <input id="scenario-dialog-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-outputs")'></input>    
                     </div>
                     <div id="scenario-dialog-outputs-body">
-                        <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
-                        <button class="scenario-dialog-output-buttons" id="delete-dialog-outputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
-                        <button class="scenario-dialog-output-buttons" id="upload-dialog-outputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
+                        <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogOutputsTableRow()'>Add row</button>
+                        <button class="scenario-dialog-output-buttons" id="delete-dialog-outputs-table-row" onclick='deleteDialogOutputsTableRow()'>Delete row</button>
                         <table id="dialog-outputs-table" style="width:auto">
                             <tr>
                                 <th>
@@ -593,6 +592,7 @@
     var inputFileTableRows = 0;
     var databaseInputsTableRows = 0;
     var dialogInputsTableRows = 0;
+    var dialogOutputsTableRows = 0;
     var databaseOutputsTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
@@ -849,23 +849,48 @@
         var table = $("#dialog-inputs-table");
         dialogInputsTableRows++;
         var newrow = 
-        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="variable-type-select-' + dialogInputsTableRows + '" onchange="dialogVariableTypeSelected(event)"></select></td><td><select id="variable-name-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+        '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
         table.append(newrow);
-        var blockType = '#block-type-select-' + dialogInputsTableRows;
+        var blockType = '#target-block-type-select-' + dialogInputsTableRows;
         for (var i = 0; i < modelBlocks.length; i++) {
             $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
         }
         if (modelBlocks.length > 0) {
             $(blockType).val(modelBlocks[0]);
-            var blockNumber = '#block-number-select-' + dialogInputsTableRows;
-            updateBlockNumbersDropdown(dialogInputsTableRows);
-            updatedialogVariableTypeDropdown(dialogInputsTableRows);
+            var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
+            updateTargetBlockNumbersDropdown(dialogInputsTableRows);
+            updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
         }
     }
 
     function deleteDialogInputsTableRow(event) {
         if (dialogInputsTableRows > 0) {
             dialogInputsTableRows--;
+        }
+        $("#dialog-inputs-table tr:last").remove();  
+    }
+
+    function addNewDialogOutputsTableRow() {
+        var table = $("#dialog-outputs-table");
+        dialogOutputsTableRows++;
+        var newrow = 
+        '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
+        table.append(newrow);
+        var blockType = '#source-block-type-select-' + dialogOutputsTableRows;
+        for (var i = 0; i < modelBlocks.length; i++) {
+            $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
+        }
+        if (modelBlocks.length > 0) {
+            $(blockType).val(modelBlocks[0]);
+            var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
+            updateBlockNumbersDropdown(dialogOutputsTableRows);
+            updatedialogVariableTypeDropdown(dialogOutputsTableRows);
+        }
+    }
+
+    function deleteDialogOutputsTableRow(event) {
+        if (dialogOutputsTableRows > 0) {
+            dialogOutputsTableRows--;
         }
         $("#dialog-inputs-table tr:last").remove();  
     }
@@ -975,8 +1000,8 @@
     }
 
     function updateBlockNumbersDropdown(rowIndex) {
-        var blockType = '#block-type-select-' + rowIndex;
-        var blockNumber = '#block-number-select-' + rowIndex;
+        var blockType = '#input-block-type-select-' + rowIndex;
+        var blockNumber = '#output-block-number-select-' + rowIndex;
 
         blockNumbers = [];
         var tempArray = [];
@@ -1013,10 +1038,29 @@
         updateDialogVariableDropdown(rowIndex);
     }
 
-    function updateDialogVariableDropdown(rowIndex) {
-        var blockNumber = '#block-number-select-' + rowIndex;
-        var dialogVariableType = '#variable-type-select-' + rowIndex;
-        var dialogVariable = '#variable-name-select-' + rowIndex;
+    function updateSourceDialogVariableDropdown(rowIndex) {
+        var blockNumber = '#source-block-number-select-' + rowIndex;
+        var dialogVariableType = '#source-variable-type-select-' + rowIndex;
+        var dialogVariable = '#source-variable-name-select-' + rowIndex;
+        dialogVariables = [];
+        var tempArray = [];
+        for (var i=0;i<modelBlockInfo.length;i++) {
+            if (($(blockNumber).val() === modelBlockInfo[i].blockNumber) &&
+                ($(dialogVariableType).val() === modelBlockInfo[i].dialogVariableType)) {
+                tempArray.push(modelBlockInfo[i].variableName);
+            }
+        }
+        dialogVariables = Array.from(new Set(tempArray));
+        dialogVariables.sort();
+        $(dialogVariable).empty();
+        for (var i = 0; i < dialogVariables.length; i++) {
+            $(dialogVariable).append('<option value="' + dialogVariables[i] + '">' + dialogVariables[i] + '</option>');
+        }      
+    }
+    function updateTargetDialogVariableDropdown(rowIndex) {
+        var blockNumber = '#target-block-number-select-' + rowIndex;
+        var dialogVariableType = '#target-variable-type-select-' + rowIndex;
+        var dialogVariable = '#target-variable-name-select-' + rowIndex;
         dialogVariables = [];
         var tempArray = [];
         for (var i=0;i<modelBlockInfo.length;i++) {
@@ -1044,10 +1088,15 @@
         updatedialogVariableTypeDropdown(rowIndex);
     }
 
-    function dialogVariableTypeSelected(event) {
+    function sourceDialogVariableTypeSelected(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
-        updateDialogVariableDropdown(rowIndex);  
+        updateSourceDialogVariableDropdown(rowIndex);  
+    }
+    function targetDialogVariableTypeSelected(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        updateTargetDialogVariableDropdown(rowIndex);  
     }
 
     function dialogVariableSelected(event) {
@@ -1134,9 +1183,9 @@
                 var modelName =  $("#user-models").val();
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                var variableName = $('#variable-name-select-' + (rowIndex + 1)).val();
-                var variableValue = $('#variable-value-select-' + (rowIndex + 1)).val();
-                var blockNumber = $('#block-number-select-' + (rowIndex + 1)).val();
+                var variableName = $('#target-variable-name-select-' + (rowIndex + 1)).val();
+                var variableValue = $('#target-variable-value-select-' + (rowIndex + 1)).val();
+                var blockNumber = $('#target-block-number-select-' + (rowIndex + 1)).val();
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
                     method: 'post',
@@ -1646,6 +1695,7 @@
                 $('.scenario-database-input-buttons').prop('disabled', false);
                 $('.scenario-dialog-input-buttons').prop('disabled', false);
                 $('.scenario-database-output-buttons').prop('disabled', false);
+                $('.scenario-dialog-output-buttons').prop('disabled', false);      
             }
         }
     });
