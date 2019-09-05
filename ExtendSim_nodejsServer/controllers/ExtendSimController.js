@@ -70,6 +70,41 @@ module.exports = {
             return res.json({ ModelInfo: modelInfo });
         })
     },
+    getdialogvariabledata: function(req, res) {
+                // result = .myStreamingServiceClient.SendDataTableESdataTarget(ESdatabaseData.selectedModelPathname, ESdatabaseData.selectedDatabase, ESdatabaseData.selectedTable)
+        // .myStreamingServiceClient.SendDataTableESdataStream(myESdataStream.EDS_dataStream)
+        var myheaders = { 
+            accept: "application/json", 
+        };     
+        var queryURL =  "http://" + IPaddress + ":8080/ExtendSimService/web/ES_GetModelData";
+        // ?filepathname=" + encodeURIComponent(req.body.scenarioFolderPathname + "/" + req.body.filename);
+        var item = req.body.variableName + ":#" +
+                    req.body.blockNumber.toString() + ":" +
+                    req.body.row.toString() + ":" +
+                    req.body.column.toString();
+        var modelPathname = req.body.modelPathname;
+        console.log("getdialogvariabledata - model pathname =" + req.body.modelPathname + 
+            " blockNumber=" + req.body.blockNumber + 
+            " variable name=" + req.body.variableName);
+        return axios({
+            url: queryURL,
+            method: 'post',
+            accept : "application/json",
+            contentType: "application/json;charset=utf-8",
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params: {
+                Topic: "System",
+                Item: item,                  
+                modelPathname: modelPathname
+            }
+        }).then(function(response) {
+            // Convert the file stream data into a memory stream from which the server
+            // can load the data directly into an array
+            // var reader = new streams.ReadableStream(req.body.tabledata);
+            return res.json({result: response.data})  
+        });  
+    },
     getmodeldatabasetablefields: function(req, res) {
         var myheaders = { 
             accept: "application/json", 
@@ -278,11 +313,13 @@ module.exports = {
         var item = req.body.variableName + ":#" +
                     req.body.blockNumber.toString() + ":" +
                     req.body.row.toString() + ":" +
-                    req.body.column.toString()   
+                    req.body.column.toString();
+        var variableValue = req.body.variableValue.toString();
+        var modelPathname = req.body.modelPathname;
         console.log("senddialogvariabledata - model pathname =" + req.body.modelPathname + 
             " blockNumber=" + req.body.blockNumber + 
             " variable name=" + req.body.variableName +
-            " variable value=" + req.body.variableName);
+            " variable value=" + variableValue);
         return axios({
             url: queryURL,
             method: 'post',
@@ -293,8 +330,8 @@ module.exports = {
             params: {
                 Topic: "System",
                 Item: item,                  
-                Value: req.body.variableValue,
-                modelPathname: req.body.modelPathname
+                Value: variableValue,
+                modelPathname: modelPathname
             }
         }).then(function(response) {
             // Convert the file stream data into a memory stream from which the server

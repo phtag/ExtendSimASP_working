@@ -33,7 +33,7 @@
         margin-top: 10px;
         margin-right: 10px;
     }
-    .upload-dialog-inputs-button {
+    .upload-dialog-inputs-button, .download-dialog-outputs-button {
         margin-top: 10px;
         margin-right: 10px;
     }
@@ -114,7 +114,7 @@
         font-size: 16px;
         text-align: center;
     }
-    #database-outputs-table th {
+    #database-outputs-table, #dialog-outputs-table, #file-outputs-table th {
         background-color: #4CAF50;
         color: white;
         text-align: center;
@@ -362,9 +362,9 @@
                 <input type='checkbox' id='scenario-user-login-checkbox' onclick='updateDOMelementVisibility("scenario-user-login")'>User Login</input>
             </div>
             <div id='scenario-user-login-body'>
-                Username: <input class="login" id="username" type="text" name="username" value=""></input>
-                Password: <input class="login" id="password" type="password" name="password" value=""></input>
-                IP address: <input class="login" id="ip-address"></input>
+                Username: <input class="login" id="username" type="text" name="username" value="analyst1"></input>
+                Password: <input class="login" id="password" type="password" name="password" value="model"></input>
+                IP address: <input class="login" id="ip-address" value="184.171.246.58"></input>
                 <br></br>
                 <button class="buttons" id="users/login">Login to server</button>
                 <label id="user-login-session-id-label">User Login Session ID:</label>
@@ -408,7 +408,7 @@
                                 </th>
                             </tr>
                         </table>
-                        <button class="upload-files-button" onclick='CopyDataFilesToServer(0)''>Upload scenario input files to server</button>
+                        <button class="upload-files-button" onclick='uploadDataFilesToServer(0)''>Upload scenario input files to server</button>
                         <label id="files-uploaded-status-label">Files uploaded:</label>
                         <input id="files-uploaded-status" type="checkbox"></input>
                     </div>
@@ -436,7 +436,7 @@
                                 </th>
                             </tr>
                         </table>
-                        <button class="upload-database-inputs-button" onclick='CopyDataStreamsToModel(0)'>Upload inputs to database tables</button>
+                        <button class="upload-database-inputs-button" onclick='uploadDataStreamsToModel(0)'>Upload inputs to database tables</button>
                         <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
                         <input id="database-inputs-uploaded-status" type="checkbox"></input>
                     </div>
@@ -469,7 +469,7 @@
                                 </th>
                             </tr>
                         </table>
-                        <button class="upload-dialog-inputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+                        <button class="upload-dialog-inputs-button" onclick="uploadDialogVariableDataToModel(0)">Upload inputs to dialog variables</button>
                         <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
                         <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
                     </div>
@@ -555,7 +555,7 @@
                                 </th>
                             </tr>
                         </table>
-                        <button class="upload-dialog-outputs-button" id="ExtendSim/sendfile">Upload inputs to dialog variables</button>
+                        <button class="download-dialog-outputs-button" onclick="downloadDialogVariableDataFromModel(0)">Download dialog variable values to table</button>
                         <label id="dialog-outputs-uploaded-status-label">Inputs uploaded:</label>
                         <input id="dialog-outputs-uploaded-status" type="checkbox"></input>
                     </div>
@@ -849,7 +849,7 @@
         var table = $("#dialog-inputs-table");
         dialogInputsTableRows++;
         var newrow = 
-        '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+        '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
         table.append(newrow);
         var blockType = '#target-block-type-select-' + dialogInputsTableRows;
         for (var i = 0; i < modelBlocks.length; i++) {
@@ -874,7 +874,7 @@
         var table = $("#dialog-outputs-table");
         dialogOutputsTableRows++;
         var newrow = 
-        '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
+        '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
         table.append(newrow);
         var blockType = '#source-block-type-select-' + dialogOutputsTableRows;
         for (var i = 0; i < modelBlocks.length; i++) {
@@ -883,8 +883,8 @@
         if (modelBlocks.length > 0) {
             $(blockType).val(modelBlocks[0]);
             var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
-            updateBlockNumbersDropdown(dialogOutputsTableRows);
-            updatedialogVariableTypeDropdown(dialogOutputsTableRows);
+            updateSourceBlockNumbersDropdown(dialogOutputsTableRows);
+            updateSourceDialogVariableTypeDropdown(dialogOutputsTableRows);
         }
     }
 
@@ -999,9 +999,9 @@
         getDatabaseTableContentsStream(modelInfo, true, displayTableChart);
     }
 
-    function updateBlockNumbersDropdown(rowIndex) {
-        var blockType = '#input-block-type-select-' + rowIndex;
-        var blockNumber = '#output-block-number-select-' + rowIndex;
+    function updateSourceBlockNumbersDropdown(rowIndex) {
+        var blockType = '#source-block-type-select-' + rowIndex;
+        var blockNumber = '#source-block-number-select-' + rowIndex;
 
         blockNumbers = [];
         var tempArray = [];
@@ -1016,12 +1016,32 @@
         for (var i = 0; i < blockNumbers.length; i++) {
             $(blockNumber).append('<option value="' + blockNumbers[i] + '">' + blockNumbers[i] + '</option>');
         }
-        updatedialogVariableTypeDropdown(rowIndex);
+        updateSourceDialogVariableTypeDropdown(rowIndex);
     }
 
-    function updatedialogVariableTypeDropdown(rowIndex) {
-        var blockNumber = '#block-number-select-' + rowIndex;
-        var dialogVariableType = '#variable-type-select-' + rowIndex;
+    function updateTargetBlockNumbersDropdown(rowIndex) {
+        var blockType = '#target-block-type-select-' + rowIndex;
+        var blockNumber = '#target-block-number-select-' + rowIndex;
+
+        blockNumbers = [];
+        var tempArray = [];
+        for (var i=0;i<modelBlockInfo.length;i++) {
+            if ($(blockType).val() === modelBlockInfo[i].blockName) {
+                tempArray.push(modelBlockInfo[i].blockNumber);
+            }
+        }
+        blockNumbers = Array.from(new Set(tempArray));
+        blockNumbers.sort();
+        $(blockNumber).empty();
+        for (var i = 0; i < blockNumbers.length; i++) {
+            $(blockNumber).append('<option value="' + blockNumbers[i] + '">' + blockNumbers[i] + '</option>');
+        }
+        updateTargetDialogVariableTypeDropdown(rowIndex);
+    }
+
+    function updateTargetDialogVariableTypeDropdown(rowIndex) {
+        var blockNumber = '#target-block-number-select-' + rowIndex;
+        var dialogVariableType = '#target-variable-type-select-' + rowIndex;
         dialogVariableTypes = [];
         var tempArray = [];
         for (var i=0;i<modelBlockInfo.length;i++) {
@@ -1035,7 +1055,26 @@
         for (var i = 0; i < dialogVariableTypes.length; i++) {
             $(dialogVariableType).append('<option value="' + dialogVariableTypes[i] + '">' + dialogVariableTypes[i] + '</option>');
         }
-        updateDialogVariableDropdown(rowIndex);
+        updateTargetDialogVariableDropdown(rowIndex);
+    }
+
+    function updateSourceDialogVariableTypeDropdown(rowIndex) {
+        var blockNumber = '#source-block-number-select-' + rowIndex;
+        var dialogVariableType = '#source-variable-type-select-' + rowIndex;
+        dialogVariableTypes = [];
+        var tempArray = [];
+        for (var i=0;i<modelBlockInfo.length;i++) {
+            if ($(blockNumber).val() === modelBlockInfo[i].blockNumber) {
+                tempArray.push(modelBlockInfo[i].dialogVariableType);
+            }
+        }
+        dialogVariableTypes = Array.from(new Set(tempArray));
+        dialogVariableTypes.sort();
+        $(dialogVariableType).empty();
+        for (var i = 0; i < dialogVariableTypes.length; i++) {
+            $(dialogVariableType).append('<option value="' + dialogVariableTypes[i] + '">' + dialogVariableTypes[i] + '</option>');
+        }
+        updateSourceDialogVariableDropdown(rowIndex);
     }
 
     function updateSourceDialogVariableDropdown(rowIndex) {
@@ -1077,15 +1116,28 @@
         }      
     }
 
-    function blockTypeSelected(event) {
+    function sourceBlockTypeSelected(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
-        updateBlockNumbersDropdown(rowIndex);
+        updateSourceBlockNumbersDropdown(rowIndex);
     }
-    function blockNumberSelected(event) {
+
+    function targetBlockTypeSelected(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
-        updatedialogVariableTypeDropdown(rowIndex);
+        updateTargetBlockNumbersDropdown(rowIndex);
+    }
+    
+    function sourceBlockNumberSelected(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        updateSourceDialogVariableTypeDropdown(rowIndex);
+    }
+
+    function targetBlockNumberSelected(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        updateTargetDialogVariableTypeDropdown(rowIndex);
     }
 
     function sourceDialogVariableTypeSelected(event) {
@@ -1171,10 +1223,50 @@
     }
 
     function sendFactorDataToServer() {
-        CopyDataFilesToServer(0, CopyDataStreamsToModel, CopyDialogVariableDataToModel);
+        uploadDataFilesToServer(0, uploadDataStreamsToModel, uploadDialogVariableDataToModel);
     }
 
-    function CopyDialogVariableDataToModel(rowIndex) {
+    function downloadDialogVariableDataFromModel(rowIndex) {
+        return new Promise((resolve, reject) => {
+            if (dialogOutputsTableRows < 1) {
+                // Exit since there is not data to push 
+                resolve(true);
+            } else {
+                var modelName =  $("#user-models").val();
+                modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
+                var variableName = $('#target-variable-name-select-' + (rowIndex + 1)).val();
+                var variableValue = $('#target-variable-value-' + (rowIndex + 1)).val();
+                var blockNumber = $('#target-block-number-select-' + (rowIndex + 1)).val();
+                axios({
+                    url: proxyurl + queryURL_root + "ExtendSim/getdialogvariabledata",
+                    method: 'post',
+                    accept : 'application/json',
+                    contentType: 'application/json;charset=utf-8',
+                    data : {
+                        variableName: variableName,
+                        blockNumber: blockNumber,
+                        row: 0,
+                        column: 0,
+                        modelPathname: modelpathname
+                    }
+                })
+                .then(function(response) {
+                    alert('Returned result=' + response.data);
+                //  Advance to the next row
+                    rowIndex++;
+                    if (rowIndex < dialogOutputsTableRows) {
+                        resolve(downloadDialogVariableDataFromModel(rowIndex));
+                    } else {
+                        // All dialog variable values pushed to server
+                        resolve(true);
+                    }
+                });
+            }
+        });
+    }
+
+    function uploadDialogVariableDataToModel(rowIndex) {
         return new Promise((resolve, reject) => {
             if (dialogInputsTableRows < 1) {
                 // Exit since there is not data to push 
@@ -1184,7 +1276,7 @@
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
                 var variableName = $('#target-variable-name-select-' + (rowIndex + 1)).val();
-                var variableValue = $('#target-variable-value-select-' + (rowIndex + 1)).val();
+                var variableValue = $('#target-variable-value-' + (rowIndex + 1)).val();
                 var blockNumber = $('#target-block-number-select-' + (rowIndex + 1)).val();
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
@@ -1204,7 +1296,7 @@
                 //  Advance to the next row
                     rowIndex++;
                     if (rowIndex < dialogInputsTableRows) {
-                        resolve(CopyDialogVariableDataToModel(rowIndex));
+                        resolve(uploadDialogVariableDataToModel(rowIndex));
                     } else {
                         // All dialog variable values pushed to server
                         resolve(true);
@@ -1214,7 +1306,7 @@
         });
     }
 
-    function CopyDataStreamsToModel(rowIndex) {
+    function uploadDataStreamsToModel(rowIndex) {
         return new Promise((resolve, reject) => {
             if (databaseInputsTableRows < 1) {
                 // Exit since there is not data to push 
@@ -1243,7 +1335,7 @@
                     .then(function(response) {
                         rowIndex++;
                         if (rowIndex < databaseInputsTableRows) {
-                            resolve(CopyDataStreamsToModel(rowIndex));
+                            resolve(uploadDataStreamsToModel(rowIndex));
                         } else {
                             // All data streams have been sent to the user's models on the server
                             $("#database-inputs-uploaded-status").prop('checked', true);
@@ -1256,7 +1348,7 @@
         });
     }
 
-    function CopyDataFilesToServer(fileIndex) {
+    function uploadDataFilesToServer(fileIndex) {
         return new Promise((resolve, reject) => {
             if (inputFileTableRows < 1) {
                 // Exit since there are no files to copy
@@ -1280,7 +1372,7 @@
                     .then(function(response) {
                         fileIndex++;
                         if (fileIndex < inputFileTableRows) {
-                            resolve(CopyDataFilesToServer(fileIndex));
+                            resolve(uploadDataFilesToServer(fileIndex));
                         } else {
                             $("#files-uploaded-status").prop('checked', true);
                             resolve(true);
@@ -1309,13 +1401,13 @@
             copyModelToScenarioFolder()
             .then(function(copyModelToScenarioFolderResponse) {
                 // alert('copyModelToScenarioFolder: response=' + copyModelToScenarioFolderResponse);
-                CopyDataStreamsToModel(0)
-                .then(function(CopyDataStreamsToModelResponse) {
-                    // alert('CopyDataStreamsToModel: response=' + CopyDataStreamsToModelResponse);
-                    CopyDataFilesToServer(0)
-                    .then(function(CopyDataFilesToServerResponse) {
-                        CopyDialogVariableDataToModel(0)
-                        .then(function(CopyDialogVariableDataToModelResponse) {
+                uploadDataStreamsToModel(0)
+                .then(function(uploadDataStreamsToModelResponse) {
+                    // alert('uploadDataStreamsToModel: response=' + uploadDataStreamsToModelResponse);
+                    uploadDataFilesToServer(0)
+                    .then(function(uploadDataFilesToServerResponse) {
+                        uploadDialogVariableDataToModel(0)
+                        .then(function(uploadDialogVariableDataToModelResponse) {
                                 // // Trigger the submission of the scenario
                             var modelName =  $("#user-models").val();
                             modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
