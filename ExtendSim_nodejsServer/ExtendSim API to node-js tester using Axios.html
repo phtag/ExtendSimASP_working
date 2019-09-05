@@ -849,7 +849,7 @@
         var table = $("#dialog-inputs-table");
         dialogInputsTableRows++;
         var newrow = 
-        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="dialog-variable-type-select-' + dialogInputsTableRows + '" onchange="dialogVariableTypeSelected(event)"></select></td><td><select id="dialog-variable-name-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="dialog-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+        '<tr><td><select id="block-type-select-' + dialogInputsTableRows + '" onchange="blockTypeSelected(event)"></select></td><td><select id="block-number-select-' + dialogInputsTableRows + '" onchange="blockNumberSelected(event)"></select></td><td><select id="variable-type-select-' + dialogInputsTableRows + '" onchange="dialogVariableTypeSelected(event)"></select></td><td><select id="variable-name-select-' + dialogInputsTableRows + '" onchange="dialogVariableSelected(event)"></select></td><td><input type="text" id="variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
         table.append(newrow);
         var blockType = '#block-type-select-' + dialogInputsTableRows;
         for (var i = 0; i < modelBlocks.length; i++) {
@@ -996,7 +996,7 @@
 
     function updatedialogVariableTypeDropdown(rowIndex) {
         var blockNumber = '#block-number-select-' + rowIndex;
-        var dialogVariableType = '#dialog-variable-type-select-' + rowIndex;
+        var dialogVariableType = '#variable-type-select-' + rowIndex;
         dialogVariableTypes = [];
         var tempArray = [];
         for (var i=0;i<modelBlockInfo.length;i++) {
@@ -1015,8 +1015,8 @@
 
     function updateDialogVariableDropdown(rowIndex) {
         var blockNumber = '#block-number-select-' + rowIndex;
-        var dialogVariableType = '#dialog-variable-type-select-' + rowIndex;
-        var dialogVariable = '#dialog-variable-name-select-' + rowIndex;
+        var dialogVariableType = '#variable-type-select-' + rowIndex;
+        var dialogVariable = '#variable-name-select-' + rowIndex;
         dialogVariables = [];
         var tempArray = [];
         for (var i=0;i<modelBlockInfo.length;i++) {
@@ -1134,9 +1134,9 @@
                 var modelName =  $("#user-models").val();
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                var variableName = $('#dialog-variable-name-select-' + (rowIndex + 1)).val();
-                var variableValue = $('#dialog-variable-value-select-' + (rowIndex + 1)).val();
-                var blockNumber = $('#dialog-variable-block-number-select-' + (rowIndex + 1)).val();
+                var variableName = $('#variable-name-select-' + (rowIndex + 1)).val();
+                var variableValue = $('#variable-value-select-' + (rowIndex + 1)).val();
+                var blockNumber = $('#block-number-select-' + (rowIndex + 1)).val();
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
                     method: 'post',
@@ -1265,7 +1265,6 @@
                     // alert('CopyDataStreamsToModel: response=' + CopyDataStreamsToModelResponse);
                     CopyDataFilesToServer(0)
                     .then(function(CopyDataFilesToServerResponse) {
-                        alert('CopyDialogVariableDataToModel: response=' + CopyDataStreamsToModelResponse);
                         CopyDialogVariableDataToModel(0)
                         .then(function(CopyDialogVariableDataToModelResponse) {
                                 // // Trigger the submission of the scenario
