@@ -492,7 +492,7 @@
                         <table id="file-outputs-table" style="width:auto">
                             <tr>
                                 <th>
-                                    Output data file
+                                    Output data files
                                 </th>
                             </tr>
                         </table>
@@ -674,7 +674,8 @@
             // }
             tableDataHtmlCode += '</tr>';
         });
-        $("#selected-database-outputs-table").empty(); 
+        // $("#selected-database-outputs-table").empty(); 
+        $("#selected-database-outputs-table").find("tr:not(:first)").remove();
         $("#selected-database-outputs-table").append(tableDataHtmlCode); 
         $("#database-table-model").show();
         updateLoadingDivVisibility(false);
@@ -936,7 +937,8 @@
         var matchindex = modelDatabases.findIndex(x => x.name === $(targetDatabase).val());
         if (matchindex >= 0) {
             var targetTable = '#target-table-' + rowIndex;
-            $(targetTable).empty();
+            // $(targetTable).empty();
+            $(targetTable).find("tr:not(:first)").remove();
             for (var i = 0; i < modelDatabases[matchindex].tableNames.length; i++) {
                 $(targetTable).append('<option value="' + modelDatabases[matchindex].tableNames[i] + '">' + modelDatabases[matchindex].tableNames[i] + '</option>');
             }
@@ -953,7 +955,8 @@
         var matchindex = modelDatabases.findIndex(x => x.name === $(sourceDatabase).val());
         if (matchindex >= 0) {
             var sourceTable = '#source-table-' + rowIndex;
-            $(sourceTable).empty();
+            // $(sourceTable).empty();
+            $(sourceTable).find("tr:not(:first)").remove();
             for (var i = 0; i < modelDatabases[matchindex].tableNames.length; i++) {
                 $(sourceTable).append('<option value="' + modelDatabases[matchindex].tableNames[i] + '">' + modelDatabases[matchindex].tableNames[i] + '</option>');
             }
@@ -1170,12 +1173,18 @@
 
     }
     function clearTableData() {
-        $("#file-inputs-table").empty();
-        $("#database-inputs-table").empty();
-        $("#dialog-inputs-table").empty();
-        $("#file-outputs-table").empty();
-        $("#database-outputs-table").empty();
-        $("#dialog-outputs-table").empty();
+        // $("#file-inputs-table").empty();
+        $("#file-inputs-table").find("tr:not(:first)").remove();
+        $("#database-inputs-table").find("tr:not(:first)").remove();
+        $("#dialog-inputs-table").find("tr:not(:first)").remove();
+        $("#file-outputs-table").find("tr:not(:first)").remove();
+        $("#database-outputs-table").find("tr:not(:first)").remove();
+        $("#dialog-outputs-table").find("tr:not(:first)").remove(); 
+        // $("#database-inputs-table").empty();
+        // $("#dialog-inputs-table").empty();
+        // $("#file-outputs-table").empty();
+        // $("#database-outputs-table").empty();
+        // $("#dialog-outputs-table").empty();
     }
 
     function updateModelInfo() {
