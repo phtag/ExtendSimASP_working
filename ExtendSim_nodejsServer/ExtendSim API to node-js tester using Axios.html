@@ -398,8 +398,8 @@
                         <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'></input>    
                     </div>
                     <div id="scenario-file-inputs-body">
-                        <button class="scenario-input-file-buttons" onclick='addInputFilesTableRow()'>Add row</button>
-                        <button class="scenario-input-file-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
+                        <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
+                        <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
                         <!-- <table id="file-inputs-table" style="width:auto"> -->
                         <table id="file-inputs-table">
                             <tr>
@@ -484,11 +484,11 @@
                 <div id="scenario-file-outputs">
                     <div id="scenario-file-outputs-header">
                         <label id="scenario-file-outputs-checkbox-label">Model Files</label>
-                        <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-outputs")'></input>    
+                        <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'></input>    
                     </div>
                     <div id="scenario-file-outputs-body">
-                        <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewFileOutputsTableRow()'>Add row</button>
-                        <button class="scenario-file-output-buttons" id="delete-file-outputs-table-row" onclick='deleteFileOutputsTableRow()'>Delete row</button>
+                        <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow()'>Add row</button>
+                        <button class="scenario-file-output-buttons" id="delete-file-outputs-table-row" onclick='deleteOutputFilesTableRow()'>Delete row</button>
                         <table id="file-outputs-table" style="width:auto">
                             <tr>
                                 <th>
@@ -617,13 +617,12 @@
     // const username = 'analyst1';
     // const password = 'model';
     $('.buttons').prop('disabled', true);
-    $('.scenario-input-file-buttons').prop('disabled', true);
-    $('.scenario-output-file-buttons').prop('disabled', true);
+    $('.scenario-file-input-buttons').prop('disabled', true);
+    $('.scenario-file-output-buttons').prop('disabled', true);
     $('.scenario-database-input-buttons').prop('disabled', true);
     $('.scenario-database-output-buttons').prop('disabled', true);
     $('.scenario-dialog-input-buttons').prop('disabled', true);
     $('.scenario-dialog-output-buttons').prop('disabled', true);
-    $('.scenario-input-file-buttons').prop('disabled', true);
     $('.user-login-buttons').prop('disabled', true);
     
     $('#scenario-user-login-checkbox').prop('checked', false);
@@ -803,7 +802,7 @@
         }
     }
 
-    function addInputFilesTableRow() {
+    function addNewInputFilesTableRow() {
         var table = $("#file-inputs-table");
         inputFileTableRows++;
         var newrow = '<tr><td><input type="file" onchange="inputFilesSelected(event)" class="input-file-row" id="input-button-' + inputFileTableRows + '"></td></tr>';
@@ -916,6 +915,20 @@
             $(sourceTable).val(modelDatabases[0].tableNames[0]);
         }
     }
+
+    function addNewOutputFilesTableRow() {
+        var table = $("#file-outputs-table");
+        inputFileTableRows++;
+        var newrow = '<tr><td><input type="file" onchange="inputFilesSelected(event)" class="input-file-row" id="input-button-' + inputFileTableRows + '"></td></tr>';
+        table.append(newrow);
+    }
+    function deleteOutputFilesTableRow(event) {
+        if (outputFileTableRows > 0) {
+            outputFileTableRows--;
+        }
+        $("#file-outputs-table tr:last").remove();
+    }
+
     function updateTargetTableSelect(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
@@ -1151,7 +1164,9 @@
         updateTargetDialogVariableDropdown(rowIndex);  
     }
 
-    function dialogVariableSelected(event) {
+    function targetDialogVariableSelected(event) {
+    }
+    function sourceDialogVariableSelected(event) {
 
     }
     function clearTableData() {
@@ -1252,7 +1267,8 @@
                     }
                 })
                 .then(function(response) {
-                    alert('Returned result=' + response.data);
+                    // deposit result in dialog outputs table cell
+                    $("#source-variable-value-" + (rowIndex + 1)).val(response.data.result);
                 //  Advance to the next row
                     rowIndex++;
                     if (rowIndex < dialogOutputsTableRows) {
@@ -1783,9 +1799,10 @@
         if ($("#scenario-name").val() !== '') {
             if ($('#user-models').val() !== '') {
                 $('#create-scenario-folder-button').prop('disabled', false);
-                $('.scenario-input-file-buttons').prop('disabled', false);
+                $('.scenario-file-input-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
                 $('.scenario-dialog-input-buttons').prop('disabled', false);
+                $('.scenario-file-output-buttons').prop('disabled', false);    
                 $('.scenario-database-output-buttons').prop('disabled', false);
                 $('.scenario-dialog-output-buttons').prop('disabled', false);      
             }

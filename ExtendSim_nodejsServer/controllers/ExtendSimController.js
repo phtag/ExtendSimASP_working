@@ -46,6 +46,41 @@ module.exports = {
             })
         });
     },
+    getserverscenariofolderdirectory: function(req, res) {
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerScenarioFolderDirectory"
+        var myheaders = { 
+            accept: "application/json", 
+        }; 
+        axios({
+            url: queryURL,
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params : {
+                username : req.body.username
+            }
+        }).then(function(response) {
+            console.log('getserverextendmodelsrootdirectory: response=' + response.data);
+            userModelPath = response.data;
+            var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
+            axios({
+                url: queryURL,
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                headers : myheaders,
+                muteHttpExceptions : false,
+                params : {
+                    directoryPathname : userModelPath
+                }
+            })
+            .then(function(response2) {
+                return res.json({ userDirectoryFiles: response2.data });
+            })
+        });
+    },
     getmodelinfo: function(req, res) {
         var myheaders = { 
             accept: "application/json", 
@@ -88,7 +123,7 @@ module.exports = {
             " variable name=" + req.body.variableName);
         return axios({
             url: queryURL,
-            method: 'post',
+            method: 'get',
             accept : "application/json",
             contentType: "application/json;charset=utf-8",
             headers : myheaders,
@@ -264,6 +299,28 @@ module.exports = {
               console.log('copyModelToScenarioFolder: ' + response.data); 
               return res.json({result: response.data});
         });
+    },
+    getfile: function(req, res) {
+        var myheaders = { 
+            accept: "application/json", 
+        };     
+        var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/GetStream";
+        // ?filepathname=" + encodeURIComponent(req.body.scenarioFolderPathname + "/" + req.body.filename);
+        console.log("sendfile - filepathname=" + req.body.scenarioFolderPathname + "/" + req.body.filename);
+        return axios({
+            url: queryURL,
+            method: 'post',
+            accept : "application/json",
+            contentType: "application/json;charset=utf-8",
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params: {
+                filepath : req.body.scenarioFolderPathname + "/" + req.body.filename
+            }
+        }).then(function(response) {
+            console.log("Upload RETURN");
+            return res.json({result: response.data})
+        })
     },
     sendfile: function(req, res) {
         var myheaders = { 
