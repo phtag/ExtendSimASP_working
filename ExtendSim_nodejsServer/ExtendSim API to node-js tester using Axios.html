@@ -494,6 +494,9 @@
                                 <th>
                                     Scenario folder files
                                 </th>
+                                <th>
+                                    Action
+                                </th>    
                             </tr>
                         </table>
                     </div>  
@@ -925,7 +928,7 @@
         if (scenarioFolderFiles.length === 0) {
             getScenarioFolderFiles()
             .then(function(response) {
-                var newrow = '<tr><td><select onchange="outputFilesSelected(event)" class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">View file</button></td></tr>';
+                var newrow = '<tr><td><select onchange="outputFilesSelected(event)" class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
                 table.append(newrow);
                 var scenarioFolderFiles = response.data.scenarioFolderFiles;
                 console.log('scenarioFolderFiles=' + JSON.stringify(scenarioFolderFiles));
@@ -936,7 +939,6 @@
                 }
                 if (scenarioFolderFiles.length > 0) {
                     $(outputFilesSelect).val(scenarioFolderFiles[0].OriginalPath);
-                    alert('Setting initial value to ' + scenarioFolderFiles[0].OriginalPath);
                     $(outputFilesSelect).prop('selectedIndex', 0);
                 }
             })
@@ -1001,8 +1003,15 @@
     function closeDatabaseTableContentsModal() {
         $("#database-table-model").hide();
     }
-    function openFileContentsModal {
-        
+    function openFileContentsModal(event) {
+        var index = event.target.id.lastIndexOf('-') + 1;
+        var rowIndex = event.target.id.substring(index);
+        var outputFileSelect = $('#output-file-select-' + rowIndex);
+        getServerFile($(outputFileSelect).val())
+        .then(function(response) {
+            console.log(JSON.stringify(response.data));
+            alert('openFileContentsModal: Response=' + response);
+        })
     }
     function openDatabaseTableContentsModal(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
@@ -1219,6 +1228,27 @@
         .then(function(response) {
             updateLoadingDivVisibility(false);
         })
+    }
+    function getServerFile(filename) {
+        return new Promise((resolve, reject) => {
+            axios({
+                url: proxyurl + queryURL_root + 'ExtendSim/getfile',
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                // params: {
+                data: {
+                    scenarioFolderPathname : $("#user-scenario-folder-pathname").val(),
+                    filename: filename
+                }
+            })
+            .then(function(response) {
+                resolve(response);
+            })
+            .catch(function(error) {
+                reject(error);
+            })
+        });   
     }
     function getScenarioFolderFiles() {
         return new Promise((resolve, reject) => {
