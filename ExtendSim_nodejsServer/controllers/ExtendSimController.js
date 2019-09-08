@@ -47,7 +47,7 @@ module.exports = {
         });
     },
     getserverscenariofolderdirectory: function(req, res) {
-        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerScenarioFolderDirectory"
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
         var myheaders = { 
             accept: "application/json", 
         }; 
@@ -59,26 +59,10 @@ module.exports = {
             headers : myheaders,
             muteHttpExceptions : false,
             params : {
-                username : req.body.username
+                directoryPathname : req.body.scenarioFolderPathname
             }
         }).then(function(response) {
-            console.log('getserverextendmodelsrootdirectory: response=' + response.data);
-            userModelPath = response.data;
-            var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
-            axios({
-                url: queryURL,
-                method: 'post',
-                accept : 'application/json',
-                contentType: 'application/json;charset=utf-8',
-                headers : myheaders,
-                muteHttpExceptions : false,
-                params : {
-                    directoryPathname : userModelPath
-                }
-            })
-            .then(function(response2) {
-                return res.json({ userDirectoryFiles: response2.data });
-            })
+            return res.json({ scenarioFolderFiles: response.data });
         });
     },
     getmodelinfo: function(req, res) {
