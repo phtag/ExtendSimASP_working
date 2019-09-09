@@ -680,6 +680,23 @@
 
     updateLoadingDivVisibility(false);
 
+    function updateButtonsState() {
+        if ($("#scenario-name").val() !== '') {
+            if ($('#user-models').val() !== '') {
+                $('#create-scenario-folder-button').prop('disabled', false);
+                $('.scenario-file-input-buttons').prop('disabled', false);
+                $('.scenario-database-input-buttons').prop('disabled', false);
+                $('.scenario-dialog-input-buttons').prop('disabled', false);
+                if ($("#user-scenario-folder-pathname").val() !== "") {
+                    $('.scenario-file-output-buttons').prop('disabled', false);    
+                    $('.scenario-database-output-buttons').prop('disabled', false);
+                    $('.scenario-dialog-output-buttons').prop('disabled', false);   
+                }   
+            }
+        }
+    }
+
+
     function ValidateIPaddress(inputText)
     {
         return /^(([1-9]?\d|1\d\d|2[0-4]\d|25[0-5])(\.(?!$)|(?=$))){4}$/.test(inputText||"");
@@ -1370,6 +1387,7 @@
             .then(function(response) {
                 // Storing an array of results in the results variable
                 $('#copy-model-to-scenario-folder').prop('disabled', true);
+                updateButtonsState();
                 resolve(true);
             })
             .catch(function(error) {
@@ -1937,17 +1955,7 @@
         }
     });
     $('#scenario-name').keyup(function () {
-        if ($("#scenario-name").val() !== '') {
-            if ($('#user-models').val() !== '') {
-                $('#create-scenario-folder-button').prop('disabled', false);
-                $('.scenario-file-input-buttons').prop('disabled', false);
-                $('.scenario-database-input-buttons').prop('disabled', false);
-                $('.scenario-dialog-input-buttons').prop('disabled', false);
-                $('.scenario-file-output-buttons').prop('disabled', false);    
-                $('.scenario-database-output-buttons').prop('disabled', false);
-                $('.scenario-dialog-output-buttons').prop('disabled', false);      
-            }
-        }
+        updateButtonsState();
     });
 </script>
 </body>
