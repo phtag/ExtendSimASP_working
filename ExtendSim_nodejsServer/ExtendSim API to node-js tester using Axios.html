@@ -92,7 +92,7 @@
         font-size: 20px;
         margin-bottom: 20px;
     }
-    #model-buttons {
+    .modal-buttons {
         padding: 20px;
         margin: -80px auto 10px;
         width: 30%;
@@ -101,13 +101,13 @@
         font-size: 14px;
         background-color: #FFFFFF;
     }
-    #selected-database-outputs-table th {
+    #selected-database-outputs-table th, #selected-file-contents-table  th {
         background-color: rgb(251, 119, 119);
         color: white;
         position: sticky; top: -20px;
         text-align: center;
     }
-    #selected-database-outputs-table tb {
+    #selected-database-outputs-table tb, #selected-file-contents-table tb {
         background-color: rgb(255, 255, 255);
         color: black;
         font-family: Arial, Helvetica, sans-serif;
@@ -318,34 +318,53 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
     <header class="header" id="extendsim-asp-header"></header>
-    <div id="database-table-model" class="modal">
-            <div id="model-buttons">
-                <label id="selected-response-table-name-label">Table name:</label>
-                <input id="selected-response-table-name" type='text' readonly></input>
-                <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
-           </div>  
-            <div class="modal-content">
-                <div id="model-form-contents">
-                    <table id="selected-database-outputs-table" style="width:auto">
-                    </table>
-                </div>
-                <div class="container">
-                    <canvas id="model-form-chart"  width=auto></canvas>
-                </div>
+    <div id="database-table-modal" class="modal">
+        <div class="modal-buttons">
+            <label id="selected-response-table-name-label">Table name:</label>
+            <input id="selected-response-table-name" type='text' readonly></input>
+            <button class="buttons" id="export-table-contents-modal" onclick="exportTableContentsModal(event)">Export</button>
+            <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+        </div>  
+        <div class="modal-content">
+            <div id="modal-form-contents">
+                <table id="selected-database-outputs-table" style="width:auto">
+                </table>
             </div>
-        </div> 
-      
+            <div class="container">
+                <canvas id="model-form-chart"  width=auto></canvas>
+            </div>
+        </div>
+    </div> 
+
+    <div id="file-contents-modal" class="modal">
+        <div class="modal-buttons">
+            <label id="selected-file-name-label">File name:</label>
+            <input id="selected-file-name" type='text' readonly></input>
+            <button class="buttons" id="export-file-contents-modal" onclick="exportFileContentsModal(event)">Export</button>
+            <button class="buttons" id="close-file-contents-modal" onclick="closeFileContentsModal(event)">Close</button>
+        </div>  
+        <div class="modal-content">
+            <div id="modal-form-contents">
+                <table id="selected-file-contents-table" style="width:auto">
+                </table>
+            </div>
+            <div class="container">
+                <canvas id="model-form-chart"  width=auto></canvas>
+            </div>
+        </div>
+    </div>     
+
     <div id='page-container'>
     <div id="load_screen"><div id="loading">Loading data from server. Please wait...</div></div>
     <!-- The Modal -->
-    <!-- <div id="database-table-model" class="modal">
-        <div id="model-buttons">
+    <!-- <div id="database-table-modal" class="modal">
+        <div id="modal-buttons">
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
             <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
        </div>  
         <div class="modal-content">
-            <div id="model-form-contents">
+            <div id="modal-form-contents">
                 <table id="selected-database-outputs-table" style="width:auto">  s
                 </table>
             </div>
@@ -592,6 +611,7 @@
     var modelDatabases = [];
     var g_tableSchema = {};
     var g_tableDataArray = [];
+    var g_fileDataArray = [];
     var modelBlockInfo;
     var inputFileTableRows = 0;
     var outputFileTableRows = 0;
@@ -641,7 +661,8 @@
     $("#model-copied-status").prop('checked', false);
     $("#server-actions").hide();
     $('#model-form-chart').hide();
-    $("#database-table-model").hide();
+    $("#database-table-modal").hide();
+    $("#file-contents-modal").hide();
 
     // page sections
     updateDOMelementVisibility("scenario-user-login");
@@ -663,8 +684,31 @@
     {
         return /^(([1-9]?\d|1\d\d|2[0-4]\d|25[0-5])(\.(?!$)|(?=$))){4}$/.test(inputText||"");
     }    
+    function displayFileContents() {
+        var modalTable = $('#selected-file-contents-table');
+        $(modalTable).empty();
+        tableDataHtmlCode = '';
+        tableDataHtmlCode += '<tr>';
+        for (var i=0;i<g_fileDataArray[0].length;i++) {
+            tableDataHtmlCode += '<th>Field ' + (i + 1) + '</th>';
+        }
+        g_fileDataArray.forEach(function(elements, index) {
+            tableDataHtmlCode += '<tr>';
+                for (var i=0;i<elements.length;i++) {
+                    tableDataHtmlCode += '<td>' + elements[i] + '</td>';
+                }
+            // }
+            tableDataHtmlCode += '</tr>';
+        });
+        $(modalTable).find("tr:not(:first)").remove();
+        $(modalTable).append(tableDataHtmlCode); 
+        $("#file-contents-modal").show();
+        updateLoadingDivVisibility(false);
+    }
 
     function displayTableContents(modelDatabaseTableFields) {
+        var modalTable = $("#selected-database-outputs-table");
+        $(modalTable).empty();
         g_tableSchema = modelDatabaseTableFields;
         tableDataHtmlCode = '';
         tableDataHtmlCode += '<tr>';
@@ -680,9 +724,9 @@
             tableDataHtmlCode += '</tr>';
         });
         // $("#selected-database-outputs-table").empty(); 
-        $("#selected-database-outputs-table").find("tr:not(:first)").remove();
-        $("#selected-database-outputs-table").append(tableDataHtmlCode); 
-        $("#database-table-model").show();
+        $(modalTable).find("tr:not(:first)").remove();
+        $(modalTable).append(tableDataHtmlCode); 
+        $("#database-table-modal").show();
         updateLoadingDivVisibility(false);
     }
 
@@ -715,15 +759,15 @@
                 }
             }
         });
-        $("#database-table-model").show();
+        $("#database-table-modal").show();
         $('#model-form-chart').show();
-        $('#model-form-contents').hide();
+        $('#modal-form-contents').hide();
         updateLoadingDivVisibility(false);
     }
 
     function showDatabaseTableChartModal() {
         $('#model-form-chart').show();
-        $('#model-form-contents').hide();
+        $('#modal-form-contents').hide();
     }
     function updateLoadingDivVisibility(show) {
         if (show) {
@@ -928,7 +972,7 @@
         if (scenarioFolderFiles.length === 0) {
             getScenarioFolderFiles()
             .then(function(response) {
-                var newrow = '<tr><td><select onchange="outputFilesSelected(event)" class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
+                var newrow = '<tr><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
                 table.append(newrow);
                 var scenarioFolderFiles = response.data.scenarioFolderFiles;
                 console.log('scenarioFolderFiles=' + JSON.stringify(scenarioFolderFiles));
@@ -1000,17 +1044,31 @@
     function openViewDatabaseTableContentsForm() {
         
     }
+    function closeFileContentsModal() {
+        $("#file-contents-modal").hide();
+    }
     function closeDatabaseTableContentsModal() {
-        $("#database-table-model").hide();
+        $("#database-table-modal").hide();
     }
     function openFileContentsModal(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
         var outputFileSelect = $('#output-file-select-' + rowIndex);
-        getServerFile($(outputFileSelect).val())
+        var filepath =  $(outputFileSelect).val();
+        getServerFile(filepath)
         .then(function(response) {
-            console.log(JSON.stringify(response.data));
-            alert('openFileContentsModal: Response=' + response);
+            console.log(JSON.stringify(response.data.result));
+            var fileData  = response.data.result;
+            g_fileDataArray = fileData.split('\r\n').map(function(ln){
+                return ln.split('\t');
+            });
+            // Remove last empty element from array
+            g_fileDataArray.pop();
+
+            $('#selected-file-name').val(filepath.substring(filepath.lastIndexOf("\\") + 1));
+            displayFileContents();
+            updateLoadingDivVisibility(false);
+            $("#file-contents-modal").show();
         })
     }
     function openDatabaseTableContentsModal(event) {
@@ -1030,7 +1088,7 @@
         .then(function(response) {
             displayTableContents(response.data.modelDatabaseTableFields);
             updateLoadingDivVisibility(false);
-            $("#database-table-model").show();
+            $("#database-table-modal").show();
             return(response);
         })
     }
@@ -1229,7 +1287,7 @@
             updateLoadingDivVisibility(false);
         })
     }
-    function getServerFile(filename) {
+    function getServerFile(filepath) {
         return new Promise((resolve, reject) => {
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/getfile',
@@ -1238,8 +1296,7 @@
                 contentType: 'application/json;charset=utf-8',
                 // params: {
                 data: {
-                    scenarioFolderPathname : $("#user-scenario-folder-pathname").val(),
-                    filename: filename
+                    filepath: filepath
                 }
             })
             .then(function(response) {

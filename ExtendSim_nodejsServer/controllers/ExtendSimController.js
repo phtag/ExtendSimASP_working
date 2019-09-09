@@ -290,7 +290,7 @@ module.exports = {
         };     
         var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/GetStream";
         // ?filepathname=" + encodeURIComponent(req.body.scenarioFolderPathname + "/" + req.body.filename);
-        console.log("sendfile - filepathname=" + req.body.scenarioFolderPathname + "/" + req.body.filename);
+        console.log("getfile - filepathname=" + req.body.filepath);
         return axios({
             url: queryURL,
             method: 'post',
@@ -299,12 +299,17 @@ module.exports = {
             headers : myheaders,
             muteHttpExceptions : false,
             params: {
-                filepath : req.body.scenarioFolderPathname + "/" + req.body.filename
+                filename : req.body.filepath
             }
         }).then(function(response) {
             console.log("Upload RETURN");
             return res.json({result: response.data})
+        }).catch(function(error) {
+            console.log("Error: " + error);
+            return res.json({ error: error });
+          
         })
+
     },
     sendfile: function(req, res) {
         var myheaders = { 
@@ -510,10 +515,7 @@ module.exports = {
             if (req.body.tableName === "ModelDialogVariables") {
                 console.log("tableDataArray.length =" + tableDataArray.length);
                 var row = 1;
-                            res.json({tableDataArray: tableDataArray});          
-                    //     }
-                    // });
-                // });
+                res.json({tableDataArray: tableDataArray});          
             }
             else {
                 return res.json({tableDataArray: tableDataArray});   
