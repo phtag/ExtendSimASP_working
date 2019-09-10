@@ -216,9 +216,6 @@
     #user-scenario-folder-pathname {
         width: 600px;
     }
-    #user-scenario-folder-pathname-label {
-        margin-left: 20px;
-    }
     #user-models-label {
         margin-left: 20px;
     }
@@ -397,6 +394,9 @@
                 <input id="scenario-name"></input>
                 <button class="buttons" id="create-scenario-folder-button" onclick='createScenarioFolder()'>Create scenario folder</button>
                 <button class="buttons" id="copy-model-to-scenario-folder" onclick='copyModelToScenarioFolder()'>Copy model to scenario folder</button>
+                <br></br>
+                <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
+                <input id="user-scenario-folder-pathname" readonly></input>    
             </div>
         </div>
         <div id="server-actions">
@@ -589,10 +589,10 @@
                 <input type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
             </div>
             <div id='scenarios-body'>
-                <button class="buttons" onclick='submitSimulationScenario(event)'>Submit scenario</button>
+                <button class="scenario-buttons" onclick='submitSimulationScenario(event)'>Submit scenario</button>
                 <label id="scenario-id-label">Scenario ID:</label>
                 <input id="scenario-id"></input>
-                <button class="buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
+                <button class="scenario-buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
                 <label id="scenario-status-label">Scenario status:</label>
                 <input id="scenario-status"></input>
             </div>
@@ -648,6 +648,7 @@
     $('.scenario-database-output-buttons').prop('disabled', true);
     $('.scenario-dialog-input-buttons').prop('disabled', true);
     $('.scenario-dialog-output-buttons').prop('disabled', true);
+    $('.scenario-buttons').prop('disabled', true);
     $('.user-login-buttons').prop('disabled', true);
     
     $('#scenario-user-login-checkbox').prop('checked', false);
@@ -687,10 +688,11 @@
                 $('.scenario-file-input-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
                 $('.scenario-dialog-input-buttons').prop('disabled', false);
+                $('.scenario-buttons').prop('disabled', false);  
                 if ($("#user-scenario-folder-pathname").val() !== "") {
                     $('.scenario-file-output-buttons').prop('disabled', false);    
                     $('.scenario-database-output-buttons').prop('disabled', false);
-                    $('.scenario-dialog-output-buttons').prop('disabled', false);   
+                    $('.scenario-dialog-output-buttons').prop('disabled', false);
                 }   
             }
         }
@@ -1409,9 +1411,9 @@
                 var modelName =  $("#user-models").val();
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                var variableName = $('#target-variable-name-select-' + (rowIndex + 1)).val();
-                var variableValue = $('#target-variable-value-' + (rowIndex + 1)).val();
-                var blockNumber = $('#target-block-number-select-' + (rowIndex + 1)).val();
+                var variableName = $('#source-variable-name-select-' + (rowIndex + 1)).val();
+                var variableValue = $('#source-variable-value-' + (rowIndex + 1)).val();
+                var blockNumber = $('#source-block-number-select-' + (rowIndex + 1)).val();
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/getdialogvariabledata",
                     method: 'post',

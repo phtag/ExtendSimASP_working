@@ -96,7 +96,10 @@ module.exports = {
             accept: "application/json", 
         };     
         var queryURL =  "http://" + IPaddress + ":8080/ExtendSimService/web/ES_GetModelData";
-        // ?filepathname=" + encodeURIComponent(req.body.scenarioFolderPathname + "/" + req.body.filename);
+        console.log("getdialogvariabledata - model pathname =" + req.body.modelPathname + 
+            " blockNumber=" + req.body.blockNumber + 
+            " variable name=" + req.body.variableName);
+
         var item = req.body.variableName + ":#" +
                     req.body.blockNumber.toString() + ":" +
                     req.body.row.toString() + ":" +
