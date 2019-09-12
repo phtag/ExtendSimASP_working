@@ -22,6 +22,9 @@
     .input-file-row {
         width: auto;
     }
+    .table-row {
+        width: auto;
+    }
     .database-input-row {
         width: auto;
     }
@@ -92,6 +95,9 @@
         font-size: 20px;
         margin-bottom: 20px;
     }
+    #remove-selected-scenario-folders-button {
+        margin: 20px;
+    }
     .modal-buttons {
         padding: 20px;
         margin: -80px auto 10px;
@@ -114,10 +120,20 @@
         font-size: 16px;
         text-align: center;
     }
-    #database-outputs-table, #dialog-outputs-table, #file-outputs-table th {
+    #database-outputs-table th, #dialog-outputs-table th, #file-outputs-table th {
         background-color: #4CAF50;
         color: white;
         text-align: center;
+    }
+    #scenarios-table th {
+        background-color: rgb(73, 70, 248);
+        color: white;
+        text-align: center;      
+    }
+    #scenarios-table {
+        table-layout: auto;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
     .close {
         color: #aaaaaa;
@@ -280,7 +296,7 @@
     #scenario-file-inputs-header, #scenario-database-inputs-header, #scenario-dialog-inputs-header, #scenario-file-outputs-header, #scenario-database-outputs-header, #scenario-dialog-outputs-header {
         text-align: center;
     }
-    #scenario-file-inputs-body, #scenario-database-inputs-body, #scenario-dialog-inputs-body, #scenario-file-outputs-body, #scenario-database-outputs-body, #scenario-dialog-inputs-body {
+    #scenario-file-inputs-body, #scenario-database-inputs-body, #scenario-dialog-inputs-body, #scenario-file-outputs-body, #scenario-database-outputs-body, #scenario-dialog-inputs-body, #scenarios-summary {
         margin: 20px;
         width: auto;
         text-align: left;
@@ -305,6 +321,18 @@
         background-color: rgb(248, 179, 179);
         width: auto;
         clear: left;
+    }
+    #scenarios-summary {
+        border: 2px solid rgb(4, 0, 253);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 1%;
+        margin-top: 10px;
+        width: 25%;
+        background-color:rgb(204, 205, 253);
+        display: inline-block;
+        vertical-align:top;  
+        font-size: 18px;       
     }
     #myModel {
         overflow: scroll;
@@ -380,7 +408,8 @@
             <div id='scenario-user-login-body'>
                 Username: <input class="login" id="username" type="text" name="username" value="analyst1"></input>
                 Password: <input class="login" id="password" type="password" name="password" value="model"></input>
-                IP address: <input class="login" id="ip-address" value="184.171.246.58"></input>
+                IP address: <input class="login" id="ip-address" value="10.0.0.219"></input>
+                <!-- IP address: <input class="login" id="ip-address" value="184.171.246.58"></input> -->
                 <br></br>
                 <button class="buttons" id="users/login">Login to server</button>
                 <label id="user-login-session-id-label">User Login Session ID:</label>
@@ -595,6 +624,25 @@
                 <button class="scenario-buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
                 <label id="scenario-status-label">Scenario status:</label>
                 <input id="scenario-status"></input>
+                <div id="scenarios-summary">
+                    <table id="scenarios-table" style="width:auto">
+                        <tr>
+                            <th>
+                                ID
+                            </th>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Folder
+                            </th>
+                        </tr>
+                    </table>
+                    <button class="scenario-buttons" onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
+                </div>
             </div>
         </div>    
     </div>
@@ -619,6 +667,7 @@
     var dialogInputsTableRows = 0;
     var dialogOutputsTableRows = 0;
     var databaseOutputsTableRows = 0;
+    var scenariosTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
     var numFilesUploaded = 0;
     var numDatabaseFilesUploaded = 0;
@@ -1017,6 +1066,14 @@
         $("#file-outputs-table tr:last").remove();
     }
 
+    function addNewScenarioTableRow() {
+        var table = $("#scenarios-table");
+       scenariosTableRows++;
+        var newrow = 
+        '<tr><td><input type="text" class="table-row" id="scenario-id-' + scenariosTableRows + '" value="' + $("#scenario-id").val() + '"></td><td><input type="text" id="scenario-name-' + scenariosTableRows + '" value="' + $("#scenario-name").val() + '"></input></td><td><input type="text" id="scenario-status-' + scenariosTableRows + '" value="' + $("#scenario-status").val() + '"></input></td><td><input type="text" id="scenario-folder-pathname-' + scenariosTableRows + '" value="' + $("#user-scenario-folder-pathname").val() + '"></input></td></tr>'
+        table.append(newrow);
+        $('#scenarios-summary').width('auto');
+    }
     function updateTargetTableSelect(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
@@ -1603,6 +1660,7 @@
                             })
                             .then(function(response) {
                                 $("#scenario-id").val(response.data.scenarioID);
+                                addNewScenarioTableRow();
                             });
 
                         })

@@ -1,8 +1,9 @@
 var axios = require("axios");
 
 // Heroku IP address
-var IPaddress = "184.171.246.58";
-// var IPaddress = "192.168.1.149";
+var IPaddress = "10.0.0.219";
+// var IPaddress = "184.171.246.58";
+// var IPaddress = "10.1.80.178";
 // var IPaddress = "192.168.1.149";
 
 const c_completiondate_scenarioUpdateType = "completiondate";
@@ -514,13 +515,13 @@ module.exports = {
             // Remove last empty element from array
             tableDataArray.pop();
 
-            console.log("getdtabasetablecontentsstream: response=" + response.data);
             if (req.body.tableName === "ModelDialogVariables") {
-                console.log("tableDataArray.length =" + tableDataArray.length);
+                console.log("getdtabasetablecontentsstream: response - tableDataArray.length =" + tableDataArray.length);
                 var row = 1;
                 res.json({tableDataArray: tableDataArray});          
             }
             else {
+                console.log("getdtabasetablecontentsstream: response - tableDataArray.length =" + tableDataArray.length);
                 return res.json({tableDataArray: tableDataArray});   
             }   
         });
