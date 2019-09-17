@@ -627,7 +627,7 @@
                                 </th>
                             </tr>
                         </table>
-                        <button class="download-dialog-outputs-button" onclick="downloadDialogVariableDataFromModel(0)">Download dialog variable values to table</button>
+                        <button class="download-dialog-outputs-button" onclick="downloadDialogVariableDataFromModel(0)">Get dialog variable values</button>
                         <label id="dialog-outputs-uploaded-status-label">Inputs uploaded:</label>
                         <input id="dialog-outputs-uploaded-status" type="checkbox"></input>
                     </div>
@@ -1401,8 +1401,6 @@
         .then(function(response) {
             if (response.data.modelRunStatus === c_Completed_status) {
                 clearInterval(myCheckStatusInterval);
-                alert('checkScenarioStatus: response=' + response.data.modelRunStatus);
-
             }
             var table = $("#scenarios-table");
             var statusValue = table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + colIndex + ')').text(); 
