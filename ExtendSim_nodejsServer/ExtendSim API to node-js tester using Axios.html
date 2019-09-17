@@ -432,7 +432,7 @@
                 <!-- IP address: <input class="login" id="ip-address" value="10.0.0.219"></input> -->
                 IP address: <input class="login" id="ip-address" value="184.171.246.58"></input>
                 <br></br>
-                <button class="buttons" id="users/login">Login to server</button>
+                <button class="buttons" id="login-button" onclick='loginToServer()'>Login to server</button>
                 <label id="user-login-session-id-label">User Login Session ID:</label>
                 <input id="user-login-session-id"></input>
                 <br></br>  
@@ -740,6 +740,8 @@
     $("#database-table-modal").hide();
     $("#file-contents-modal").hide();
 
+    enableDisableUserLoginButton();
+
     // page sections
     updateDOMelementVisibility("scenario-user-login");
     updateDOMelementVisibility("scenario-factors");
@@ -755,6 +757,15 @@
     updateDOMelementVisibility("scenario-dialog-outputs");
 
     updateLoadingDivVisibility(false);
+
+    function enableDisableUserLoginButton() {
+        alert('enableDisableUserLoginButton - ' + $("#username").val() + ' ' + $("#password").val() + ' ' + $("#ip-address").val());
+        if (($("#username").val() === '') || ($("#password").val() === '') || (!ValidateIPaddress($("#ip-address").val()))) {
+            $('#login-button').prop('disabled', true);
+        } else {
+            $('#login-button').prop('disabled', false);
+        }
+    }
 
     function updateButtonsState() {
         if ($("#scenario-name").val() !== '') {
@@ -1943,7 +1954,24 @@
             });  
         });     
     }
-
+    function loginToServer() {
+        axios({
+            url: proxyurl + queryURL_root + 'users/login',
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            data : {
+                username:  $("#username").val(),
+                password: $("#password").val()
+            }
+        })
+        .then(function(response) {
+            // Storing an array of results in the results variable
+            // alert('Axios POST parameters result=' + JSON.stringify(response.data));
+            $("#user-login-session-id").val(response.data.userLoginSessionID);
+            $('.user-login-buttons').prop('disabled', false);
+        });
+    }
     enableDisableUploadFilesButton();
 
     // Event listener for all button elements
@@ -2066,7 +2094,7 @@
     // $(document).on("click", "#scenarios-table td", function() {
     $(document).on("click", "#scenarios-table tr", function() {
         console.log(JSON.stringify($(this).data()));
-        // alert($(this).children("td").html());
+        alert($(this).children("td").html());
     });
 </script>
 </body>
