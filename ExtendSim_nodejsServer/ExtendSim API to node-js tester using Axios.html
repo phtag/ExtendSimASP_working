@@ -991,33 +991,63 @@
         if (!modelInfoLoaded) {
             createScenarioFolder(modelInfoLoaded)
             .then(function(createScenarioFolderResponse) {
-                // alert('createScenarioFolder: scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
                 // Copy user selected server model into scenario folder
                 copyModelToScenarioFolder(modelInfoLoaded)
                 .then(function(copyModelToScenarioFolderResponse) {
-                    updateModelInfo(modelPathname);
-                });
-            });
+                    alert('Here we go!');
+                    updateModelInfo($("#user-scenario-folder-pathname").val())
+                    .then(function(response) {
+                        alert('Got to here');
+                    })
+                })
+            })
         }
-        var table = $("#database-inputs-table");
-        databaseInputsTableRows++;
-        var newrow = 
-        '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="databasefilesSelected(event)" class="input-file-row"></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
-        table.append(newrow);
-        var targetDatabase = '#target-database-' + databaseInputsTableRows;
-        for (var i = 0; i < modelDatabases.length; i++) {
-            $(targetDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
-        }
-        if (modelDatabases.length > 0) {
-            $(targetDatabase).val(modelDatabases[0].name);
-        }
-        var targetTable = '#target-table-' + databaseInputsTableRows;
-        for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
-            $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
-        }
-        if (modelDatabases[0].tableNames.length > 0) {
-            $(targetTable).val(modelDatabases[0].tableNames[0]);
-        }
+                        // var table = $("#database-inputs-table");
+                        // databaseInputsTableRows++;
+                        // var newrow = 
+                        // '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="databasefilesSelected(event)" class="input-file-row"></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
+                        // table.append(newrow);
+                        // var targetDatabase = '#target-database-' + databaseInputsTableRows;
+                        // for (var i = 0; i < modelDatabases.length; i++) {
+                        //     $(targetDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
+                        // }
+                        // if (modelDatabases.length > 0) {
+                        //     $(targetDatabase).val(modelDatabases[0].name);
+                        // }
+                        // var targetTable = '#target-table-' + databaseInputsTableRows;
+                        // for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
+                        //     $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
+                        // }
+                        // if (modelDatabases[0].tableNames.length > 0) {
+                        //     $(targetTable).val(modelDatabases[0].tableNames[0]);
+                        // }
+        //             })
+        //             .catch(function(error) {
+
+        //             })            
+        //         });
+        //     });
+        // } else {
+        //     var table = $("#database-inputs-table");
+        //     databaseInputsTableRows++;
+        //     var newrow = 
+        //     '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="databasefilesSelected(event)" class="input-file-row"></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
+        //     table.append(newrow);
+        //     var targetDatabase = '#target-database-' + databaseInputsTableRows;
+        //     for (var i = 0; i < modelDatabases.length; i++) {
+        //         $(targetDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
+        //     }
+        //     if (modelDatabases.length > 0) {
+        //         $(targetDatabase).val(modelDatabases[0].name);
+        //     }
+        //     var targetTable = '#target-table-' + databaseInputsTableRows;
+        //     for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
+        //         $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
+        //     }
+        //     if (modelDatabases[0].tableNames.length > 0) {
+        //         $(targetTable).val(modelDatabases[0].tableNames[0]);
+        //     }
+        // }
     }
 
     function deleteDatabaseInputsTableRow(event) {
@@ -1420,12 +1450,32 @@
     }
 
     function updateModelInfo(modelPathname) {
-        updateLoadingDivVisibility(true);
-        clearTableData();
-        getmodeldatabases(modelpathname, getModelInfo)
-        .then(function(response) {
-            updateLoadingDivVisibility(false);
-        })
+        return new Promise((resolve, reject) => {
+            alert('updateModelInfo: modelPathname=' + modelPathname);
+            updateLoadingDivVisibility(true);
+            clearTableData();
+            getmodeldatabases(modelpathname, getModelInfo)
+            .then(function(response) {
+                alert('Resolving');
+                resolve(true);
+            })
+        });
+
+        // return new Promise((resolve, reject) => {
+        //     alert('updateModelInfo: modelpathname=' + modelpathname);
+        //     updateLoadingDivVisibility(true);
+        //     clearTableData();
+        //     resolve(true);
+        //     // getmodeldatabases(modelpathname, getModelInfo)
+        //     // .then(function(response) {
+        //     //     updateLoadingDivVisibility(false);
+        //     //     modelInfoLoaded = true;
+        //     //     resolve(response);
+        //     // })
+        //     // .catch(function(error) {
+        //     //     reject(error);
+        //     // })
+        // });
     }
     function checkScenarioStatus(scenarioID, rowIndex, colIndex) {
         axios({
@@ -1792,15 +1842,16 @@
             })
         });
     }
-    function getmodeldatabases(callback) {
+    function getmodeldatabases(modelPathname, callback) {
         return new Promise((resolve, reject) => { 
+            alert('getmodeldatabases: Calling Axios');
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabases",
                 method: 'post',
                 accept : 'application/json',
                 contentType: 'application/json;charset=utf-8',
                 data : {
-                    modelPathname: $("#user-models").val(),
+                    modelPathname: modelPathname,
                     closeModel: true
                 }
             })
@@ -1812,7 +1863,7 @@
                                             tableNames: [] });
                     }
                 }
-                getDatabaseTables(0, callback)
+                getDatabaseTables(0, callback, modelPathname)
                 .then(function(getDatabaseTablesResponse) {
                     resolve(getDatabaseTablesResponse);
                 });
@@ -1820,7 +1871,7 @@
         });
     }
 
-    function getDatabaseTables(databaseIndex, callback) {
+    function getDatabaseTables(databaseIndex, callback, modelpathname) {
         return new Promise((resolve, reject) => { 
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/getmodeldatabasetables",
@@ -1828,7 +1879,7 @@
                 accept : 'application/json',
                 contentType: 'application/json;charset=utf-8',
                 data : {
-                    modelPathname: $("#user-models").val(),
+                    modelPathname: modelpathname,
                     database: modelDatabases[databaseIndex].name,
                     closeModel: true
                 }
@@ -1838,7 +1889,7 @@
                 modelDatabases[databaseIndex].tableNames.sort();
                 var dbIndex = databaseIndex + 1;
                 if (dbIndex < modelDatabases.length) {
-                    resolve(getDatabaseTables(dbIndex, callback));
+                    resolve(getDatabaseTables(dbIndex, callback, modelpathname));
                 } else {
                     if (callback !== "") {
                         callback()
@@ -1883,13 +1934,13 @@
                 this.updateButtonsState();
                 updateLoadingDivVisibility(false);
                 resolve(response);
-                // getmodeldatabases(getModelInfo)
-                // .then(function(response) {
-                //     resolve(response);
-                // })
-                // .catch(function(error) {
-                //     reject(error);
-                // })
+                getmodeldatabases( $('#user-models').val(), getModelInfo)
+                .then(function(response) {
+                    resolve(response);
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
             });
         });
     }
