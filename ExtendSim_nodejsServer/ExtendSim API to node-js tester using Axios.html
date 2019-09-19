@@ -149,7 +149,7 @@
     }
     #scenarios-table {
         /* table-layout: fixed; */
-        margin-top: 20px;
+        /* margin-top: 20px; */
         margin-bottom: 20px;
         margin-right: 2%;
     }
@@ -351,7 +351,7 @@
         border-radius: 10px;
         padding: 15px;
         margin: 1%;
-        margin-top: 10px;
+        /* margin-top: 10px; */
         width: 30%;
         background-color:rgb(204, 205, 253);
         display: inline-block;
@@ -427,7 +427,7 @@
                 <input type='checkbox' id='scenario-user-login-checkbox' onclick='updateDOMelementVisibility("scenario-user-login")'>User Login</input>
             </div>
             <div id='scenario-user-login-body'>
-                Username: <input class="login" id="username" type="text" name="username" value="analyst1"></input>
+                Username: <input class="login" id="username" type="text" name="username" value="analyst2"></input>
                 Password: <input class="login" id="password" type="password" name="password" value="model"></input>
                 <!-- IP address: <input class="login" id="ip-address" value="10.0.0.219"></input> -->
                 IP address: <input class="login" id="ip-address" value="184.171.246.58"></input>
@@ -444,18 +444,15 @@
                 <input id="scenario-name"></input>
                 <button class="buttons" id="create-scenario-folder-button" onclick='createScenarioFolder()'>Create scenario folder</button>
                 <button class="buttons" id="copy-model-to-scenario-folder" onclick='copyModelToScenarioFolder()'>Copy model to scenario folder</button>
-                <br></br>
-                <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
-                <input id="user-scenario-folder-pathname" readonly></input>    
             </div>
         </div>
-        <div id="server-actions">
+        <!-- <div id="server-actions">
             <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
             <input id="user-scenario-folder-pathname"></input>
             <br></br>
             <label id="model-copied-status-label">Model copied:</label>
             <input id="model-copied-status" type="checkbox"></input>    
-        </div>
+        </div> -->
         <div id="scenario-factors">
             <div class='section-header-checkboxes'>
                 <input type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>Factors</input>
@@ -648,6 +645,10 @@
                     <button class="scenario-buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
                     <label id="scenario-status-label">Scenario status:</label>
                     <input id="scenario-status"></input>
+                    <br></br>
+                    <label id="user-scenario-folder-pathname-label">Selected Scenario folder pathname:</label>
+                    <input id="user-scenario-folder-pathname" readonly></input>    
+    
                 </div>
                 <div id="scenarios-table-body">
                     <table id="scenarios-table" style="width:auto">
@@ -698,6 +699,7 @@
     var numDatabaseFilesUploaded = 0;
     var tableDataHtmlCode = "";
     var myCheckStatusInterval;
+    var modelInfoLoaded = false;
 
     var IPaddress = "";
     // var IPaddress = "http://184.171.246.58";
@@ -741,6 +743,7 @@
     $("#file-contents-modal").hide();
 
     enableDisableUserLoginButton();
+    validateUserInputs();
 
     // page sections
     updateDOMelementVisibility("scenario-user-login");
@@ -758,8 +761,22 @@
 
     updateLoadingDivVisibility(false);
 
+    function validateUserInputs() {
+        if (($("#username").val() === '') || ($("#password").val() === '') || (!ValidateIPaddress($("#ip-address").val()))) {
+            //Check to see if there is any text entered
+            // If there is no text within the input ten disable the button
+            $('.buttons').prop('disabled', true);
+        } else {
+            //If there is text in the input, then enable the button
+            IPaddress = "http://" + $("#ip-address").val();
+            queryURL_root =  IPaddress + ":3001/api/";
+            $('.buttons').prop('disabled', false);
+            $('#create-scenario-folder-button').prop('disabled', true);
+            $('#copy-model-to-scenario-folder').prop('disabled', true);
+        }
+    }
+
     function enableDisableUserLoginButton() {
-        alert('enableDisableUserLoginButton - ' + $("#username").val() + ' ' + $("#password").val() + ' ' + $("#ip-address").val());
         if (($("#username").val() === '') || ($("#password").val() === '') || (!ValidateIPaddress($("#ip-address").val()))) {
             $('#login-button').prop('disabled', true);
         } else {
@@ -769,7 +786,7 @@
 
     function updateButtonsState() {
         if ($("#scenario-name").val() !== '') {
-            if ($('#user-models').val() !== '') {
+            if ($('#user-models').val() !== null) {
                 $('#create-scenario-folder-button').prop('disabled', false);
                 $('.scenario-file-input-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
@@ -971,6 +988,17 @@
     }
 
     function addNewDatabaseInputsTableRow() {
+        if (!modelInfoLoaded) {
+            createScenarioFolder(modelInfoLoaded)
+            .then(function(createScenarioFolderResponse) {
+                // alert('createScenarioFolder: scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
+                // Copy user selected server model into scenario folder
+                copyModelToScenarioFolder(modelInfoLoaded)
+                .then(function(copyModelToScenarioFolderResponse) {
+                    updateModelInfo(modelPathname);
+                });
+            });
+        }
         var table = $("#database-inputs-table");
         databaseInputsTableRows++;
         var newrow = 
@@ -1391,10 +1419,10 @@
         $("#dialog-outputs-table").find("tr:not(:first)").remove(); 
     }
 
-    function updateModelInfo() {
+    function updateModelInfo(modelPathname) {
         updateLoadingDivVisibility(true);
         clearTableData();
-        getmodeldatabases(getModelInfo)
+        getmodeldatabases(modelpathname, getModelInfo)
         .then(function(response) {
             updateLoadingDivVisibility(false);
         })
@@ -1460,8 +1488,9 @@
             })
         });
     }
-    function createScenarioFolder() {
+    function createScenarioFolder(bypass) {
         return new Promise((resolve, reject) => {
+            if (!bypass) {
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/createScenarioFolder',
                 method: 'post',
@@ -1483,32 +1512,39 @@
             .catch(function(error) {
                 reject(error);
             })
+        } else {
+            resolve(true);
+        }
         });
     }
 
-    function copyModelToScenarioFolder() {
+    function copyModelToScenarioFolder(bypass) {
         return new Promise((resolve, reject) => {
-            axios({
-                url: proxyurl + queryURL_root + 'ExtendSim/copyModelToScenarioFolder',
-                method: 'post',
-                accept : 'application/json',
-                contentType: 'application/json;charset=utf-8',
-                // params: {
-                data: {
-                    modelPathname: $("#user-models").val(),
-                    scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
-                    copyFolderContents: true
-                }
-            })
-            .then(function(response) {
-                // Storing an array of results in the results variable
-                $('#copy-model-to-scenario-folder').prop('disabled', true);
-                updateButtonsState();
-                resolve(true);
-            })
-            .catch(function(error) {
-                reject(error);
-            })  
+            if (!bypass) {
+                axios({
+                    url: proxyurl + queryURL_root + 'ExtendSim/copyModelToScenarioFolder',
+                    method: 'post',
+                    accept : 'application/json',
+                    contentType: 'application/json;charset=utf-8',
+                    // params: {
+                    data: {
+                        modelPathname: $("#user-models").val(),
+                        scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
+                        copyFolderContents: true
+                    }
+                })
+                .then(function(response) {
+                    // Storing an array of results in the results variable
+                    $('#copy-model-to-scenario-folder').prop('disabled', true);
+                    updateButtonsState();
+                    resolve(true);
+                })
+                .catch(function(error) {
+                    reject(error);
+                })  
+            } else {
+                resolve(true);           
+            }
         });   
     }
 
@@ -1685,11 +1721,11 @@
         //  4. Submit the scenario on the server
 
         // create the scenario folder
-        createScenarioFolder()
+        createScenarioFolder(modelInfoLoaded)
         .then(function(createScenarioFolderResponse) {
             // alert('createScenarioFolder: scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
             // Copy user selected server model into scenario folder
-            copyModelToScenarioFolder()
+            copyModelToScenarioFolder(modelInfoLoaded)
             .then(function(copyModelToScenarioFolderResponse) {
                 // alert('copyModelToScenarioFolder: response=' + copyModelToScenarioFolderResponse);
                 uploadDataStreamsToModel(0)
@@ -1844,13 +1880,16 @@
                     $('#user-models').val(userModelPaths[0]);
                 }
                 this.enableDisableCopyModelToScenarioFolderButton();
-                getmodeldatabases(getModelInfo)
-                .then(function(response) {
-                    resolve(response);
-                })
-                .catch(function(error) {
-                    reject(error);
-                })
+                this.updateButtonsState();
+                updateLoadingDivVisibility(false);
+                resolve(response);
+                // getmodeldatabases(getModelInfo)
+                // .then(function(response) {
+                //     resolve(response);
+                // })
+                // .catch(function(error) {
+                //     reject(error);
+                // })
             });
         });
     }
@@ -2075,18 +2114,7 @@
     });
 
     $('.login').keyup(function () {
-        if (($("#username").val() === '') || ($("#password").val() === '') || (!ValidateIPaddress($("#ip-address").val()))) {
-            //Check to see if there is any text entered
-            // If there is no text within the input ten disable the button
-            $('.buttons').prop('disabled', true);
-        } else {
-            //If there is text in the input, then enable the button
-            IPaddress = "http://" + $("#ip-address").val();
-            queryURL_root =  IPaddress + ":3001/api/";
-            $('.buttons').prop('disabled', false);
-            $('#create-scenario-folder-button').prop('disabled', true);
-            $('#copy-model-to-scenario-folder').prop('disabled', true);
-        }
+        validateUserInputs();
     });
     $('#scenario-name').keyup(function () {
         updateButtonsState();
@@ -2094,7 +2122,10 @@
     // $(document).on("click", "#scenarios-table td", function() {
     $(document).on("click", "#scenarios-table tr", function() {
         console.log(JSON.stringify($(this).data()));
-        alert($(this).children("td").html());
+        // $("#user-scenario-folder-pathname").val() 
+        // this.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + colIndex + ')').text(scenarioStatusValues[response.data.modelRunStatus - 1]); 
+        var folder = $(this).closest('tr').find('td:eq(3)').text();
+        $("#user-scenario-folder-pathname").val(folder);
     });
 </script>
 </body>
