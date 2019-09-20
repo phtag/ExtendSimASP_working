@@ -99,7 +99,7 @@
         text-align: center;
         font-weight: bold;
         font-size: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
     #remove-selected-scenario-folders-button {
         margin: 20px;
@@ -115,6 +115,7 @@
     }
     #create-scenario-folder-button {
         visibility: visible;
+        margin-left: 20px;
     }
 
     #selected-database-outputs-table th, #selected-file-contents-table  th {
@@ -438,11 +439,6 @@
                 <button class="buttons" id="login-button" onclick='loginToServer()'>Login to server</button>
                 <label id="user-login-session-id-label">User Login Session ID:</label>
                 <input id="user-login-session-id"></input>
-                <br></br>  
-                <!-- <button class="buttons" id="ExtendSim/getUserModelPaths">Get user models</button> -->
-                <button class="user-login-buttons" id="get-user-models-button" onclick='getUserModelPaths()'>Get user models</button>
-                <select onchange="updateModelInfo()" id="user-models"></select>
-                <br></br>
             </div>
         </div>
         <!-- <div id="server-actions">
@@ -635,13 +631,18 @@
                 <input type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
             </div>
             <div id='scenarios-body'>
-                <div id='submit-scenarios'>
-                    <button class="scenario-buttons" onclick='submitSimulationScenario(event)'>Submit scenario</button>
-                </div>
                 <div>
-                    <label id="scenario-name-label">Scenario name:</label>
-                    <input id="scenario-name"></input>
-                    <button class="buttons" id="create-scenario-folder-button" onclick='createScenarioFolderCopyModel(true, true)'>Create scenario folder on ASP server</button>
+                    <div>
+                        <button class="user-login-buttons" id="get-user-models-button" onclick='getUserModelPaths()'>Get user models</button>
+                        <select onchange="updateModelInfo()" id="user-models"></select>           
+                        <br></br>
+                        <label id="scenario-name-label">Scenario name:</label>
+                        <input id="scenario-name"></input>
+                        <button class="buttons" id="create-scenario-folder-button" onclick='createScenarioFolderCopyModel(true, true)'>Create scenario folder on ASP server</button>
+                        <div id='submit-scenarios'>
+                            <button class="scenario-buttons" onclick='submitSimulationScenario(event)'>Submit selected scenarios</button>
+                        </div>            
+                    </div>
                     <label id="scenario-id-label">Scenario ID:</label>
                     <input id="scenario-id"></input>    
                     <button class="scenario-buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
