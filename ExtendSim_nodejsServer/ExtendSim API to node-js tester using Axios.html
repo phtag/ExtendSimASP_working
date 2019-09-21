@@ -91,6 +91,9 @@
     .table-checkboxes {
         text-align: center;
     }
+    #save-scenario-definition {
+        margin: 0px 20px 20px 20px;
+    }
     #selected-response-table-name-label {
         font-size: 18px;
         font-family: Arial, Helvetica, sans-serif;
@@ -101,6 +104,9 @@
         font-size: 20px;
         margin-bottom: 15px;
     }
+    .scenario-checkbox {       
+    }
+
     #remove-selected-scenario-folders-button {
         margin: 20px;
     }
@@ -112,6 +118,10 @@
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
         background-color: #FFFFFF;
+    }
+    #scenarios-table-containter {
+        text-align: center;
+        margin: auto;
     }
     #create-scenario-folder-button {
         visibility: visible;
@@ -266,7 +276,10 @@
     #user-scenario-folder-pathname {
         margin-right: 20px;
     }
-
+    #scenario-model-label {
+        margin-right: 10px;
+        font-weight: bold;
+    }
     #scenario-id-label {
         /* margin-left: 20px; */
     }
@@ -276,7 +289,7 @@
     #scenario-status-label {
         margin-left: 20px;
     }
-    #scenario-user-login-checkbox, #scenario-definition-checkbox, #scenario-factors-checkbox, #scenario-responses-checkbox, #scenarios-checkbox {
+    #scenario-user-login-checkbox, #scenario-definition-checkbox, #scenario-setup-checkbox, #scenario-factors-checkbox, #scenario-responses-checkbox, #scenarios-checkbox {
         display: inline-block;
     }
     #scenario-user-login-checkbox-label, #scenario-definition-checkbox-label, #scenario-factors-checkbox-label, #scenario-responses-checkbox-label, #scenarios-checkbox-label {
@@ -287,14 +300,13 @@
         margin-top: 0px;
         margin-bottom: 20px;
     }
-    #scenario-user-login-body, #scenario-factors-body, #scenario-responses-body, #scenarios-body {
+    #scenario-user-login-body, #scenario-setup-body, #scenario-factors-body, #scenario-responses-body, #scenarios-body {
         text-align: left;
         margin-left: 20px;
-        /* margin: auto; */
         margin-bottom: 20px;
         overflow-x: auto;
     }
-    #scenario-user-login, #scenario-definition, #scenario-factors, #scenario-responses, #scenarios {
+    #scenario-user-login, #scenario-definition, #scenario-setup, #scenario-factors, #scenario-responses, #scenarios {
         border: 2px solid rgb(0, 0, 0);
         border-radius: 10px;
         padding-top: 15px;
@@ -307,8 +319,11 @@
         vertical-align:top;   
     }
     #scenario-definition {
-        padding-left: 1%;
-        padding-right: 1%;
+        padding-left: 2%;
+        padding-right: 2%;
+    }
+    #scenario-setup  {
+        background-color:rgb(247, 155, 155);
     }
     #scenario-factors  {
         background-color:rgb(247, 236, 155);
@@ -364,7 +379,7 @@
         border-radius: 10px;
         padding: 15px;
         margin: 1%;
-        /* margin-top: 10px; */
+        /* margin: auto; */
         width: 35%;
         background-color:rgb(204, 205, 253);
         display: inline-block;
@@ -459,200 +474,211 @@
         </div> -->
         <div id="scenario-definition">
             <div class='section-header-checkboxes'>
-                <input type='checkbox' id='scenario-definition-checkbox' onclick='updateDOMelementVisibility("scenario-definition")'>Scenario Definition</input>
-            </div>   
-            <div id="scenario-factors">
-                <div class='section-header-checkboxes'>
-                    <input type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>Factors</input>
-                </div>
-                <div id='scenario-factors-body'>
-                    <div id="scenario-file-inputs">
-                        <div id="scenario-file-inputs-header">
-                            <label id="scenario-file-inputs-checkbox-label">Model Files</label>
-                            <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'></input>    
-                        </div>
-                        <div id="scenario-file-inputs-body">
-                            <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
-                            <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
-                            <!-- <table id="file-inputs-table" style="width:auto"> -->
-                            <table id="file-inputs-table">
-                                <tr>
-                                    <th>
-                                        Input data file
-                                    </th>
-                                </tr>
-                            </table>
-                            <button class="upload-files-button" onclick='uploadDataFilesToServer(0)''>Upload scenario input files to server</button>
-                            <label id="files-uploaded-status-label">Files uploaded:</label>
-                            <input id="files-uploaded-status" type="checkbox"></input>
-                        </div>
+                <input class='scenario-checkbox' type='checkbox' id='scenario-definition-checkbox' onclick='updateDOMelementVisibility("scenario-definition")'>Scenario Definition</input>
+            </div>  
+            <div id="scenario-definition-body">
+                <div id="scenario-setup">
+                    <div class='section-header-checkboxes'>
+                        <input type='checkbox' id='scenario-setup-checkbox' onclick='updateDOMelementVisibility("scenario-setup")'>Setup</input>
                     </div>
-                    <div id="scenario-database-inputs">
-                        <!-- <h3>Scenario Database Inputs</h3> -->
-                        <div id="scenario-database-inputs-header">
-                            <label id="scenario-database-inputs-checkbox-label">Database Tables</label>
-                            <input id="scenario-database-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'></input>    
-                        </div>
-                        <div id="scenario-database-inputs-body">
-                            <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
-                            <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
-                            <!-- <table id="database-inputs-table" style="width:auto"> -->
-                            <table id="database-inputs-table">
-                                <tr>
-                                    <th>
-                                        Source data file
-                                    </th>
-                                    <th>
-                                        Target Database
-                                    </th>
-                                    <th>
-                                        Target Table
-                                    </th>
-                                </tr>
-                            </table>
-                            <button class="upload-database-inputs-button" onclick='uploadDataStreamsToModel(0)'>Upload inputs to database tables</button>
-                            <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
-                            <input id="database-inputs-uploaded-status" type="checkbox"></input>
-                        </div>
-                    </div>
-                    <div id="scenario-dialog-inputs">
-                        <div id="scenario-dialog-inputs-header">
-                            <label id="scenario-dialog-inputs-checkbox-label">Dialog Variables</label>
-                            <input id="scenario-dialog-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-inputs")'></input>    
-                        </div>
-                        <div id="scenario-dialog-inputs-body">
-                            <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
-                            <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
-                            <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
-                            <table id="dialog-inputs-table" style="width:auto">
-                                <tr>
-                                    <th>
-                                        Block Type
-                                    </th>
-                                    <th>
-                                        Block Number
-                                    </th>
-                                    <th>
-                                        Type
-                                    </th>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Value
-                                    </th>
-                                </tr>
-                            </table>
-                            <button class="upload-dialog-inputs-button" onclick="uploadDialogVariableDataToModel(0)">Upload inputs to dialog variables</button>
-                            <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
-                            <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="scenario-responses">
-                <div class='section-header-checkboxes'>
-                    <input type='checkbox' id='scenario-responses-checkbox' onclick='updateDOMelementVisibility("scenario-responses")'>Responses</input>
-                </div>
-                <div id='scenario-responses-body'>
-                    <div id="scenario-file-outputs">
-                        <div id="scenario-file-outputs-header">
-                            <label id="scenario-file-outputs-checkbox-label">Model Files</label>
-                            <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'></input>    
-                        </div>
-                        <div id="scenario-file-outputs-body">
-                            <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow()'>Add row</button>
-                            <button class="scenario-file-output-buttons" id="delete-file-outputs-table-row" onclick='deleteOutputFilesTableRow()'>Delete row</button>
-                            <table id="file-outputs-table" style="width:auto">
-                                <tr>
-                                    <th>
-                                        Scenario folder files
-                                    </th>
-                                    <th>
-                                        Action
-                                    </th>    
-                                </tr>
-                            </table>
-                        </div>  
-                    </div>         
-                    <div id="scenario-database-outputs">
-                        <div id="scenario-database-outputs-header">
-                            <label id="scenario-database-outputs-checkbox-label">Database Tables</label>
-                            <input id="scenario-database-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-outputs")'></input>    
-                        </div>
-                        <div id="scenario-database-outputs-body">
-                            <!-- <h3>Scenario Database Outputs</h3> -->
-                            <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow()'>Add row</button>
-                            <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseOutputsTableRow()'>Delete row</button>
-                            <table id="database-outputs-table" style="width:auto">
-                                <tr>
-                                    <th>
-                                        Source Database
-                                    </th>
-                                    <th>
-                                        Source Table
-                                    </th>
-                                    <th>
-                                        Data
-                                    </th>
-                                    <th>
-                                        Chart
-                                    </th>
-                                    <th>
-                                        Export
-                                    </th>           
-                                </tr>
-                            </table>
-                        </div>  
-                    </div>    
-                    <div id="scenario-dialog-outputs">
-                        <div id="scenario-dialog-outputs-header">
-                            <label id="scenario-dialog-outputs-checkbox-label">Dialog Variables</label>
-                            <input id="scenario-dialog-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-outputs")'></input>    
-                        </div>
-                        <div id="scenario-dialog-outputs-body">
-                            <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogOutputsTableRow()'>Add row</button>
-                            <button class="scenario-dialog-output-buttons" id="delete-dialog-outputs-table-row" onclick='deleteDialogOutputsTableRow()'>Delete row</button>
-                            <table id="dialog-outputs-table" style="width:auto">
-                                <tr>
-                                    <th>
-                                        Block Type
-                                    </th>
-                                    <th>
-                                        Block Number
-                                    </th>
-                                    <th>
-                                        Type
-                                    </th>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Value
-                                    </th>
-                                </tr>
-                            </table>
-                            <button class="download-dialog-outputs-button" onclick="downloadDialogVariableDataFromModel(0)">Get dialog variable values</button>
-                            <label id="dialog-outputs-uploaded-status-label">Inputs uploaded:</label>
-                            <input id="dialog-outputs-uploaded-status" type="checkbox"></input>
-                        </div>
-                    </div>     
-                </div>  
-            </div>
-        </div>
-        <div id="scenarios">
-            <div class='section-header-checkboxes'>
-                <input type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
-            </div>
-            <div id='scenarios-body'>
-                <div>
-                    <div>
-                        <button class="user-login-buttons" id="get-user-models-button" onclick='getUserModelPaths()'>Get user models</button>
+                    <div id='scenario-setup-body'>
+                        <label id="scenario-model-label">Scenario model:</button>
                         <select onchange="updateModelInfo()" id="user-models"></select>           
                         <br></br>
                         <label id="scenario-name-label">Scenario name:</label>
                         <input id="scenario-name"></input>
-                        <button class="buttons" id="create-scenario-folder-button" onclick='createScenarioFolderCopyModel(true, true)'>Create scenario folder on ASP server</button>
+                    </div>
+                </div>
+                <div id="scenario-factors">
+                    <div class='section-header-checkboxes'>
+                        <input class='scenario-checkbox' type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>Factors</input>
+                    </div>
+                    <div id='scenario-factors-body'>
+                        <div id="scenario-file-inputs">
+                            <div id="scenario-file-inputs-header">
+                                <label id="scenario-file-inputs-checkbox-label">Model Files</label>
+                                <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'></input>    
+                            </div>
+                            <div id="scenario-file-inputs-body">
+                                <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
+                                <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
+                                <!-- <table id="file-inputs-table" style="width:auto"> -->
+                                <table id="file-inputs-table">
+                                    <tr>
+                                        <th>
+                                            Input data file
+                                        </th>
+                                    </tr>
+                                </table>
+                                <button class="upload-files-button" onclick='uploadDataFilesToServer(0)''>Upload scenario input files to server</button>
+                                <label id="files-uploaded-status-label">Files uploaded:</label>
+                                <input id="files-uploaded-status" type="checkbox"></input>
+                            </div>
+                        </div>
+                        <div id="scenario-database-inputs">
+                            <!-- <h3>Scenario Database Inputs</h3> -->
+                            <div id="scenario-database-inputs-header">
+                                <label id="scenario-database-inputs-checkbox-label">Database Tables</label>
+                                <input id="scenario-database-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'></input>    
+                            </div>
+                            <div id="scenario-database-inputs-body">
+                                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
+                                <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
+                                <!-- <table id="database-inputs-table" style="width:auto"> -->
+                                <table id="database-inputs-table">
+                                    <tr>
+                                        <th>
+                                            Source data file
+                                        </th>
+                                        <th>
+                                            Target Database
+                                        </th>
+                                        <th>
+                                            Target Table
+                                        </th>
+                                    </tr>
+                                </table>
+                                <button class="upload-database-inputs-button" onclick='uploadDataStreamsToModel(0)'>Upload inputs to database tables</button>
+                                <label id="database-inputs-uploaded-status-label">Files uploaded:</label>
+                                <input id="database-inputs-uploaded-status" type="checkbox"></input>
+                            </div>
+                        </div>
+                        <div id="scenario-dialog-inputs">
+                            <div id="scenario-dialog-inputs-header">
+                                <label id="scenario-dialog-inputs-checkbox-label">Dialog Variables</label>
+                                <input id="scenario-dialog-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-inputs")'></input>    
+                            </div>
+                            <div id="scenario-dialog-inputs-body">
+                                <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
+                                <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
+                                <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
+                                <table id="dialog-inputs-table" style="width:auto">
+                                    <tr>
+                                        <th>
+                                            Block Type
+                                        </th>
+                                        <th>
+                                            Block Number
+                                        </th>
+                                        <th>
+                                            Type
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>
+                                            Value
+                                        </th>
+                                    </tr>
+                                </table>
+                                <button class="upload-dialog-inputs-button" onclick="uploadDialogVariableDataToModel(0)">Upload inputs to dialog variables</button>
+                                <label id="dialog-inputs-uploaded-status-label">Inputs uploaded:</label>
+                                <input id="dialog-inputs-uploaded-status" type="checkbox"></input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="scenario-responses">
+                    <div class='section-header-checkboxes'>
+                        <input class='scenario-checkbox' type='checkbox' id='scenario-responses-checkbox' onclick='updateDOMelementVisibility("scenario-responses")'>Responses</input>
+                    </div>
+                    <div id='scenario-responses-body'>
+                        <div id="scenario-file-outputs">
+                            <div id="scenario-file-outputs-header">
+                                <label id="scenario-file-outputs-checkbox-label">Model Files</label>
+                                <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'></input>    
+                            </div>
+                            <div id="scenario-file-outputs-body">
+                                <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow()'>Add row</button>
+                                <button class="scenario-file-output-buttons" id="delete-file-outputs-table-row" onclick='deleteOutputFilesTableRow()'>Delete row</button>
+                                <table id="file-outputs-table" style="width:auto">
+                                    <tr>
+                                        <th>
+                                            Scenario folder files
+                                        </th>
+                                        <th>
+                                            Action
+                                        </th>    
+                                    </tr>
+                                </table>
+                            </div>  
+                        </div>         
+                        <div id="scenario-database-outputs">
+                            <div id="scenario-database-outputs-header">
+                                <label id="scenario-database-outputs-checkbox-label">Database Tables</label>
+                                <input id="scenario-database-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-outputs")'></input>    
+                            </div>
+                            <div id="scenario-database-outputs-body">
+                                <!-- <h3>Scenario Database Outputs</h3> -->
+                                <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow()'>Add row</button>
+                                <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseOutputsTableRow()'>Delete row</button>
+                                <table id="database-outputs-table" style="width:auto">
+                                    <tr>
+                                        <th>
+                                            Source Database
+                                        </th>
+                                        <th>
+                                            Source Table
+                                        </th>
+                                        <th>
+                                            Data
+                                        </th>
+                                        <th>
+                                            Chart
+                                        </th>
+                                        <th>
+                                            Export
+                                        </th>           
+                                    </tr>
+                                </table>
+                            </div>  
+                        </div>    
+                        <div id="scenario-dialog-outputs">
+                            <div id="scenario-dialog-outputs-header">
+                                <label id="scenario-dialog-outputs-checkbox-label">Dialog Variables</label>
+                                <input id="scenario-dialog-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-outputs")'></input>    
+                            </div>
+                            <div id="scenario-dialog-outputs-body">
+                                <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogOutputsTableRow()'>Add row</button>
+                                <button class="scenario-dialog-output-buttons" id="delete-dialog-outputs-table-row" onclick='deleteDialogOutputsTableRow()'>Delete row</button>
+                                <table id="dialog-outputs-table" style="width:auto">
+                                    <tr>
+                                        <th>
+                                            Block Type
+                                        </th>
+                                        <th>
+                                            Block Number
+                                        </th>
+                                        <th>
+                                            Type
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>
+                                            Value
+                                        </th>
+                                    </tr>
+                                </table>
+                                <button class="download-dialog-outputs-button" onclick="downloadDialogVariableDataFromModel(0)">Get dialog variable values</button>
+                                <label id="dialog-outputs-uploaded-status-label">Inputs uploaded:</label>
+                                <input id="dialog-outputs-uploaded-status" type="checkbox"></input>
+                            </div>
+                        </div>     
+                    </div>
+                </div>
+                <!-- <div id='save-scenario-definition'> -->
+                <button class='scenario-buttons' id='save-scenario-definition' onclick='saveScenarioDefition()'>Save scenario definition</button>
+                <!-- </div> -->
+            </div>
+        </div>
+        <div id="scenarios">
+            <div class='section-header-checkboxes'>
+                <input class='scenario-checkbox' type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
+            </div>
+            <div id='scenarios-body'>
+                <div>
+                    <div>
                         <div id='submit-scenarios'>
                             <button class="scenario-buttons" onclick='submitSimulationScenario(event)'>Submit selected scenarios</button>
                         </div>            
@@ -667,27 +693,29 @@
                     <input id="user-scenario-folder-pathname" readonly></input>    
     
                 </div>
-                <div id="scenarios-table-body">
-                    <table id="scenarios-table" style="width:auto">
-                        <tr>
-                            <th>
-                                Select
-                            </th>
-                            <th>
-                                ID
-                            </th>
-                            <th>
-                                Name
-                            </th>
-                            <th>
-                                Status
-                            </th>
-                            <th>
-                                Folder
-                            </th>
-                        </tr>
-                    </table>
-                    <button class="scenario-buttons" onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
+                <div id='scenarios-table-containter'>
+                    <div id="scenarios-table-body">
+                        <table id="scenarios-table" style="width:auto">
+                            <tr>
+                                <th>
+                                    Select
+                                </th>
+                                <th>
+                                    ID
+                                </th>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                                <th>
+                                    Folder
+                                </th>
+                            </tr>
+                        </table>
+                        <button class="scenario-buttons" onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
+                    </div>
                 </div>
             </div>
         </div>    
@@ -747,11 +775,14 @@
     $('.scenario-dialog-output-buttons').prop('disabled', true);
     $('.scenario-buttons').prop('disabled', true);
     $('.user-login-buttons').prop('disabled', true);
+    $('.scenario-checkbox').prop('disabled', true);
     
     $('#scenario-user-login-checkbox').prop('checked', false);
+    $('#scenario-setup-checkbox').prop('checked', false);
     $('#scenario-factors-checkbox').prop('checked', false);
     $('#scenario-responses-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('checked', false);
+    $('.scenario-definition-checkboxes').prop('disabled', true);
     
     $('#responses-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('checked', false);
@@ -768,6 +799,7 @@
     // page sections
     updateDOMelementVisibility("scenario-user-login");
     updateDOMelementVisibility("scenario-definition");
+    updateDOMelementVisibility("scenario-setup");
     updateDOMelementVisibility("scenario-factors");
     updateDOMelementVisibility("scenario-responses");
     updateDOMelementVisibility("scenarios");
@@ -2167,9 +2199,12 @@
         })
         .then(function(response) {
             // Storing an array of results in the results variable
-            // alert('Axios POST parameters result=' + JSON.stringify(response.data));
-            $("#user-login-session-id").val(response.data.userLoginSessionID);
-            $('.user-login-buttons').prop('disabled', false);
+            getUserModelPaths()
+            .then(function(getUserModelPathsResponse) {
+                $("#user-login-session-id").val(response.data.userLoginSessionID);
+                $('.user-login-buttons').prop('disabled', false);
+                $('.scenario-checkbox').prop('disabled', false);
+            });
         });
     }
     enableDisableUploadFilesButton();
