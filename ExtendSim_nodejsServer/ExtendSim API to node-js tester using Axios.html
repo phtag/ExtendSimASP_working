@@ -91,6 +91,10 @@
     .table-checkboxes {
         text-align: center;
     }
+    #remove-selected-button {
+        text-align: center;
+        margin: auto;
+    }
     #save-scenario-definition {
         margin: 0px 20px 20px 20px;
     }
@@ -104,7 +108,7 @@
         font-size: 20px;
         margin-bottom: 15px;
     }
-    .scenario-checkbox {       
+    .scenario-definition-checkboxes {       
     }
 
     #remove-selected-scenario-folders-button {
@@ -119,7 +123,7 @@
         font-size: 14px;
         background-color: #FFFFFF;
     }
-    #scenarios-table-containter {
+    #scenarios-table-container {
         text-align: center;
         margin: auto;
     }
@@ -232,6 +236,7 @@
         /* left: 20px; */
         width: 90%;
         padding: 10px;
+        padding: 2%;
         border-color: blue,;
         border-width: 2px;
         border-style: solid;
@@ -275,6 +280,7 @@
     }
     #user-scenario-folder-pathname {
         margin-right: 20px;
+        max-width: 700px;
     }
     #scenario-model-label {
         margin-right: 10px;
@@ -305,6 +311,10 @@
         margin-left: 20px;
         margin-bottom: 20px;
         overflow-x: auto;
+    }
+    #scenarios-body {
+        text-align: center;
+        margin: auto;
     }
     #scenario-user-login, #scenario-definition, #scenario-setup, #scenario-factors, #scenario-responses, #scenarios {
         border: 2px solid rgb(0, 0, 0);
@@ -378,8 +388,8 @@
         border: 2px solid rgb(4, 0, 253);
         border-radius: 10px;
         padding: 15px;
-        margin: 1%;
-        /* margin: auto; */
+        margin: 2%;
+        /* margin-left: -20px; */
         width: 35%;
         background-color:rgb(204, 205, 253);
         display: inline-block;
@@ -474,7 +484,7 @@
         </div> -->
         <div id="scenario-definition">
             <div class='section-header-checkboxes'>
-                <input class='scenario-checkbox' type='checkbox' id='scenario-definition-checkbox' onclick='updateDOMelementVisibility("scenario-definition")'>Scenario Definition</input>
+                <input class='scenario-definition-checkboxes' type='checkbox' id='scenario-definition-checkbox' onclick='updateDOMelementVisibility("scenario-definition")'>Scenario Definition</input>
             </div>  
             <div id="scenario-definition-body">
                 <div id="scenario-setup">
@@ -491,7 +501,7 @@
                 </div>
                 <div id="scenario-factors">
                     <div class='section-header-checkboxes'>
-                        <input class='scenario-checkbox' type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>Factors</input>
+                        <input class='scenario-definition-checkboxes' type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>Factors</input>
                     </div>
                     <div id='scenario-factors-body'>
                         <div id="scenario-file-inputs">
@@ -580,7 +590,7 @@
                 </div>
                 <div id="scenario-responses">
                     <div class='section-header-checkboxes'>
-                        <input class='scenario-checkbox' type='checkbox' id='scenario-responses-checkbox' onclick='updateDOMelementVisibility("scenario-responses")'>Responses</input>
+                        <input class='scenario-definition-checkboxes' type='checkbox' id='scenario-responses-checkbox' onclick='updateDOMelementVisibility("scenario-responses")'>Responses</input>
                     </div>
                     <div id='scenario-responses-body'>
                         <div id="scenario-file-outputs">
@@ -667,14 +677,12 @@
                         </div>     
                     </div>
                 </div>
-                <!-- <div id='save-scenario-definition'> -->
                 <button class='scenario-buttons' id='save-scenario-definition' onclick='saveScenarioDefition()'>Save scenario definition</button>
-                <!-- </div> -->
             </div>
         </div>
         <div id="scenarios">
             <div class='section-header-checkboxes'>
-                <input class='scenario-checkbox' type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
+                <input type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
             </div>
             <div id='scenarios-body'>
                 <div>
@@ -693,7 +701,7 @@
                     <input id="user-scenario-folder-pathname" readonly></input>    
     
                 </div>
-                <div id='scenarios-table-containter'>
+                <!-- <div id='scenarios-table-container'> -->
                     <div id="scenarios-table-body">
                         <table id="scenarios-table" style="width:auto">
                             <tr>
@@ -714,9 +722,11 @@
                                 </th>
                             </tr>
                         </table>
-                        <button class="scenario-buttons" onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
+                        <div id='remove-selected-button'>
+                            <button class="scenario-buttons" onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
+                        </div>
                     </div>
-                </div>
+                <!-- </div> -->
             </div>
         </div>    
     </div>
@@ -782,6 +792,7 @@
     $('#scenario-factors-checkbox').prop('checked', false);
     $('#scenario-responses-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('checked', false);
+    $('#scenarios-checkbox').prop('disabled', true);
     $('.scenario-definition-checkboxes').prop('disabled', true);
     
     $('#responses-checkbox').prop('checked', false);
@@ -816,6 +827,10 @@
     updateDOMelementVisibility("scenario-dialog-outputs");
 
     updateLoadingDivVisibility(false);
+
+    function saveScenarioDefition() {
+        $('#scenarios-checkbox').prop('disabled', false);
+    }
 
     function doesScenarioFolderExist() {
         if ($("#user-scenario-folder-pathname").val() === "") {
@@ -2203,7 +2218,7 @@
             .then(function(getUserModelPathsResponse) {
                 $("#user-login-session-id").val(response.data.userLoginSessionID);
                 $('.user-login-buttons').prop('disabled', false);
-                $('.scenario-checkbox').prop('disabled', false);
+                $('.scenario-definition-checkboxes').prop('disabled', false);
             });
         });
     }
