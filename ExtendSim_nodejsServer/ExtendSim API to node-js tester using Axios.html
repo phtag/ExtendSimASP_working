@@ -165,6 +165,7 @@
     #scenarios-table {
         margin-bottom: 20px;
         margin-right: 2%;
+        overflow-x: scroll;
     }
     .close {
         color: #aaaaaa;
@@ -242,7 +243,7 @@
         text-align: center;
     }
     #scenario-name {
-        width: 30%;
+        width: 60%;
     }
     #user-login-session-id-label {
         margin-left: 20px;
@@ -292,7 +293,7 @@
         text-align: left;
         margin-left: 20px;
         margin-bottom: 20px;
-        overflow-x: auto;
+        /* overflow-x: auto; */
     }
     #scenarios-body {
         text-align: center;
@@ -316,10 +317,10 @@
         background-color:rgb(247, 155, 155);
     }
     #scenario-factors  {
-        background-color:rgb(231, 219, 146);
+        background-color:rgb(252, 235, 162);
     }
     #scenario-responses {
-        background-color:rgb(144, 230, 141);
+        background-color:rgb(155, 251, 195);
     }
 
     #scenario-file-inputs, #scenario-database-inputs, #scenario-dialog-inputs {
@@ -342,6 +343,7 @@
         margin: 20px;
         width: auto;
         text-align: left;
+        overflow-x: scroll;
     }
     #scenario-database-outputs, #scenario-file-outputs, #scenario-dialog-outputs {
         border: 2px solid rgb(13, 88, 0);
@@ -375,6 +377,7 @@
         display: inline-block;
         vertical-align:top;  
         font-size: 18px;    
+
     }
     </style>
 </head>
@@ -696,7 +699,7 @@
                 </div>
                 <!-- <div id='scenarios-table-container'> -->
                     <div id="scenarios-table-body">
-                        <table id="scenarios-table" style="width:auto">
+                        <table id="scenarios-table">
                             <tr>
                                 <th>
                                     Select
@@ -1323,7 +1326,8 @@
         '<tr><td class="table-checkboxes"><input "id="scenario-selection-' + scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td nowrap id="scenario-status-' + scenariosTableRows + '">Submitted</td><td nowrap id="scenario-folder-pathname-' + scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
         table.append(newrow);
 
-        $('#scenarios-table-body').width('auto');
+        // $('#scenarios-table-body').width('auto');
+        $('#scenarios-table-body').width('90%');
         myCheckStatusInterval = setInterval(()=> {checkScenarioStatus($("#scenario-id").val(), scenariosTableRows, 3)}, 500);
     }
 
