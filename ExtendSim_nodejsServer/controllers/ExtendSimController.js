@@ -66,6 +66,25 @@ module.exports = {
             return res.json({ scenarioFolderFiles: response.data });
         });
     },
+    removescenariofolder: function(req, res) {
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/RemoveScenarioFolder"
+        var myheaders = { 
+            accept: "application/json",
+        }; 
+        axios({
+            url: queryURL,
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params : {
+                scenarioFolderPath : req.body.scenarioFolderPathname
+            }
+        }).then(function(response) {
+            return res.json({ result: response.data });
+        });
+    },
     getmodelinfo: function(req, res) {
         var myheaders = { 
             accept: "application/json", 
