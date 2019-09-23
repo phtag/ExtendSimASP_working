@@ -124,6 +124,7 @@
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
         background-color: #FFFFFF;
+        text-align: center;
     }
     #scenarios-table-container {
         text-align: center;
@@ -697,14 +698,13 @@
                 <div>
                     <div>
                         <div id='submit-scenarios'>
-                            <button class="scenario-buttons" onclick='submitSimulationScenario(event)'>Submit scenario</button>
+                            <button class="scenario-buttons" id="submit-scenarios-button" onclick='submitSimulationScenario(event)'>Submit scenario</button>
                         </div>            
                     </div>
                     <label id="scenario-id-label">Scenario ID:</label>
                     <input id="scenario-id"></input>    
-                    <button class="scenario-buttons" id="ExtendSim/checkmodelrunstatus">Check scenario status</button>
                     <label id="scenario-status-label">Scenario status:</label>
-                    <input id="scenario-status"></input>
+                    <input id="scenario-status"></input> 
                     <br></br>
                     <label id="user-scenario-folder-pathname-label">Selected Scenario folder pathname:</label>
                     <input id="user-scenario-folder-pathname" readonly></input>    
@@ -1053,7 +1053,10 @@
         if ($('#' + DOMelementIDname + '-checkbox'). prop("checked") == true) {
             $('#' + DOMelementIDname + '-body').show();
             $('#' + DOMelementIDname).width('auto');
-            if (DOMelementIDname === "scenario-definition") {
+            if (DOMelementIDname === "scenario-user-login") {
+                $('#' + DOMelementIDname).width('70%');
+
+            } else if (DOMelementIDname === "scenario-definition") {
                 $("#scenario-factors").show();
                 $('#scenario-responses').show();
                 $('#' + DOMelementIDname).width('50%');
@@ -1645,12 +1648,13 @@
         .then(function(response) {
             if (response.data.modelRunStatus === c_Completed_status) {
                 clearInterval(myCheckStatusInterval);
+                $('#submit-scenarios-button').prop('disabled', false);
+                updateButtonsState();
             }
             var table = $("#scenarios-table");
             var statusValue = table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + colIndex + ')').text(); 
             table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + colIndex + ')').text(scenarioStatusValues[response.data.modelRunStatus - 1]); 
-
-            // $("#scenario-status-" + tableRowIndex).val(scenarioStatusValues[response.data.modelRunStatus - 1]);
+            $('#scenario-status').val(scenarioStatusValues[response.data.modelRunStatus - 1]);
         });
     }
     function getServerFile(filepath) {
@@ -1748,7 +1752,7 @@
                 .then(function(response) {
                     // Storing an array of results in the results variable
                     $('#copy-model-to-scenario-folder').prop('disabled', true);
-                    updateButtonsState();
+                    // updateButtonsState();
                     resolve(true);
                 })
                 .catch(function(error) {
@@ -1934,6 +1938,7 @@
 
         // create the scenario folder
         var createScenariorFolderFlag;
+        $('#submit-scenarios-button').prop('disabled', true);
         // Check to see if there is more than the heading in the scenarios table
         if ($('#scenarios-table tr').length > 1) {
             createScenariorFolderFlag = true;
