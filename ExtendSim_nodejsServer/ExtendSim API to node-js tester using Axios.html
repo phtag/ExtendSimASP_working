@@ -85,7 +85,7 @@
         height: 20px;
         margin: 300px auto;
     }
-    .scenario-buttons {
+    .scenario-buttons, #remove-selected-scenario-folders-button {
         margin: auto;
         text-align: center;
     }
@@ -97,8 +97,8 @@
         margin: auto;
     }
     #remove-selected-button {
-        padding-left: 20%;
-        padding-right: 20%;
+        text-align: center;
+        margin: auto;
     }
     #save-scenario-definition {
         margin: 0px 20px 20px 20px;
@@ -112,9 +112,6 @@
         font-weight: bold;
         font-size: 20px;
         margin-bottom: 15px;
-    }
-    #remove-selected-scenario-folders-button {
-        margin: 20px;
     }
     .modal-buttons {
         padding: 20px;
@@ -390,8 +387,8 @@
         text-align: center; 
     }
     #scenarios-table-body > :last-child {
-        display: table;
-        padding-right: 3em;
+        /* display: table;
+        padding-right: 3em; */
     }        
     </style>
 </head>
@@ -731,7 +728,7 @@
                         </tr>
                     </table>
                     <div id='remove-selected-button'>
-                        <button class="scenario-buttons" onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
+                        <button id="remove-selected-scenario-folders-button"  onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
                     </div>
                 </div>
             </div>
@@ -803,7 +800,7 @@
     $('#scenarios-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('disabled', true);
     $('.scenario-definition-checkboxes').prop('disabled', true);
-    
+    $('#remove-selected-scenario-folders-button').prop('disabled', true);
     $('#responses-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('checked', false);
     $('#scenario-file-inputs-checkbox').prop('checked', false);
@@ -842,7 +839,10 @@
             var row = $(this);
             if (row.find('input[type="checkbox"]').is(':checked')) {
                 // var folder = $('#scenario-folder-pathname-' + (rowIndex + 1)).val();
-                alert('id=' + $(this).attr('id'));
+                scenarioFolderPathnameID = 'scenario-folder-pathname-' + parseInt($(this).attr('id').slice(2));
+                var scenarioFolderPathname = $(this).find("#" + scenarioFolderPathnameID).html();
+                alert('Scenario folder=' + scenarioFolderPathname);
+                removeScenarioFolder(scenarioFolderPathname);
             }
         });
     }
@@ -1649,17 +1649,21 @@
             })
         });
     }
-    function removeScenarioFolder() {
-        axios({
-            url: proxyurl + queryURL_root + 'ExtendSim/removescenariofolder',
-            method: 'post',
-            accept : 'application/json',
-            contentType: 'application/json;charset=utf-8',
-            data: {
-                scenarioID: scenarioID,
-            }
-        })
-        .then(function(response) {
+    function removeScenarioFolder(scenarioFolderPathname) {
+        return new Promise((resolve, reject) => {
+            axios({
+                url: proxyurl + queryURL_root + 'ExtendSim/removescenariofolder',
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data: {
+                    scenarioFolderPathname: scenarioFolderPathname,
+                }
+            })
+            .then(function(response) {
+                alert('removeScenarioFolder: response=' + response);
+                resolve(true);
+            });
         });
     }
 
@@ -1677,6 +1681,7 @@
             if (response.data.modelRunStatus === c_Completed_status) {
                 clearInterval(myCheckStatusInterval);
                 $('#submit-scenarios-button').prop('disabled', false);
+                $('#remove-selected-scenario-folders-button').prop('disabled', false);
                 updateButtonsState();
             }
             var table = $("#scenarios-table");
