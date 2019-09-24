@@ -113,7 +113,7 @@
         font-size: 20px;
         margin-bottom: 15px;
     }
-    .modal-buttons {
+    .modal-form {
         padding: 20px;
         margin: -80px auto 10px;
         width: 30%;
@@ -122,6 +122,9 @@
         font-size: 14px;
         background-color: #FFFFFF;
         text-align: center;
+    }
+    .modal-buttons {
+        margin: 10px 10px 0px 10px;
     }
     #scenarios-table-container {
         text-align: center;
@@ -397,11 +400,11 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>   
     <header class="header" id="extendsim-asp-header"></header>
     <div id="database-table-modal" class="modal">
-        <div class="modal-buttons">
+        <div class="modal-form">
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
-            <button class="buttons" id="export-table-contents-modal" onclick="exportTableContentsModal(event)">Export</button>
-            <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+            <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportTableContentsModal(event)">Export</button>
+            <button class="buttons, modal-buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
         </div>  
         <div class="modal-content">
             <div id="modal-form-contents">
@@ -409,13 +412,13 @@
                 </table>
             </div>
             <div class="container">
-                <canvas id="model-form-chart"  width=auto></canvas>
+                <canvas id="modal-form-chart"  width=auto></canvas>
             </div>
         </div>
     </div> 
 
     <div id="file-contents-modal" class="modal">
-        <div class="modal-buttons">
+        <div class="modal-form">
             <label id="selected-file-name-label">File name:</label>
             <input id="selected-file-name" type='text' readonly></input>
             <button class="buttons" id="export-file-contents-modal" onclick="exportFileContentsModal(event)">Export</button>
@@ -427,7 +430,7 @@
                 </table>
             </div>
             <div class="container">
-                <canvas id="model-form-chart"  width=auto></canvas>
+                <canvas id="modal-form-chart"  width=auto></canvas>
             </div>
         </div>
     </div>     
@@ -436,7 +439,7 @@
     <div id="load_screen"><div id="loading">Loading data from server. Please wait...</div></div>
     <!-- The Modal -->
     <!-- <div id="database-table-modal" class="modal">
-        <div id="modal-buttons">
+        <div id="modal-form">
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
             <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
@@ -447,7 +450,7 @@
                 </table>
             </div>
             <div class="container">
-                <canvas id="model-form-chart"  width=auto></canvas>
+                <canvas id="modal-form-chart"  width=auto></canvas>
             </div>
         </div>
     </div>  -->
@@ -806,7 +809,7 @@
     $('#scenario-file-inputs-checkbox').prop('checked', false);
     $("#model-copied-status").prop('checked', false);
     $("#server-actions").hide();
-    $('#model-form-chart').hide();
+    $('#modal-form-chart').hide();
     $("#database-table-modal").hide();
     $("#file-contents-modal").hide();
 
@@ -967,7 +970,7 @@
                 }
             });
 
-        new Chart($("#model-form-chart"), {
+        new Chart($("#modal-form-chart"), {
             type: 'bar',
             data: {
                 labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
@@ -988,13 +991,13 @@
             }
         });
         $("#database-table-modal").show();
-        $('#model-form-chart').show();
+        $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
         updateLoadingDivVisibility(false);
     }
 
     function showDatabaseTableChartModal() {
-        $('#model-form-chart').show();
+        $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
     }
     function updateLoadingDivVisibility(show) {
@@ -1667,7 +1670,6 @@
                 }
             })
             .then(function(response) {
-                alert('removeScenarioFolder: response=' + response);
                 resolve(true);
             });
         });
