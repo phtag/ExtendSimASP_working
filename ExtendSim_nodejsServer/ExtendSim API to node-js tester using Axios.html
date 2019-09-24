@@ -835,13 +835,19 @@
     updateLoadingDivVisibility(false);
 
     function removeSelectedScenarioFolders() {
+        var deletedRows = 0;
+
         $('#scenarios-table').find('tr').each(function () {
             var row = $(this);
             if (row.find('input[type="checkbox"]').is(':checked')) {
-                // var folder = $('#scenario-folder-pathname-' + (rowIndex + 1)).val();
+                $("#user-scenario-folder-pathname").val("");
+                var rowIndex = parseInt($(this).attr('id').slice(2)) - deletedRows;
+                deletedRows++;
+                scenariosTableRows--;
                 scenarioFolderPathnameID = 'scenario-folder-pathname-' + parseInt($(this).attr('id').slice(2));
                 var scenarioFolderPathname = $(this).find("#" + scenarioFolderPathnameID).html();
-                alert('Scenario folder=' + scenarioFolderPathname);
+                var id = $(this).attr('id');
+                $(this).remove();
                 removeScenarioFolder(scenarioFolderPathname);
             }
         });
