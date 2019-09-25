@@ -120,11 +120,26 @@
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
-        background-color: #FFFFFF;
+        background-color: rgb(255, 174, 174);
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 10px;
+        border-color: rgb(149, 1, 1);
         text-align: center;
     }
     .modal-buttons {
         margin: 10px 10px 0px 10px;
+        
+    }
+    #modal-chart-axes-selection-dropdowns {
+        padding: 10px;
+        background-color: rgb(255, 255, 255);
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 10px;
+        border-color: rgb(149, 1, 1);
+
+
     }
     #scenarios-table-container {
         text-align: center;
@@ -302,7 +317,8 @@
     }
     #scenario-user-login-body, #scenario-setup-body, #scenario-factors-body, #scenario-responses-body, #scenarios-body {
         text-align: left;
-        margin-left: 20px;
+        margin-left: 2%;
+        margin-right: 2%;
         margin-bottom: 20px;
         /* overflow-x: auto; */
     }
@@ -405,6 +421,12 @@
             <input id="selected-response-table-name" type='text' readonly></input>
             <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportTableContentsModal(event)">Export</button>
             <button class="buttons, modal-buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+            <div id='modal-chart-axes-selection-dropdowns'>
+                <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis label:</label>
+                <select id='modal-x-axis-field-select'></select>
+                <label id='modal-y-axis-field-select-label' for='modal-y-axis-field-select'>Y-axis label:</label>
+                <select id='modal-x-axis-field-select'></select>
+            </div>
         </div>  
         <div class="modal-content">
             <div id="modal-form-contents">
@@ -1039,7 +1061,7 @@
         updateLoadingDivVisibility(false);
     }
 
-    function displayTableChart(chartData, dataSetsLabel, chartTitle) {
+    function displayTableChart(chartData, xAxislabel, yAxislabel, chartTitle) {
         new Chart($("#modal-form-chart"), {
             type: 'bar',
             data: {
@@ -1060,16 +1082,32 @@
                 title: {
                     display: true,
                     text: chartTitle,
+                    fontSize: 23,
+                    fontStyle: 'bold'
                 },
                 scales: {
                     xAxes: [{
                         display: true,
                         scaleLabel: {
                             display: true,
-                            labelString: 'Date'
+                            labelString: xAxislabel,
+                            fontSize: 18,
+                            fontStyle: 'bold'
+                        },                        
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: yAxislabel,
+                            fontSize: 18,
+                            fontStyle: 'bold'
                         },                        
                     }]
-                }   
+                } ,
+                ticks : {
+                    min : 0
+                } 
             }
         });
         // $("#database-table-modal").show();
@@ -1564,7 +1602,7 @@
             console.log('Heading fields=' + JSON.stringify(response.data.modelDatabaseTableFields));
             makeChartDataSeries(g_tableDataArray, response.data.modelDatabaseTableFields, 'Step Name', 'Total Jobs Processed');
             console.log('char data=' + JSON.stringify(g_chartData));
-            displayTableChart(g_chartData, 'Step Name', 'Total Jobs Processed');
+            displayTableChart(g_chartData, 'Step Name', 'Total Jobs Processed', 'Total Jobs Processed vs. Process Step');
             updateLoadingDivVisibility(false);
             $("#database-table-modal").show();
             return(response);
@@ -2113,6 +2151,7 @@
                             .then(function(response) {
                                 $("#scenario-id").val(response.data.scenarioID);
                                 addNewScenarioTableRow();
+                                updateButtonsState();
                             });
 
                         })
