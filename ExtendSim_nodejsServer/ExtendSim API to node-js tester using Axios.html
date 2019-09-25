@@ -765,6 +765,10 @@
     var tableDataHtmlCode = "";
     var myCheckStatusInterval;
     var loadedScenarioModelpathname = "";
+    var g_chartData = {
+        labels: [],
+        data: []
+    }
 
     var IPaddress = "";
     // var IPaddress = "http://184.171.246.58";
@@ -836,6 +840,78 @@
     updateDOMelementVisibility("scenario-dialog-outputs");
 
     updateLoadingDivVisibility(false);
+
+    function makeChartDataSeries(dataArray, dataSchema, labelHeading, dataHeading) {
+        var dataColumnIndex = dataSchema.fields.indexOf(dataHeading);
+        var labelColumnIndex = dataSchema.fields.indexOf(labelHeading);
+        g_chartData.labels = [];
+        g_chartData.values = [];
+        dataArray.forEach(function(elements, index) {
+            g_chartData.labels.push(elements[labelColumnIndex]);
+            g_chartData.values.push(elements[dataColumnIndex]);
+        });
+    }
+
+    function makeCycleTimeChartData(cycleTimeData, dataType) {
+    const dataRow = [];
+    cycleTimeData.map((rowData, key) => {
+      const {
+              stepname,
+              totalJobsProcessed, 
+              totalProcessTime, 
+              totalWaitTime,
+              avgProcessTime,
+              avgWaitTime,
+              avgCycleTime,
+              CoVarrivals,
+              CoVdepartures
+            } = rowData; //destructuring
+      var value;
+  
+      switch (dataType) {
+        case 'totalJobsProcessed':
+          value = totalJobsProcessed;
+          break;
+
+        case 'totalProcessTime':
+          value = totalProcessTime;
+          break;
+
+        case 'totalWaitTime':
+          value = totalWaitTime;
+          break;
+
+        case 'avgProcessTime':
+          value = avgProcessTime;
+          break;
+
+        case 'avgWaitTime':
+          value = avgWaitTime;
+          break;
+
+        case 'avgCycleTime':
+          value = avgCycleTime;
+          break;
+
+        case 'CoVarrivals':
+          value = CoVarrivals;
+          break;
+        
+        case 'CoVdepartures':
+          value = CoVdepartures;
+          break; 
+
+        default:
+          value = '';
+          break;    
+        }
+        alert('Stepname: ' + stepname + ' Value = ' + value);
+        dataRow.push({"value": value, "label": stepname });
+        return true;
+    });
+    return dataRow;
+  }
+
 
     function removeSelectedScenarioFolders() {
         var deletedRows = 0;
@@ -957,28 +1033,25 @@
         // $("#selected-database-outputs-table").empty(); 
         $(modalTable).find("tr:not(:first)").remove();
         $(modalTable).append(tableDataHtmlCode); 
+        $('#modal-form-chart').hide();
         $("#database-table-modal").show();
+        $('#modal-form-contents').show();
         updateLoadingDivVisibility(false);
     }
 
-    function displayTableChart(modelDatabaseTableFields) {
-        g_tableSchema = modelDatabaseTableFields;
-        g_tableDataArray.forEach(function(elements, index) {
-            tableDataHtmlCode += '<tr>';
-                for (var i=0;i<elements.length;i++) {
-                    tableDataHtmlCode += '<td>' + elements[i] + '</td>';
-                }
-            });
-
+    function displayTableChart(chartData, dataSetsLabel, chartTitle) {
         new Chart($("#modal-form-chart"), {
             type: 'bar',
             data: {
-                labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+                // labels: modelDatabaseTableFields,
+                // labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+                labels: chartData.labels,
                 datasets: [
                     {
-                        label: "Population (millions)",
-                        backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-                        data: [2478,5267,734,784,433]
+                        label: dataSetsLabel,
+                        backgroundColor: 'rgb(255, 0, 0)',
+                        // ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850", "#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                        data:  chartData.values
                     }
                 ]
             },
@@ -986,11 +1059,20 @@
                 legend: { display: false },
                 title: {
                     display: true,
-                    text: 'Predicted world population (millions) in 2050'
+                    text: chartTitle,
+                    scales: {
+                        xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: dataSetsLabel
+                        }
+                        }]
+                    }   
                 }
             }
         });
-        $("#database-table-modal").show();
+        // $("#database-table-modal").show();
+        $("#database-table-modal").hide();
         $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
         updateLoadingDivVisibility(false);
@@ -1466,15 +1548,26 @@
     function openViewDatabaseTableChartModal(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
-
+        var modelName =  $("#user-models").val();
+        modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+        var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
         var modelInfo = {
-            Modelpathname: $("#user-models").val(),
+            Modelpathname: modelpathname,
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
         updateLoadingDivVisibility(true);
-        getDatabaseTableContentsStream(modelInfo, true, displayTableChart);
+        getDatabaseTableContentsStream(modelInfo, true, displayTableChart)
+        .then(function(response) {
+            console.log('Heading fields=' + JSON.stringify(response.data.modelDatabaseTableFields));
+            makeChartDataSeries(g_tableDataArray, response.data.modelDatabaseTableFields, 'Step Name', 'Total Jobs Processed');
+            console.log('char data=' + JSON.stringify(g_chartData));
+            displayTableChart(g_chartData, 'Step Name', 'Total Jobs Processed');
+            updateLoadingDivVisibility(false);
+            $("#database-table-modal").show();
+            return(response);
+        })
     }
 
     function updateSourceBlockNumbersDropdown(rowIndex) {
