@@ -1048,7 +1048,7 @@
                 labels: chartData.labels,
                 datasets: [
                     {
-                        label: dataSetsLabel,
+                        // label: dataSetsLabel,
                         backgroundColor: 'rgb(255, 0, 0)',
                         // ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850", "#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
                         data:  chartData.values
@@ -1060,15 +1060,16 @@
                 title: {
                     display: true,
                     text: chartTitle,
-                    scales: {
-                        xAxes: [{
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
                         scaleLabel: {
                             display: true,
-                            labelString: dataSetsLabel
-                        }
-                        }]
-                    }   
-                }
+                            labelString: 'Date'
+                        },                        
+                    }]
+                }   
             }
         });
         // $("#database-table-modal").show();
