@@ -897,6 +897,7 @@
 
     function makeChartDataSeries(dataArray, dataSchema, labelHeading, dataHeading) {
         return new Promise((resolve, reject) => {
+            console.log('makeChartDataSeries: dataSchema' + JSON.stringify(dataSchema));
             var dataColumnIndex = dataSchema.fields.indexOf(dataHeading);
             var labelColumnIndex = dataSchema.fields.indexOf(labelHeading);
             g_chartData.labels = [];
@@ -1099,13 +1100,14 @@
     }
     function viewModalChart() {
         if (($('#modal-x-axis-field-select').val() !== '') && ($('#modal-x-axis-field-select').val() !== '')) {
-            makeChartDataSeries(g_tableDataArray, g_tableSchema, $('#modal-x-axis-field-select').val(), $('#modal-x-axis-field-select').val())
+            makeChartDataSeries(g_tableDataArray, g_tableSchema, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val())
             .then(function(response) {
                 displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
             });
         }
     }
     function displayTableChart(chartData, xAxislabel, yAxislabel, chartTitle) {
+        $("#modal-form-chart").empty();
         new Chart($("#modal-form-chart"), {
             type: 'bar',
             data: {
@@ -1154,55 +1156,6 @@
         });
     }
     function displayTableChartModal() {
-        // new Chart($("#modal-form-chart"), {
-        //     type: 'bar',
-        //     data: {
-        //         // labels: modelDatabaseTableFields,
-        //         // labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
-        //         labels: chartData.labels,
-        //         datasets: [
-        //             {
-        //                 // label: dataSetsLabel,
-        //                 backgroundColor: 'rgb(255, 0, 0)',
-        //                 // ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850", "#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-        //                 data:  chartData.values
-        //             }
-        //         ]
-        //     },
-        //     options: {
-        //         legend: { display: false },
-        //         title: {
-        //             display: true,
-        //             text: chartTitle,
-        //             fontSize: 23,
-        //             fontStyle: 'bold'
-        //         },
-        //         scales: {
-        //             xAxes: [{
-        //                 display: true,
-        //                 scaleLabel: {
-        //                     display: true,
-        //                     labelString: xAxislabel,
-        //                     fontSize: 18,
-        //                     fontStyle: 'bold'
-        //                 },                        
-        //             }],
-        //             yAxes: [{
-        //                 display: true,
-        //                 scaleLabel: {
-        //                     display: true,
-        //                     labelString: yAxislabel,
-        //                     fontSize: 18,
-        //                     fontStyle: 'bold'
-        //                 }, 
-        //                 ticks: {
-        //                     beginAtZero: true   
-        //                 }                    
-        //             }]
-        //         } ,
-        //     }
-        // });
-        // $("#database-table-modal").show();
         $("#database-table-modal").hide();
         $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
