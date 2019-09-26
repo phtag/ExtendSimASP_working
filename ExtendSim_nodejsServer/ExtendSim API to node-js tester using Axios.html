@@ -114,6 +114,7 @@
     #selected-response-table-name-label {
         font-size: 18px;
         font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
     }
     .section-header-checkboxes {
         text-align: center;
@@ -124,32 +125,28 @@
     .modal-form {
         padding: 20px;
         margin: -80px auto 10px;
-        /* width: 30%; */
         width: 70%;
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
-        background-color: rgb(255, 174, 174);
         border-width: 2px;
         border-style: solid;
         border-radius: 10px;
-        border-color: rgb(149, 1, 1);
+        border-color: blue,;
+        background-color: #c9d6ff;
         text-align: center;
     }
     .modal-buttons {
-        margin: 10px 10px 0px 10px;
-        
+        margin: 0px 10px 0px 10px;   
     }
     #modal-chart-axes-selection-dropdowns {
         padding: 10px;
-        margin-top: 10px;
-        background-color: rgb(255, 255, 255);
+        /* margin-top: 10px; */
+        background-color: rgb(216, 216, 216);
         border-width: 2px;
         border-style: solid;
         border-radius: 10px;
-        border-color: rgb(149, 1, 1);
-
-
+        border-color: rgb(0, 0, 0);
     }
     #scenarios-table-container {
         text-align: center;
@@ -469,23 +466,6 @@
 
     <div id='page-container'>
     <div id="load_screen"><div id="loading">Loading data from server. Please wait...</div></div>
-    <!-- The Modal -->
-    <!-- <div id="database-table-modal" class="modal">
-        <div id="modal-form">
-            <label id="selected-response-table-name-label">Table name:</label>
-            <input id="selected-response-table-name" type='text' readonly></input>
-            <button class="buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
-       </div>  
-        <div class="modal-content">
-            <div id="modal-form-contents">
-                <table id="selected-database-outputs-table" style="width:auto">  s
-                </table>
-            </div>
-            <div class="container">
-                <canvas id="modal-form-chart"  width=auto></canvas>
-            </div>
-        </div>
-    </div>  -->
     <div id="extendsim-asp-axios-tester-frame">
         <div id="extendsim-asp-title-heading">ExtendSim ASP Scenario Manager</div>
         <div id="scenario-user-login">
@@ -817,6 +797,17 @@
     const proxyurl = "";
     const pathname = "C:\Users\Administrator\Documents\ExtendSim10ASP_Prod\ASP\ASP Servers\ExtendSim Models\Analyst 1";
     const c_Completed_status = 3;
+
+    const c_DB_FIELDTYPE_INTEGER_VALUE = 4096;
+    const c_DB_FIELDTYPE_INTEGER_BOOLEAN = 4097;
+    const c_DB_FIELDTYPE_REAL_GENERAL = 8192;
+    const DB_FIELDTYPE_REAL_SCIENTIFIC = 8193;
+    const DB_FIELDTYPE_REAL_PERCENT = 8194;
+    const DB_FIELDTYPE_REAL_CURRENCY = 8195;
+    const DB_FIELDTYPE_REAL_DATE_TIME = 8196;
+    const DB_FIELDTYPE_REAL_DB_ADDRESS = 8197;
+    const DB_FIELDTYPE_STRING_VALUE = 16384;
+    const DB_FIELDTYPE_TABLELIST = 16385;
     // const username = 'analyst1';
     // const password = 'model';
     $('.buttons').prop('disabled', true);
@@ -870,16 +861,35 @@
     updateDOMelementVisibility("scenario-file-outputs");
     updateDOMelementVisibility("scenario-database-outputs");
     updateDOMelementVisibility("scenario-dialog-outputs");
-
     updateLoadingDivVisibility(false);
 
-    function populateDropdownElement(labels, dropdownElement) {
-        dropdownElement.empty(0);
-        for (var i = 0; i < labels.length; i++) {
-            dropdownElement.append('<option value="' + labels[i] + '">' + labels[i] + '</option>');
+    function isFieldNumeric(dataType) {
+        if ((dataType === c_DB_FIELDTYPE_INTEGER_VALUE) ||
+            (dataType === c_DB_FIELDTYPE_INTEGER_BOOLEAN) ||
+            (dataType === c_DB_FIELDTYPE_REAL_GENERAL) ||
+            (dataType === DB_FIELDTYPE_REAL_SCIENTIFIC) ||
+            (dataType === DB_FIELDTYPE_REAL_PERCENT) ||
+            (dataType === DB_FIELDTYPE_REAL_CURRENCY) ||
+            (dataType === DB_FIELDTYPE_REAL_DATE_TIME)) {
+            return true;
+        } else {
+             return false;
         }
-        if (labels.length > 0) {
-            dropdownElement.val(labels[0]);
+    }
+    function populateDropdownElement(tableSchema, dropdownElement, restrictToNumbers) {
+        var firstFieldIndex;
+
+        dropdownElement.empty(0);
+        for (var i = 0; i < tableSchema.fields.length; i++) {
+            if (!restrictToNumbers || isFieldNumeric(tableSchema.dataTypes[i])) {
+                dropdownElement.append('<option value="' + tableSchema.fields[i] + '">' + tableSchema.fields[i] + '</option>');
+                if (firstFieldIndex=== -1) {
+                    firstFieldIndex = i;
+                }
+            }
+        }
+        if (firstFieldIndex !== -1) {
+            dropdownElement.val(tableSchema.fields[firstFieldIndex]);
         }
     }
 
@@ -975,6 +985,7 @@
     }
     function saveScenarioDefition() {
         $('#scenarios-checkbox').prop('disabled', false);
+        $('#submit-scenarios-button').prop('disabled', false); 
     }
 
     function doesScenarioFolderExist() {
@@ -1015,7 +1026,8 @@
                 $('.scenario-file-input-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
                 $('.scenario-dialog-input-buttons').prop('disabled', false);
-                $('.scenario-buttons').prop('disabled', false); 
+                // $('.scenario-buttons').prop('disabled', false); 
+                $('#save-scenario-definition').prop('disabled', false);
                 $('#scenario-factors-checkbox').prop('disabled', false);
                 $('#scenario-responses-checkbox').prop('disabled', false);
 
@@ -1122,12 +1134,12 @@
                             labelString: yAxislabel,
                             fontSize: 18,
                             fontStyle: 'bold'
-                        },                        
+                        }, 
+                        ticks: {
+                            beginAtZero: true   
+                        }                    
                     }]
                 } ,
-                ticks : {
-                    min : 0
-                } 
             }
         });
         // $("#database-table-modal").show();
@@ -1135,8 +1147,8 @@
         $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
 
-        populateDropdownElement(g_tableSchema.fields, $('#modal-x-axis-field-select'));
-        populateDropdownElement(g_tableSchema.fields, $('#modal-y-axis-field-select'));
+        populateDropdownElement(g_tableSchema, $('#modal-x-axis-field-select'), false);
+        populateDropdownElement(g_tableSchema, $('#modal-y-axis-field-select'), true);
         updateLoadingDivVisibility(false);
     }
 
