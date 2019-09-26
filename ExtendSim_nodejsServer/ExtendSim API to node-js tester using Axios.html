@@ -125,7 +125,7 @@
     .modal-form {
         padding: 20px;
         margin: -80px auto 10px;
-        width: 70%;
+        width: 50%;
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
@@ -427,8 +427,6 @@
         <div class="modal-form">
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
-            <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportTableContentsModal(event)">Export</button>
-            <button class="buttons, modal-buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
             <div id='modal-chart-axes-selection-dropdowns'>
                 <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis label:</label>
                 <select id='modal-x-axis-field-select'></select>
@@ -436,7 +434,9 @@
                 <select id='modal-y-axis-field-select'></select>
             </div>
             <button class="buttons, modal-buttons" id="view-model-chart-button" onclick="viewModalChart()">View chart</button>
-        </div>  
+            <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportTableContentsModal(event)">Export</button>
+            <button class="buttons, modal-buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
+       </div>  
         <div class="modal-content">
             <div id="modal-form-contents">
                 <table id="selected-database-outputs-table" style="width:auto">
@@ -783,7 +783,7 @@
         labels: [],
         data: []
     }
-
+    var g_myModalChart;
     var IPaddress = "";
     // var IPaddress = "http://184.171.246.58";
 
@@ -1102,13 +1102,13 @@
         if (($('#modal-x-axis-field-select').val() !== '') && ($('#modal-x-axis-field-select').val() !== '')) {
             makeChartDataSeries(g_tableDataArray, g_tableSchema, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val())
             .then(function(response) {
+                g_myModalChart.destroy();
                 displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
             });
         }
     }
     function displayTableChart(chartData, xAxislabel, yAxislabel, chartTitle) {
-        $("#modal-form-chart").empty();
-        new Chart($("#modal-form-chart"), {
+        g_myModalChart = new Chart($("#modal-form-chart"), {
             type: 'bar',
             data: {
                 labels: chartData.labels,
