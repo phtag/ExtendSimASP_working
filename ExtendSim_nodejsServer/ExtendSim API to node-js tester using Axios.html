@@ -92,6 +92,14 @@
     .table-checkboxes {
         text-align: center;
     }
+    #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
+        font-weight: bold;
+    }
+    #modal-x-axis-field-select, #modal-y-axis-field-select  {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+        
     #login-section, #remove-selected-button {
         text-align: center;
         margin: auto;
@@ -116,7 +124,8 @@
     .modal-form {
         padding: 20px;
         margin: -80px auto 10px;
-        width: 30%;
+        /* width: 30%; */
+        width: 70%;
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
@@ -133,6 +142,7 @@
     }
     #modal-chart-axes-selection-dropdowns {
         padding: 10px;
+        margin-top: 10px;
         background-color: rgb(255, 255, 255);
         border-width: 2px;
         border-style: solid;
@@ -373,13 +383,13 @@
         overflow-x: scroll;
     }
     #scenario-database-outputs, #scenario-file-outputs, #scenario-dialog-outputs {
-        border: 2px solid rgb(13, 88, 0);
+        border: 2px solid rgb(0, 88, 15);
         border-radius: 10px;
         padding: 15px;
         margin: 1%;
         margin-top: 0px;
         width: 25%;
-        background-color:rgb(211, 253, 204);
+        background-color:rgb(204, 253, 212);
         display: inline-block;
         vertical-align:top;  
         font-size: 18px; 
@@ -425,7 +435,7 @@
                 <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis label:</label>
                 <select id='modal-x-axis-field-select'></select>
                 <label id='modal-y-axis-field-select-label' for='modal-y-axis-field-select'>Y-axis label:</label>
-                <select id='modal-x-axis-field-select'></select>
+                <select id='modal-y-axis-field-select'></select>
             </div>
         </div>  
         <div class="modal-content">
@@ -863,6 +873,16 @@
 
     updateLoadingDivVisibility(false);
 
+    function populateDropdownElement(labels, dropdownElement) {
+        dropdownElement.empty(0);
+        for (var i = 0; i < labels.length; i++) {
+            dropdownElement.append('<option value="' + labels[i] + '">' + labels[i] + '</option>');
+        }
+        if (labels.length > 0) {
+            dropdownElement.val(labels[0]);
+        }
+    }
+
     function makeChartDataSeries(dataArray, dataSchema, labelHeading, dataHeading) {
         var dataColumnIndex = dataSchema.fields.indexOf(dataHeading);
         var labelColumnIndex = dataSchema.fields.indexOf(labelHeading);
@@ -1114,6 +1134,9 @@
         $("#database-table-modal").hide();
         $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
+
+        populateDropdownElement(g_tableSchema.fields, $('#modal-x-axis-field-select'));
+        populateDropdownElement(g_tableSchema.fields, $('#modal-y-axis-field-select'));
         updateLoadingDivVisibility(false);
     }
 
@@ -1600,6 +1623,7 @@
         getDatabaseTableContentsStream(modelInfo, true, displayTableChart)
         .then(function(response) {
             console.log('Heading fields=' + JSON.stringify(response.data.modelDatabaseTableFields));
+            g_tableSchema = response.data.modelDatabaseTableFields;
             makeChartDataSeries(g_tableDataArray, response.data.modelDatabaseTableFields, 'Step Name', 'Total Jobs Processed');
             console.log('char data=' + JSON.stringify(g_chartData));
             displayTableChart(g_chartData, 'Step Name', 'Total Jobs Processed', 'Total Jobs Processed vs. Process Step');
