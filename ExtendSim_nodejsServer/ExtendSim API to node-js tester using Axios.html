@@ -47,7 +47,7 @@
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
-        padding-top: 200px; /* Location of the box */
+        padding-top: 80px; /* Location of the box */
         left: 0;
         top: 0;
         width: 100%; /* Full width */
@@ -92,7 +92,7 @@
     .table-checkboxes {
         text-align: center;
     }
-    #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
+    #chart-type-select-label, #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
         font-weight: bold;
     }
     #modal-x-axis-field-select, #modal-y-axis-field-select  {
@@ -123,8 +123,8 @@
         margin-bottom: 15px;
     }
     .modal-form {
-        padding: 20px;
-        margin: -80px auto 10px;
+        padding: 10px;
+        margin: 0px auto 10px;
         width: 50%;
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
@@ -428,6 +428,9 @@
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
             <div id='modal-chart-axes-selection-dropdowns'>
+                <label id='chart-type-select-label' for='chart-type-select'>Chart type:</label>
+                <select id='chart-type-select'></select> 
+                <br></br>       
                 <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis label:</label>
                 <select id='modal-x-axis-field-select'></select>
                 <label id='modal-y-axis-field-select-label' for='modal-y-axis-field-select'>Y-axis label:</label>
@@ -1160,6 +1163,8 @@
         $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
 
+        var charTypes = ['Bar chart'];
+        $('#chart-type-select').append('<option value="Bar chart">Bar chart</option>');
         populateDropdownElement(g_tableSchema, $('#modal-x-axis-field-select'), false);
         populateDropdownElement(g_tableSchema, $('#modal-y-axis-field-select'), true);
         if (($('#modal-x-axis-field-select').val() !== '') && ($('#modal-x-axis-field-select').val() !== '')) {
