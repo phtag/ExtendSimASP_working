@@ -66,7 +66,7 @@
         padding: 20px;
         border: 1px solid #888;
         width: 80%;
-        height: 60%;
+        height: 50%;
         align-content: center;
     }
     div#load_screen {
@@ -98,8 +98,10 @@
     #chart-type-select-label, #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
         font-weight: bold;
     }
+    #modal-form-chart {
+        height: 500px;
+    }
     #modal-x-axis-field-select, #modal-y-axis-field-select  {
-        margin-left: 10px;
         margin-right: 10px;
     }
         
@@ -129,7 +131,8 @@
         padding: 10px;
         /* margin: 0px auto 10px; */
         margin: 10px auto;
-        width: 65%;
+        width: auto;
+        max-width: 500px;
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
@@ -144,8 +147,8 @@
         margin: 0px 10px 0px 10px;   
     }
     #modal-chart-axes-selection-dropdowns {
-        padding: 10px;
-        margin-bottom: 10px;
+        /* padding: 20px; */
+        margin: 2%;
         background-color: rgb(216, 216, 216);
         border-width: 2px;
         border-style: solid;
@@ -356,8 +359,8 @@
         border: 2px solid rgb(0, 0, 0);
         border-radius: 10px;
         padding-top: 15px;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 3%;
+        padding-right: 3%;
         margin: auto;
         margin-bottom: 20px;
         width: auto;
@@ -377,7 +380,7 @@
         width: auto;
         background-color:rgb(221, 220, 220);
         text-align: center; 
-        vertical-align:top; 
+        vertical-align: top; 
     }
     #scenario-setup  {
         background-color:rgb(247, 155, 155);
@@ -396,19 +399,18 @@
         border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
         padding: 15px;
-        /* margin: 1%; */
-        /* margin-top: 0px; */
         margin: 10px auto;
         text-align: center;
-        width: 40%;
+        width: auto;
+        min-width: 300px;
         background-color:rgb(253, 246, 204);
-        /* display: inline-block; */
         vertical-align:top;  
         overflow: auto; 
         font-size: 18px;   
     }
     #scenario-file-inputs-body, #scenario-database-inputs-body, #scenario-dialog-inputs-body, #scenario-file-outputs-body, #scenario-database-outputs-body, #scenario-dialog-inputs-body, #scenario-dialog-outputs-body, #scenarios-table-body {
-        margin: 20px;
+        /* margin: 20px; */
+        margin: 10px auto;
         width: auto;
         text-align: center;
         overflow-x: scroll;
@@ -417,13 +419,19 @@
         border: 2px solid rgb(0, 88, 15);
         border-radius: 10px;
         padding: 15px;
-        margin: 1%;
-        margin-top: 0px;
-        width: 25%;
         background-color:rgb(204, 253, 212);
-        display: inline-block;
-        vertical-align:top;  
-        font-size: 18px; 
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px auto;
+        text-align: center;
+        width: auto;
+        min-width: 300px;
+        vertical-align: top;  
+        overflow: auto; 
+        font-size: 18px;   
+    }
+    #chart-axes, #chart-type {
+        margin: 10px;
     }
     #submit-simulation {
         border: 2px solid rgb(0, 0, 0);
@@ -439,7 +447,7 @@
         border-radius: 10px;
         padding: 15px;
         margin: 2%;
-        width: 35%;
+        width: 50%;
         background-color:rgb(204, 205, 253);
         display: inline-block;
         vertical-align:top;  
@@ -457,14 +465,16 @@
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
             <div id='modal-chart-axes-selection-dropdowns'>
-                <div>
+                <div id="chart-type">
                     <label id='chart-type-select-label' for='chart-type-select'>Chart type:</label>
                     <select id='chart-type-select'></select> 
                 </div>
-                <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis:</label>
-                <select id='modal-x-axis-field-select'></select>
-                <label id='modal-y-axis-field-select-label' for='modal-y-axis-field-select'>Y-axis:</label>
-                <select id='modal-y-axis-field-select'></select>
+                <div id="chart-axes">
+                    <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis:</label>
+                    <select id='modal-x-axis-field-select'></select>
+                    <label id='modal-y-axis-field-select-label' for='modal-y-axis-field-select'>Y-axis:</label>
+                    <select id='modal-y-axis-field-select'></select>
+                </div>
             </div>
             <button class="buttons, modal-buttons" id="view-model-chart-button" onclick="viewModalChart()">View chart</button>
             <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportTableContentsModal(event)">Export</button>
@@ -640,8 +650,8 @@
                     <div id='scenario-responses-body'>
                         <div id="scenario-file-outputs">
                             <div id="scenario-file-outputs-header">
-                                <label id="scenario-file-outputs-checkbox-label">Model Files</label>
-                                <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'></input>    
+                                <!-- <label id="scenario-file-outputs-checkbox-label">Model Files</label> -->
+                                <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'>Model Files</input>    
                             </div>
                             <div id="scenario-file-outputs-body">
                                 <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow()'>Add row</button>
@@ -660,8 +670,8 @@
                         </div>         
                         <div id="scenario-database-outputs">
                             <div id="scenario-database-outputs-header">
-                                <label id="scenario-database-outputs-checkbox-label">Database Tables</label>
-                                <input id="scenario-database-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-outputs")'></input>    
+                                <!-- <label id="scenario-database-outputs-checkbox-label">Database Tables</label> -->
+                                <input id="scenario-database-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-outputs")'>Database Tables</input>    
                             </div>
                             <div id="scenario-database-outputs-body">
                                 <!-- <h3>Scenario Database Outputs</h3> -->
@@ -690,8 +700,8 @@
                         </div>    
                         <div id="scenario-dialog-outputs">
                             <div id="scenario-dialog-outputs-header">
-                                <label id="scenario-dialog-outputs-checkbox-label">Dialog Variables</label>
-                                <input id="scenario-dialog-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-outputs")'></input>    
+                                <!-- <label id="scenario-dialog-outputs-checkbox-label">Dialog Variables</label> -->
+                                <input id="scenario-dialog-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-outputs")'>Dialog Variables</input>    
                             </div>
                             <div id="scenario-dialog-outputs-body">
                                 <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogOutputsTableRow()'>Add row</button>
@@ -984,7 +994,6 @@
           value = '';
           break;    
         }
-        alert('Stepname: ' + stepname + ' Value = ' + value);
         dataRow.push({"value": value, "label": stepname });
         return true;
     });
@@ -1123,6 +1132,7 @@
         if (($('#modal-x-axis-field-select').val() !== '') && ($('#modal-x-axis-field-select').val() !== '')) {
             makeChartDataSeries(g_tableDataArray, g_tableSchema, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val())
             .then(function(response) {
+                alert('Destroying chart');
                 g_myModalChart.destroy();
                 displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
             });
@@ -1158,7 +1168,8 @@
                             labelString: xAxislabel,
                             fontSize: 18,
                             fontStyle: 'bold'
-                        },                        
+                        },   
+                        barPercentage: 0.5                     
                     }],
                     yAxes: [{
                         display: true,
@@ -1172,7 +1183,8 @@
                             beginAtZero: true   
                         }                    
                     }]
-                } ,
+                },
+                responsive: true
             }
         });
     }
@@ -1186,7 +1198,8 @@
         populateDropdownElement(g_tableSchema, $('#modal-x-axis-field-select'), false);
         populateDropdownElement(g_tableSchema, $('#modal-y-axis-field-select'), true);
         if (($('#modal-x-axis-field-select').val() !== '') && ($('#modal-x-axis-field-select').val() !== '')) {
-            displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
+            viewModalChart();
+            // displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
         }
         updateLoadingDivVisibility(false);
     }
@@ -1277,9 +1290,7 @@
             } else if (DOMelementIDname === "scenario-definition") {
                 $("#scenario-factors").show();
                 $('#scenario-responses').show();
-                $('#' + DOMelementIDname).width('50%');
-            } else if (DOMelementIDname === "scenario-factors" || DOMelementIDname === "scenario-responses") {
-                $('#scenario-definition').width('auto');
+                $('#' + DOMelementIDname).width('70%');
             }
         } else {
             $('#' + DOMelementIDname + '-body').hide();
@@ -1326,6 +1337,7 @@
     }
     function createDatabaseInputsTableRow() {
         var table = $("#database-inputs-table");
+        $('#scenario-definition').width('auto');
         databaseInputsTableRows++;
         var newrow = 
         '<tr><td><input type="file" id="database-input-button-' + databaseInputsTableRows + '" onchange="databasefilesSelected(event)" class="input-file-row"></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
@@ -1463,6 +1475,7 @@
     function createDatabaseOutputsTableRow() {
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
+        $('#scenario-definition').width('auto');
         var newrow = 
         '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onclick="openExportDatabaseTableContentsModal(event)">Export data</button></td></tr>'
         table.append(newrow);
@@ -1558,7 +1571,6 @@
         '<tr id="id' + scenariosTableRows + '"><td class="table-checkboxes"><input "id="scenario-selection-' + scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td nowrap id="scenario-status-' + scenariosTableRows + '">Submitted</td><td nowrap id="scenario-folder-pathname-' + scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
         table.append(newrow);
 
-        // $('#scenarios-table-body').width('auto');
         $('#scenarios-table-body').width('90%');
         myCheckStatusInterval = setInterval(()=> {checkScenarioStatus($("#scenario-id").val(), scenariosTableRows, 3)}, 500);
     }
@@ -1639,6 +1651,8 @@
     function openDatabaseTableContentsModal(event) {
         var index = event.target.id.lastIndexOf('-') + 1;
         var rowIndex = event.target.id.substring(index);
+        $('#modal-chart-axes-selection-dropdowns').hide();
+        $('#view-model-chart-button').hide();
         var modelName =  $("#user-models").val();
         modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
         var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
@@ -1669,6 +1683,8 @@
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
+        $('#modal-chart-axes-selection-dropdowns').show();
+        $('#view-model-chart-button').show();
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
         updateLoadingDivVisibility(true);
         getDatabaseTableContentsStream(modelInfo, true, displayTableChartModal)
