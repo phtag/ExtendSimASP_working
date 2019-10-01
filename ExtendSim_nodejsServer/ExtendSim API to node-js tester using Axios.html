@@ -17,7 +17,10 @@
       text-align: left;    
     }
     .login {
+        margin-left: 5px;
         margin-right: 20px;
+        flex: 1;
+        max-width: 400px;
     }
     .input-file-row {
         width: auto;
@@ -101,7 +104,7 @@
     }
         
     #login-section, #remove-selected-button {
-        text-align: center;
+        text-align: left;
         margin: auto;
     }
     #remove-selected-button {
@@ -124,8 +127,9 @@
     }
     .modal-form {
         padding: 10px;
-        margin: 0px auto 10px;
-        width: 50%;
+        /* margin: 0px auto 10px; */
+        margin: 10px auto;
+        width: 65%;
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
@@ -133,7 +137,7 @@
         border-style: solid;
         border-radius: 10px;
         border-color: blue,;
-        background-color: #c9d6ff;
+        background-color: #dbe3ff;
         text-align: center;
     }
     .modal-buttons {
@@ -141,7 +145,6 @@
     }
     #modal-chart-axes-selection-dropdowns {
         padding: 10px;
-        margin-top: 10px;
         margin-bottom: 10px;
         background-color: rgb(216, 216, 216);
         border-width: 2px;
@@ -214,6 +217,14 @@
         text-decoration: none;
         cursor: pointer;
     }
+
+    .flex-container {
+    display: flex;
+    margin-bottom: 5px;
+    }
+    .fill-width {
+    flex: 1;
+    }
     #extendsim-asp-title-heading {
         font-size: 23px;
         font-weight: bold;
@@ -256,6 +267,7 @@
     #extendsim-asp-axios-tester-frame {
         margin-top: 80px;
         width: 90%;
+        min-width: 605px;
         padding: 10px;
         padding: 2%;
         border-color: blue,;
@@ -279,11 +291,17 @@
     #scenario-name {
         width: 60%;
     }
-    #user-login-session-id-label {
-        margin-left: 20px;
+    #username, #password {
+        width: 40%;
     }
     #user-login-session-id {
-        width: 300px;
+        width: 50%;
+    }
+    #ip-address {
+        max-width: 100px;
+    }
+    #user-login-session-id-label {
+        margin-left: 20px;
     }
     #user-scenario-folder-pathname {
         width: 600px;
@@ -312,18 +330,18 @@
     #scenario-status-label {
         margin-left: 20px;
     }
-    #scenario-user-login-checkbox, #scenario-definition-checkbox, #scenario-setup-checkbox, #scenario-factors-checkbox, #scenario-responses-checkbox, #scenarios-checkbox {
-        display: inline-block;
-    }
-    #scenario-user-login-checkbox-label, #scenario-definition-checkbox-label, #scenario-factors-checkbox-label, #scenario-responses-checkbox-label, #scenarios-checkbox-label {
-        float: left;
-    }
     #submit-scenarios {
         text-align: center;
         margin-top: 0px;
         margin-bottom: 20px;
     }
-    #scenario-user-login-body, #scenario-setup-body, #scenario-factors-body, #scenario-responses-body, #scenarios-body {
+    #scenario-factors-body, #scenario-responses-body {
+        text-align: center;
+        margin-left: 2%;
+        margin-right: 2%;
+        margin-bottom: 20px;
+    }
+    #scenario-user-login-body, #scenario-setup-body, #scenarios-body {
         text-align: left;
         margin-left: 2%;
         margin-right: 2%;
@@ -334,50 +352,65 @@
         text-align: center;
         margin: auto;
     }
-    #scenario-user-login, #scenario-definition, #scenario-setup, #scenario-factors, #scenario-responses, #scenarios {
+    #scenario-user-login, #scenario-definition, #scenarios {
         border: 2px solid rgb(0, 0, 0);
         border-radius: 10px;
         padding-top: 15px;
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-left: 10px;
+        padding-right: 10px;
         margin: auto;
         margin-bottom: 20px;
         width: auto;
-        min-width: 300px;
         background-color:rgb(221, 220, 220);
         text-align: center; 
-        vertical-align:top;   
+        vertical-align:top; 
+        min-width: 580px;  
+    }
+    #scenario-setup, #scenario-factors, #scenario-responses {
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 10px;
+        padding-top: 15px;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin: auto;
+        margin-bottom: 20px;
+        width: auto;
+        background-color:rgb(221, 220, 220);
+        text-align: center; 
+        vertical-align:top; 
     }
     #scenario-setup  {
         background-color:rgb(247, 155, 155);
+        min-width: 550px;
     }
     #scenario-factors  {
         background-color:rgb(252, 235, 162);
+        min-width: 550px;
     }
     #scenario-responses {
         background-color:rgb(155, 251, 195);
+        min-width: 550px;
     }
 
     #scenario-file-inputs, #scenario-database-inputs, #scenario-dialog-inputs {
         border: 2px solid rgb(255, 94, 0);
         border-radius: 10px;
         padding: 15px;
-        margin: 1%;
-        margin-top: 0px;
-        width: 25%;
+        /* margin: 1%; */
+        /* margin-top: 0px; */
+        margin: 10px auto;
+        text-align: center;
+        width: 40%;
         background-color:rgb(253, 246, 204);
-        display: inline-block;
+        /* display: inline-block; */
         vertical-align:top;  
         overflow: auto; 
         font-size: 18px;   
     }
-    #scenario-file-inputs-header, #scenario-database-inputs-header, #scenario-dialog-inputs-header, #scenario-file-outputs-header, #scenario-database-outputs-header, #scenario-dialog-outputs-header {
-        text-align: center;
-    }
     #scenario-file-inputs-body, #scenario-database-inputs-body, #scenario-dialog-inputs-body, #scenario-file-outputs-body, #scenario-database-outputs-body, #scenario-dialog-inputs-body, #scenario-dialog-outputs-body, #scenarios-table-body {
         margin: 20px;
         width: auto;
-        text-align: left;
+        text-align: center;
         overflow-x: scroll;
     }
     #scenario-database-outputs, #scenario-file-outputs, #scenario-dialog-outputs {
@@ -413,10 +446,6 @@
         font-size: 18px;   
         text-align: center; 
     }
-    #scenarios-table-body > :last-child {
-        /* display: table;
-        padding-right: 3em; */
-    }        
     </style>
 </head>
 <body>
@@ -428,12 +457,13 @@
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
             <div id='modal-chart-axes-selection-dropdowns'>
-                <label id='chart-type-select-label' for='chart-type-select'>Chart type:</label>
-                <select id='chart-type-select'></select> 
-                <br></br>       
-                <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis label:</label>
+                <div>
+                    <label id='chart-type-select-label' for='chart-type-select'>Chart type:</label>
+                    <select id='chart-type-select'></select> 
+                </div>
+                <label id='modal-x-axis-field-select-label' for='modal-x-axis-field-select'>X-axis:</label>
                 <select id='modal-x-axis-field-select'></select>
-                <label id='modal-y-axis-field-select-label' for='modal-y-axis-field-select'>Y-axis label:</label>
+                <label id='modal-y-axis-field-select-label' for='modal-y-axis-field-select'>Y-axis:</label>
                 <select id='modal-y-axis-field-select'></select>
             </div>
             <button class="buttons, modal-buttons" id="view-model-chart-button" onclick="viewModalChart()">View chart</button>
@@ -479,36 +509,29 @@
                 <input type='checkbox' id='scenario-user-login-checkbox' onclick='updateDOMelementVisibility("scenario-user-login")'>User Login</input>
             </div>
             <div id='scenario-user-login-body'>
-                <div>
-                    <label for='username'>
+                <div class="flex-container">
+                    <label  for='username'>
                         Username:
                     </label> 
                     <input class="login" id="username" type="text" name="username" value="analyst2"></input>
-                    <label for='password'>
+                    <label  for='password'>
                         Password: 
                     </label>
                     <input class="login" id="password" type="password" name="password" value="model"></input>        
-                    <p>
-                        <label for='ip-address'>
-                        IP address:
-                        </label>
-                        <input class="login" id="ip-address" value="184.171.246.58"></input>            
-                    </p>
                 </div>
-                <div id='login-section'>
+                <div class="flex-container">
+                    <label for='ip-address'>
+                    IP address:
+                    </label>
+                    <input class="login" id="ip-address" value="184.171.246.58"></input>            
+                </div>
+                <div class="flex-container" id='login-section'>
                     <button class="buttons" id="login-button" onclick='loginToServer()'>Login to server</button>
                     <label id="user-login-session-id-label">User Login Session ID:</label>
-                    <input id="user-login-session-id"></input>        
+                    <input class="login" id="user-login-session-id"></input>        
                 </div>
             </div>
         </div>
-        <!-- <div id="server-actions">
-            <label id="user-scenario-folder-pathname-label">Scenario folder pathname:</label>
-            <input id="user-scenario-folder-pathname"></input>
-            <br></br>
-            <label id="model-copied-status-label">Model copied:</label>
-            <input id="model-copied-status" type="checkbox"></input>    
-        </div> -->
         <div id="scenario-definition">
             <div class='section-header-checkboxes'>
                 <input class='scenario-definition-checkboxes' type='checkbox' id='scenario-definition-checkbox' onclick='updateDOMelementVisibility("scenario-definition")'>Scenario Definition</input>
@@ -518,7 +541,7 @@
                     <div class='section-header-checkboxes'>
                         <input type='checkbox' id='scenario-setup-checkbox' onclick='updateDOMelementVisibility("scenario-setup")'>Setup</input>
                     </div>
-                    <div id='scenario-setup-body'>
+                    <div class="flex-container" id='scenario-setup-body'>
                         <label id="scenario-model-label">Scenario model:</button>
                         <select onchange="updateModelInfo()" id="user-models"></select>           
                         <br></br>
@@ -532,14 +555,12 @@
                     </div>
                     <div id='scenario-factors-body'>
                         <div id="scenario-file-inputs">
-                            <div id="scenario-file-inputs-header">
-                                <label id="scenario-file-inputs-checkbox-label">Model Files</label>
-                                <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'></input>    
+                            <div>
+                                <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'>Model Files</input>    
                             </div>
                             <div id="scenario-file-inputs-body">
                                 <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
                                 <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
-                                <!-- <table id="file-inputs-table" style="width:auto"> -->
                                 <table id="file-inputs-table">
                                     <tr>
                                         <th>
@@ -553,10 +574,8 @@
                             </div>
                         </div>
                         <div id="scenario-database-inputs">
-                            <!-- <h3>Scenario Database Inputs</h3> -->
                             <div id="scenario-database-inputs-header">
-                                <label id="scenario-database-inputs-checkbox-label">Database Tables</label>
-                                <input id="scenario-database-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'></input>    
+                                <input type="checkbox" id="scenario-database-inputs-checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'>Database Tables</input>    
                             </div>
                             <div id="scenario-database-inputs-body">
                                 <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
@@ -581,9 +600,8 @@
                             </div>
                         </div>
                         <div id="scenario-dialog-inputs">
-                            <div id="scenario-dialog-inputs-header">
-                                <label id="scenario-dialog-inputs-checkbox-label">Dialog Variables</label>
-                                <input id="scenario-dialog-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-inputs")'></input>    
+                            <div >
+                                <input type="checkbox" id="scenario-dialog-inputs-checkbox" onclick='updateDOMelementVisibility("scenario-dialog-inputs")'>Dialog Variables</input>    
                             </div>
                             <div id="scenario-dialog-inputs-body">
                                 <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
