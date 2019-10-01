@@ -810,6 +810,7 @@
     var tableDataHtmlCode = "";
     var myCheckStatusInterval;
     var loadedScenarioModelpathname = "";
+    var g_modelChartCreated = false;
     var g_chartData = {
         labels: [],
         data: []
@@ -1132,13 +1133,15 @@
         if (($('#modal-x-axis-field-select').val() !== '') && ($('#modal-x-axis-field-select').val() !== '')) {
             makeChartDataSeries(g_tableDataArray, g_tableSchema, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val())
             .then(function(response) {
-                alert('Destroying chart');
                 g_myModalChart.destroy();
                 displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
             });
         }
     }
     function displayTableChart(chartData, xAxislabel, yAxislabel, chartTitle) {
+        if (g_modelChartCreated) {
+            g_myModalChart.destroy();
+        }
         g_myModalChart = new Chart($("#modal-form-chart"), {
             type: 'bar',
             data: {
@@ -1187,6 +1190,7 @@
                 responsive: true
             }
         });
+        g_modelChartCreated = true;
     }
     function displayTableChartModal() {
         $("#database-table-modal").hide();
@@ -1198,8 +1202,7 @@
         populateDropdownElement(g_tableSchema, $('#modal-x-axis-field-select'), false);
         populateDropdownElement(g_tableSchema, $('#modal-y-axis-field-select'), true);
         if (($('#modal-x-axis-field-select').val() !== '') && ($('#modal-x-axis-field-select').val() !== '')) {
-            viewModalChart();
-            // displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
+            displayTableChart(g_chartData, $('#modal-x-axis-field-select').val(), $('#modal-y-axis-field-select').val(), $('#modal-y-axis-field-select').val() + ' vs ' + $('#modal-x-axis-field-select').val());
         }
         updateLoadingDivVisibility(false);
     }
