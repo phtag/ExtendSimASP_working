@@ -942,7 +942,6 @@
         * The count of headers will be CSV string separator
         */
         $('#' + tableName + ' th').each(function() {
-            alert('pushing heading value=' + $(this).text());
             titles.push($(this).text());
         });
 
@@ -952,7 +951,6 @@
         $('#' + tableName + ' td').each(function() {
             data.push($(this).text());
         });
-        alert('titles.length=' + titles.length);
         /*
         * Convert our data to CSV string
         */
