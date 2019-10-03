@@ -907,10 +907,6 @@
         var delimeter = ','; // data slice separator, in excel it's `;`, in usual CSv it's `,`
         var newLine = '\r\n'; // newline separator for CSV row
         var plainArr = splitArray(arr, columnCount);
-        // don't know how to explain this
-        // you just have to like follow the code
-        // and you understand, it's pretty simple
-        // it converts `['a', 'b', 'c']` to `a,b,c` string
         plainArr.forEach(function(arrItem) {
             arrItem.forEach(function(item, idx) {
             row += item + ((idx + 1) === arrItem.length ? '' : delimeter);
@@ -936,42 +932,49 @@
     function exportDataTableToTextFile(tableName) {
         var titles = [];
         var data = [];
-
-        /*
-        * Get the table headers, this will be CSV headers
-        * The count of headers will be CSV string separator
-        */
         $('#' + tableName + ' th').each(function() {
             titles.push($(this).text());
         });
-
-        /*
-        * Get the actual data, this will contain all the data, in 1 array
-        */
         $('#' + tableName + ' td').each(function() {
             data.push($(this).text());
         });
-        /*
-        * Convert our data to CSV string
-        */
         var CSVString = prepCSVRow(titles, titles.length, '');
         CSVString = prepCSVRow(data, titles.length, CSVString);
-        /*
-        * Make CSV downloadable
-        */
         var downloadLink = document.createElement("a");
         var blob = new Blob(["\ufeff", CSVString]);
         var url = URL.createObjectURL(blob);
         downloadLink.href = url;
-        downloadLink.download = "data.csv";
-        /*
-        * Actually download CSV
-        */
+        downloadLink.download = tableName + ".csv";
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
     }
-
+    function exportScenarioModelTableToTextFile(event) {
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
+        updateLoadingDivVisibility(true);
+        var modelInfo = buildDatabaseTableContentsStreamModelInfo(event.target.id);
+        getDatabaseTableContentsStream(modelInfo, true)
+        .then(function(response) {
+            var titles = response.data.modelDatabaseTableFields.fields;
+            var data = [];
+            g_tableDataArray.forEach(function(elements, index) {
+                for (var i=0;i<elements.length;i++) {            
+                    data.push(elements[i]);
+                }
+            });
+            var CSVString = prepCSVRow(titles, titles.length, '');
+            CSVString = prepCSVRow(data, titles.length, CSVString);
+            var downloadLink = document.createElement("a");
+            var blob = new Blob(["\ufeff", CSVString]);
+            var url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = modelInfo.tableName + ".csv";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            updateLoadingDivVisibility(false);
+        });
+    }
     function isFieldNumeric(dataType) {
         if ((dataType === c_DB_FIELDTYPE_INTEGER_VALUE) ||
             (dataType === c_DB_FIELDTYPE_INTEGER_BOOLEAN) ||
@@ -1555,7 +1558,7 @@
         databaseOutputsTableRows++;
         $('#scenario-definition').width('auto');
         var newrow = 
-        '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '">Export data</button></td></tr>'
+        '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
         table.append(newrow);
         var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -1654,8 +1657,9 @@
     }
 
     function updateTargetTableSelect(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         var targetDatabase = '#target-database-' + rowIndex;
         var matchindex = modelDatabases.findIndex(x => x.name === $(targetDatabase).val());
         if (matchindex >= 0) {
@@ -1672,8 +1676,9 @@
     }
 
     function updateSourceTableSelect(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         var sourceDatabase = '#source-database-' + rowIndex;
         var matchindex = modelDatabases.findIndex(x => x.name === $(sourceDatabase).val());
         if (matchindex >= 0) {
@@ -1706,8 +1711,9 @@
         $("#database-table-modal").hide();
     }
     function openFileContentsModal(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         var outputFileSelect = $('#output-file-select-' + rowIndex);
         var filepath =  $(outputFileSelect).val();
         getServerFile(filepath)
@@ -1760,8 +1766,9 @@
     }
     
     function openViewDatabaseTableChartModal(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         var modelName =  $("#user-models").val();
         modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
         var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
@@ -1908,37 +1915,43 @@
     }
 
     function sourceBlockTypeSelected(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateSourceBlockNumbersDropdown(rowIndex);
     }
 
     function targetBlockTypeSelected(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateTargetBlockNumbersDropdown(rowIndex);
     }
     
     function sourceBlockNumberSelected(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateSourceDialogVariableTypeDropdown(rowIndex);
     }
 
     function targetBlockNumberSelected(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateTargetDialogVariableTypeDropdown(rowIndex);
     }
 
     function sourceDialogVariableTypeSelected(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateSourceDialogVariableDropdown(rowIndex);  
     }
     function targetDialogVariableTypeSelected(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
+        // var index = event.target.id.lastIndexOf('-') + 1;
+        // var rowIndex = event.target.id.substring(index);
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateTargetDialogVariableDropdown(rowIndex);  
     }
 
