@@ -2,11 +2,12 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <title>ExtendSim ASP API tester</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
+    <meta charset="utf-8">
+    <title>ExtendSim ASP API tester</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <style>
+    <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
+<style>
     table, th, td {
       border: 1px solid black;
       border-collapse: collapse;
@@ -66,7 +67,7 @@
         padding: 20px;
         border: 1px solid #888;
         width: 80%;
-        height: 50%;
+        height: 60%;
         align-content: center;
     }
     div#load_screen {
@@ -99,7 +100,8 @@
         font-weight: bold;
     }
     #modal-form-chart {
-        height: 500px;
+        height: 100%;
+        /* height: 500px; */
     }
     #modal-x-axis-field-select, #modal-y-axis-field-select  {
         margin-right: 10px;
@@ -222,11 +224,14 @@
     }
 
     .flex-container {
-    display: flex;
-    margin-bottom: 5px;
+        display: flex;
+        margin-bottom: 5px;
     }
     .fill-width {
-    flex: 1;
+        flex: 1;
+    }
+    .scenario-tables {
+        margin: 10px auto;
     }
     #extendsim-asp-title-heading {
         font-size: 23px;
@@ -409,7 +414,6 @@
         font-size: 18px;   
     }
     #scenario-file-inputs-body, #scenario-database-inputs-body, #scenario-dialog-inputs-body, #scenario-file-outputs-body, #scenario-database-outputs-body, #scenario-dialog-inputs-body, #scenario-dialog-outputs-body, #scenarios-table-body {
-        /* margin: 20px; */
         margin: 10px auto;
         width: auto;
         text-align: center;
@@ -482,7 +486,7 @@
        </div>  
         <div class="modal-content">
             <div id="modal-form-contents">
-                <table id="selected-database-outputs-table" style="width:auto">
+                <table class="scenario-tables" id="selected-database-outputs-table" style="width:auto">
                 </table>
             </div>
             <div class="container">
@@ -500,7 +504,7 @@
         </div>  
         <div class="modal-content">
             <div id="modal-form-contents">
-                <table id="selected-file-contents-table" style="width:auto">
+                <table class="scenario-tables" id="selected-file-contents-table" style="width:auto">
                 </table>
             </div>
             <div class="container">
@@ -571,7 +575,7 @@
                             <div id="scenario-file-inputs-body">
                                 <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
                                 <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
-                                <table id="file-inputs-table">
+                                <table class="scenario-tables" id="file-inputs-table">
                                     <tr>
                                         <th>
                                             Input data file
@@ -590,8 +594,7 @@
                             <div id="scenario-database-inputs-body">
                                 <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
                                 <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
-                                <!-- <table id="database-inputs-table" style="width:auto"> -->
-                                <table id="database-inputs-table">
+                                <table class="scenario-tables" id="database-inputs-table">
                                     <tr>
                                         <th>
                                             Source data file
@@ -617,7 +620,7 @@
                                 <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
                                 <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
                                 <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
-                                <table id="dialog-inputs-table" style="width:auto">
+                                <table class="scenario-tables" id="dialog-inputs-table" style="width:auto">
                                     <tr>
                                         <th>
                                             Block Type
@@ -656,7 +659,7 @@
                             <div id="scenario-file-outputs-body">
                                 <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow()'>Add row</button>
                                 <button class="scenario-file-output-buttons" id="delete-file-outputs-table-row" onclick='deleteOutputFilesTableRow()'>Delete row</button>
-                                <table id="file-outputs-table" style="width:auto">
+                                <table class="scenario-tables" id="file-outputs-table" style="width:auto">
                                     <tr>
                                         <th>
                                             Scenario folder files
@@ -677,7 +680,7 @@
                                 <!-- <h3>Scenario Database Outputs</h3> -->
                                 <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow()'>Add row</button>
                                 <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseOutputsTableRow()'>Delete row</button>
-                                <table id="database-outputs-table" style="width:auto">
+                                <table class="scenario-tables" id="database-outputs-table" style="width:auto">
                                     <tr>
                                         <th>
                                             Source Database
@@ -706,7 +709,7 @@
                             <div id="scenario-dialog-outputs-body">
                                 <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogOutputsTableRow()'>Add row</button>
                                 <button class="scenario-dialog-output-buttons" id="delete-dialog-outputs-table-row" onclick='deleteDialogOutputsTableRow()'>Delete row</button>
-                                <table id="dialog-outputs-table" style="width:auto">
+                                <table class="scenario-tables" id="dialog-outputs-table" style="width:auto">
                                     <tr>
                                         <th>
                                             Block Type
@@ -756,7 +759,7 @@
     
                 </div>
                 <div id="scenarios-table-body">
-                    <table id="scenarios-table">
+                    <table class="scenario-tables" id="scenarios-table">
                         <tr>
                             <th>
                                 Select
@@ -2192,7 +2195,6 @@
                         }
                     });
                 }
-                // alert('Reading uploaded file...');
                 reader.readAsText(selectedFiles[fileIndex]);
             }
         });
@@ -2216,14 +2218,11 @@
         }
         createScenarioFolder(createScenariorFolderFlag)
         .then(function(createScenarioFolderResponse) {
-            // alert('createScenarioFolder: scenario folder pathname=' + $("#user-scenario-folder-pathname").val());
             // Copy user selected server model into scenario folder
             copyModelToScenarioFolder(createScenariorFolderFlag)
             .then(function(copyModelToScenarioFolderResponse) {
-                // alert('copyModelToScenarioFolder: response=' + copyModelToScenarioFolderResponse);
                 uploadDataStreamsToModel(0)
                 .then(function(uploadDataStreamsToModelResponse) {
-                    // alert('uploadDataStreamsToModel: response=' + uploadDataStreamsToModelResponse);
                     uploadDataFilesToServer(0)
                     .then(function(uploadDataFilesToServerResponse) {
                         uploadDialogVariableDataToModel(0)
@@ -2529,7 +2528,6 @@
             })
             .then(function(response) {
                 // Storing an array of results in the results variable
-                // alert('Axios POST parameters result=' + JSON.stringify(response.data));
                 $("#user-login-session-id").val(response.data.userLoginSessionID);
                 $('.user-login-buttons').prop('disabled', false);
             });
