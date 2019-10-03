@@ -1728,11 +1728,13 @@
             $("#file-contents-modal").show();
         })
     }
-    function openDatabaseTableContentsModal(event) {
-        var index = event.target.id.lastIndexOf('-') + 1;
-        var rowIndex = event.target.id.substring(index);
-        $('#modal-chart-axes-selection-dropdowns').hide();
-        $('#view-model-chart-button').hide();
+    function getRowIndexFromTableRowId(tableRowId) {
+        var index = tableRowId.lastIndexOf('-') + 1;
+        var rowIndex = tableRowId.substring(index);
+        return rowIndex;
+    }
+    function buildDatabaseTableContentsStreamModelInfo(tableRowId) {
+        var rowIndex = getRowIndexFromTableRowId(tableRowId);
         var modelName =  $("#user-models").val();
         modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
         var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
@@ -1741,9 +1743,16 @@
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
+        return modelInfo;
+    }
+    function openDatabaseTableContentsModal(event) {
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
+        $('#modal-chart-axes-selection-dropdowns').hide();
+        $('#view-model-chart-button').hide();
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
         updateLoadingDivVisibility(true);
-        getDatabaseTableContentsStream(modelInfo, true, displayTableContents)
+        var modelInfo = buildDatabaseTableContentsStreamModelInfo(event.target.id);
+        getDatabaseTableContentsStream(modelInfo, true)
         .then(function(response) {
             displayTableContents(response.data.modelDatabaseTableFields);
             updateLoadingDivVisibility(false);
@@ -1767,7 +1776,8 @@
         $('#view-model-chart-button').show();
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
         updateLoadingDivVisibility(true);
-        getDatabaseTableContentsStream(modelInfo, true, displayTableChartModal)
+        // getDatabaseTableContentsStream(modelInfo, true, displayTableChartModal)
+        getDatabaseTableContentsStream(modelInfo, true)
         .then(function(response) {
             console.log('Heading fields=' + JSON.stringify(response.data.modelDatabaseTableFields));
             g_tableSchema = response.data.modelDatabaseTableFields;
