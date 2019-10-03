@@ -99,10 +99,12 @@
     #chart-type-select-label, #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
         font-weight: bold;
     }
-    #modal-form-chart {
+    #modal-chart-container {
         height: 100%;
-        /* height: 500px; */
     }
+    /* #modal-form-chart {
+        height: 100%;
+    } */
     #modal-x-axis-field-select, #modal-y-axis-field-select  {
         margin-right: 10px;
     }
@@ -489,7 +491,7 @@
                 <table class="scenario-tables" id="selected-database-outputs-table" style="width:auto">
                 </table>
             </div>
-            <div class="container">
+            <div id="modal-chart-container">
                 <canvas id="modal-form-chart"  width=auto></canvas>
             </div>
         </div>
