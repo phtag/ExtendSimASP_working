@@ -567,12 +567,12 @@
                 </div>
                 <div id="scenario-factors">
                     <div class='section-header-checkboxes'>
-                        <input type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>Factors</input>
+                        <input type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>ExtendSim Model Factors</input>
                     </div>
                     <div id='scenario-factors-body'>
                         <div id="scenario-file-inputs">
                             <div>
-                                <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'>Model Files</input>    
+                                <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'>External Input Files</input>    
                             </div>
                             <div id="scenario-file-inputs-body">
                                 <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
@@ -650,13 +650,13 @@
                 </div>
                 <div id="scenario-responses">
                     <div class='section-header-checkboxes'>
-                        <input type='checkbox' id='scenario-responses-checkbox' onclick='updateDOMelementVisibility("scenario-responses")'>Responses</input>
+                        <input type='checkbox' id='scenario-responses-checkbox' onclick='updateDOMelementVisibility("scenario-responses")'>ExtendSim Model Responses</input>
                     </div>
                     <div id='scenario-responses-body'>
                         <div id="scenario-file-outputs">
                             <div id="scenario-file-outputs-header">
                                 <!-- <label id="scenario-file-outputs-checkbox-label">Model Files</label> -->
-                                <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'>Model Files</input>    
+                                <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'>External Output Files</input>    
                             </div>
                             <div id="scenario-file-outputs-body">
                                 <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow()'>Add row</button>
