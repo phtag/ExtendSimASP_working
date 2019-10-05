@@ -820,6 +820,17 @@
         labels: [],
         data: []
     }
+    var g_ScenarioDefinition = {
+        selectedFiles: [],
+        modelName: "",
+        scenarioFolderPathname: "",
+        modelPathname: "",
+        databasenames: [],
+        tablenames: [],
+        variablenames: [],
+        variableValues: [],
+        blockNumbers: []
+    }
     var g_myModalChart;
     var IPaddress = "";
     // var IPaddress = "http://184.171.246.58";
@@ -1099,6 +1110,28 @@
         });
     }
     function saveScenarioDefition() {
+        g_ScenarioDefinition.selectedFiles = selectedFiles;
+        g_ScenarioDefinition.modelName = $("#user-models").val();
+        g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
+        g_ScenarioDefinition.modelPathname = $("#user-scenario-folder-pathname").val() + "\\" + $("#user-models").val();
+        
+        g_ScenarioDefinition.databasenames = [];
+        g_ScenarioDefinition.tablenames = [];
+        for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
+            g_ScenarioDefinition.databasenames.push($('#target-database-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.tablenames.push($('#target-table-' + (rowIndex + 1)).val());
+        }
+
+        g_ScenarioDefinition.variablenames = [];
+        g_ScenarioDefinition.variableValues = [];
+        g_ScenarioDefinition.blockNumbers = [];
+
+        for (rowIndex=0;rowIndex<dialogInputsTableRows;rowIndex++) {
+            g_ScenarioDefinition.variablenames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
+        }
+
         $('#scenarios-checkbox').prop('disabled', false);
         $('#submit-scenarios-button').prop('disabled', false); 
     }
