@@ -829,7 +829,7 @@
         data: []
     }
     var g_ScenarioDefinition = {
-        selectedFiles: [],
+        uploadedFiles: [],
         modelName: "",
         scenarioFolderPathname: "",
         modelPathname: "",
@@ -902,10 +902,10 @@
     $("#files-uploaded-status").hide();
     $(".upload-database-inputs-button").hide();
     $("#database-inputs-uploaded-status-label").hide();
-    $("database-inputs-uploaded-status").hide();
+    $("#database-inputs-uploaded-status").hide();
     $(".upload-dialog-inputs-button").hide();
     $("#dialog-inputs-uploaded-status-label").hide();
-    $("dialog-inputs-uploaded-status").hide();
+    $("#dialog-inputs-uploaded-status").hide();
 
     enableDisableUserLoginButton();
     validateUserInputs();
@@ -1127,7 +1127,9 @@
         });
     }
     function saveScenarioDefition() {
-        g_ScenarioDefinition.selectedFiles = JSON.stringify(selectedFiles);
+        g_ScenarioDefinition.uploadedFiles = uploadedFiles;
+        
+        alert(JSON.stringify(selectedFiles[0].text()));
         g_ScenarioDefinition.modelName = $("#user-models").val();
         g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         g_ScenarioDefinition.modelPathname = $("#user-scenario-folder-pathname").val() + "\\" + $("#user-models").val();
@@ -1376,6 +1378,7 @@
         };
 
         if (file) {
+            console.log(file);
             uploadedFiles.push({ name: file.name });
             selectedFiles.push(file);
             reader.readAsText(file);
