@@ -35,6 +35,7 @@
     .upload-files-button {
         margin-top: 10px;
         margin-right: 10px;
+        
     }
     .upload-database-inputs-button {
         margin-top: 10px;
@@ -128,7 +129,13 @@
     .section-header-checkboxes {
         text-align: center;
         font-weight: bold;
-        font-size: 20px;
+        font-size: 26px;
+        margin-bottom: 15px;
+    }
+    .sub-section-header-checkboxes {
+        text-align: center;
+        font-weight: bold;
+        font-size: 23px;
         margin-bottom: 15px;
     }
     .modal-form {
@@ -236,7 +243,7 @@
         margin: 10px auto;
     }
     #extendsim-asp-title-heading {
-        font-size: 23px;
+        font-size: 28px;
         font-weight: bold;
         text-align: center;
         margin: 20px;
@@ -365,11 +372,12 @@
     #scenario-user-login, #scenario-definition, #scenarios {
         border: 2px solid rgb(0, 0, 0);
         border-radius: 10px;
-        padding-top: 15px;
+        padding-top: 35px;
+        padding-bottom: 25px;
         padding-left: 3%;
         padding-right: 3%;
-        margin: auto;
-        margin-bottom: 20px;
+        margin: 40px auto;
+        /* margin-bottom: 20px; */
         width: auto;
         background-color:rgb(221, 220, 220);
         text-align: center; 
@@ -554,7 +562,7 @@
             </div>  
             <div id="scenario-definition-body">
                 <div id="scenario-setup">
-                    <div class='section-header-checkboxes'>
+                    <div class='sub-section-header-checkboxes'>
                         <input type='checkbox' id='scenario-setup-checkbox' onclick='updateDOMelementVisibility("scenario-setup")'>Setup</input>
                     </div>
                     <div class="flex-container" id='scenario-setup-body'>
@@ -566,7 +574,7 @@
                     </div>
                 </div>
                 <div id="scenario-factors">
-                    <div class='section-header-checkboxes'>
+                    <div class='sub-section-header-checkboxes'>
                         <input type='checkbox' id='scenario-factors-checkbox' onclick='updateDOMelementVisibility("scenario-factors")'>ExtendSim Model Factors</input>
                     </div>
                     <div id='scenario-factors-body'>
@@ -649,7 +657,7 @@
                     </div>
                 </div>
                 <div id="scenario-responses">
-                    <div class='section-header-checkboxes'>
+                    <div class='sub-section-header-checkboxes'>
                         <input type='checkbox' id='scenario-responses-checkbox' onclick='updateDOMelementVisibility("scenario-responses")'>ExtendSim Model Responses</input>
                     </div>
                     <div id='scenario-responses-body'>
@@ -889,6 +897,15 @@
     $('#modal-form-chart').hide();
     $("#database-table-modal").hide();
     $("#file-contents-modal").hide();
+    $(".upload-files-button").hide();
+    $("#files-uploaded-status-label").hide();
+    $("#files-uploaded-status").hide();
+    $(".upload-database-inputs-button").hide();
+    $("#database-inputs-uploaded-status-label").hide();
+    $("database-inputs-uploaded-status").hide();
+    $(".upload-dialog-inputs-button").hide();
+    $("#dialog-inputs-uploaded-status-label").hide();
+    $("dialog-inputs-uploaded-status").hide();
 
     enableDisableUserLoginButton();
     validateUserInputs();
@@ -1110,7 +1127,7 @@
         });
     }
     function saveScenarioDefition() {
-        g_ScenarioDefinition.selectedFiles = selectedFiles;
+        g_ScenarioDefinition.selectedFiles = JSON.stringify(selectedFiles);
         g_ScenarioDefinition.modelName = $("#user-models").val();
         g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         g_ScenarioDefinition.modelPathname = $("#user-scenario-folder-pathname").val() + "\\" + $("#user-models").val();
@@ -1132,6 +1149,10 @@
             g_ScenarioDefinition.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
         }
 
+        var blob = new Blob([JSON.stringify(g_ScenarioDefinition)],
+                { type: "text/plain;charset=utf-8" });
+        saveAs(blob, "scenarioData.txt");
+        alert('Saved blob data');
         $('#scenarios-checkbox').prop('disabled', false);
         $('#submit-scenarios-button').prop('disabled', false); 
     }
