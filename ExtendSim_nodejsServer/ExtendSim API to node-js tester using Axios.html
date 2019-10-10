@@ -832,6 +832,7 @@
         data: []
     }
     var g_ScenarioDefinition = {
+        scenarioName: "",
         uploadedFiles: [],
         modelName: "",
         scenarioFolderPathname: "",
@@ -1132,10 +1133,10 @@
     }
     function saveScenarioDefinition() {
         g_ScenarioDefinition.uploadedFiles = uploadedFiles;
-        g_ScenarioDefinition.modelName = $("#user-models").val();
+        g_ScenarioDefinition.modelPathname = $("#user-models").val();
+        g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
         g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
-        g_ScenarioDefinition.modelPathname = $("#user-scenario-folder-pathname").val() + "\\" + $("#user-models").val();
-        
+        g_ScenarioDefinition.scenarioName = $('#scenario-name').val();
         g_ScenarioDefinition.databasenames = [];
         g_ScenarioDefinition.tablenames = [];
         for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
@@ -1366,7 +1367,6 @@
         var reader  = new FileReader();
         reader.onload = function(event) {
             g_ScenarioDefinition = JSON.parse(event.target.result);
-            alert('Model name=' + g_ScenarioDefinition.modelName);
         };
         if (file) {
             console.log(file);
