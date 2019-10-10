@@ -747,7 +747,7 @@
                 </div>
                 <!-- <label for='load-scenario-definition' class="btn">Load scenario definition</label> -->
                 <button onclick='$("#load-scenario-definition").click()'>Load scenario definition</button>
-                <input type="file" id='load-scenario-definition' style='display: none' onclick='loadScenarioDefinition(event)'></input>
+                <input type="file" id='load-scenario-definition' style='display: none' onchange='loadScenarioDefinition(event)'></input>
                 <button class='scenario-buttons' id='save-scenario-definition'  onclick='saveScenarioDefinition()'>Save scenario definition</button>
             </div>
         </div>
@@ -1132,8 +1132,6 @@
     }
     function saveScenarioDefinition() {
         g_ScenarioDefinition.uploadedFiles = uploadedFiles;
-        
-        alert(JSON.stringify(selectedFiles[0].text()));
         g_ScenarioDefinition.modelName = $("#user-models").val();
         g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         g_ScenarioDefinition.modelPathname = $("#user-scenario-folder-pathname").val() + "\\" + $("#user-models").val();
@@ -1158,7 +1156,6 @@
         var blob = new Blob([JSON.stringify(g_ScenarioDefinition)],
                 { type: "text/plain;charset=utf-8" });
         saveAs(blob, "scenarioData.txt");
-        alert('Saved blob data');
         $('#scenarios-checkbox').prop('disabled', false);
         $('#submit-scenarios-button').prop('disabled', false); 
     }
@@ -1368,10 +1365,9 @@
     function readAndPreviewScenarioDefinitionFile(file) {
         var reader  = new FileReader();
         reader.onload = function(event) {
-            g_ScenarioDefinition = event.target.result;
-            alert('Uploaded scenario definition file');
+            g_ScenarioDefinition = JSON.parse(event.target.result);
+            alert('Model name=' + g_ScenarioDefinition.modelName);
         };
-
         if (file) {
             console.log(file);
             reader.readAsText(file);
