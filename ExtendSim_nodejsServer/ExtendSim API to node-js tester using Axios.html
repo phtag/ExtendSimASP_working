@@ -745,8 +745,10 @@
                         </div>     
                     </div>
                 </div>
-                <button class='scenario-buttons' id='load-scenario-definition' onclick='loadScenarioDefition()'>Load scenario definition</button>
-                <button class='scenario-buttons' id='save-scenario-definition' onclick='saveScenarioDefition()'>Save scenario definition</button>
+                <!-- <label for='load-scenario-definition' class="btn">Load scenario definition</label> -->
+                <button onclick='$("#load-scenario-definition").click()'>Load scenario definition</button>
+                <input type="file" id='load-scenario-definition' style='display: none' onclick='loadScenarioDefinition(event)'></input>
+                <button class='scenario-buttons' id='save-scenario-definition'  onclick='saveScenarioDefinition()'>Save scenario definition</button>
             </div>
         </div>
         <div id="scenarios">
@@ -879,6 +881,7 @@
     $('.scenario-buttons').prop('disabled', true);
     $('.user-login-buttons').prop('disabled', true);
     $('.scenario-checkbox').prop('disabled', true);
+    $('#load-scenario-definition').prop('disabled', false);
     
     $('#scenario-user-login-checkbox').prop('checked', false);
     $('#scenario-setup-checkbox').prop('checked', false);
@@ -1127,7 +1130,7 @@
             }
         });
     }
-    function saveScenarioDefition() {
+    function saveScenarioDefinition() {
         g_ScenarioDefinition.uploadedFiles = uploadedFiles;
         
         alert(JSON.stringify(selectedFiles[0].text()));
@@ -1355,7 +1358,25 @@
             $('#loading').hide();
         }
     }
+    function loadScenarioDefinition(event) {
+        var files = $("#" + event.target.id)[0].files;
+        if (files) {
+            [].forEach.call(files, readAndPreviewScenarioDefinitionFile);
+        }
+        // enableDisableUploadFilesButton();
+    }
+    function readAndPreviewScenarioDefinitionFile(file) {
+        var reader  = new FileReader();
+        reader.onload = function(event) {
+            g_ScenarioDefinition = event.target.result;
+            alert('Uploaded scenario definition file');
+        };
 
+        if (file) {
+            console.log(file);
+            reader.readAsText(file);
+        }
+    }
     function databasefilesSelected(event) {
         var files = $("#" + event.target.id)[0].files;
         if (files) {
