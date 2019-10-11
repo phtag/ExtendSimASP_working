@@ -1364,25 +1364,30 @@
         }
     }
     function populateScenarioFactorsSettings() {
-
+        var inputLabel = "";
+        alert('uploaded files length=' + g_ScenarioDefinition.uploadedFiles.length);
+        for (var i=0;i<g_ScenarioDefinition.uploadedFiles.length;i++) {
+            addNewInputFilesTableRow();
+            var inputLabel = '#input-label-' + inputFileTableRows;
+            updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedFiles[i].name, 20);
+            alert('Adding file=' + g_ScenarioDefinition.uploadedFiles[i].name);
+        }
     }
     function populateScenarioResponsesSettings() {
 
     }
     function loadScenarioDefinition(event) {
         var files = $("#" + event.target.id)[0].files;
+        clearTableData();
         if (files) {
             [].forEach.call(files, readAndPreviewScenarioDefinitionFile);
         }
-        clearTableData();
-        populateScenarioFactorsSettings();
-        populateScenarioResponsesSettings();
     }
     function readAndPreviewScenarioDefinitionFile(file) {
         var reader  = new FileReader();
         reader.onload = function(event) {
             g_ScenarioDefinition = JSON.parse(event.target.result);
-            alert('Scenario name=' + g_ScenarioDefinition.scenarioName + ' model name=' + g_ScenarioDefinition.modelName + ' model pathname=' + g_ScenarioDefinition.modelPathname);
+            populateScenarioFactorsSettings();
         };
         if (file) {
             console.log(file);
@@ -1512,7 +1517,6 @@
         var myLabelID = 'input-label-' + inputFileTableRows;
         var $myID = "'#" + myID + "'";
         var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td></tr>';
-        // var newrow = '<tr><td><input type="file" onchange="inputFilesSelected(event)" class="input-file-row" id="input-button-' + inputFileTableRows + '"></td></tr>';
         table.append(newrow);
     }
     function deleteInputFilesTableRow(event) {
