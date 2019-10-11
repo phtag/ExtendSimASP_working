@@ -1484,8 +1484,9 @@
         // <button onclick='$("#load-scenario-definition").click()'>Load scenario definition</button>
         //         <input type="file" id='load-scenario-definition' style='display: none' onchange='loadScenarioDefinition(event)'></input>
         var myID = 'input-button-' + inputFileTableRows;
+        var myLabelID = 'input-label-' + inputFileTableRows;
         var $myID = "'#" + myID + "'";
-        var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"></td></tr>';
+        var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" id="' + myLabelID + '" readonly></td></tr>';
         // var newrow = '<tr><td><input type="file" onchange="inputFilesSelected(event)" class="input-file-row" id="input-button-' + inputFileTableRows + '"></td></tr>';
         table.append(newrow);
     }
