@@ -1414,6 +1414,13 @@
 
         return w;
     }
+    function updateInputLabel(inputLabel, inputValue, padding) {
+        $(inputLabel).val(inputValue);
+        var inputWidth = $(inputLabel).val().width($(inputLabel).css( "fontSize" ) + " arial");
+        $(inputLabel).css({
+            width: inputWidth + padding
+        })
+    }
     function readAndPreviewInputFile(file) {
         var reader  = new FileReader();
         reader.onload = function(event) {
@@ -1421,11 +1428,7 @@
             uploadedFiles[numFilesUploaded].data = contents;
             numFilesUploaded++;
             var inputLabel = '#input-label-' + numFilesUploaded;
-            $(inputLabel).val(file.name);
-            var inputWidth = $(inputLabel).val().width($(inputLabel).css( "fontSize" ) + " arial");
-            $(inputLabel).css({
-                width: inputWidth + 20
-            })
+            updateInputLabel(inputLabel, file.name, 20);
         };
 
         if (file) {
