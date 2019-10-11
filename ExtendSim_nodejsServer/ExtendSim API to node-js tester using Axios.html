@@ -97,6 +97,11 @@
     .table-checkboxes {
         text-align: center;
     }
+    .input-label {
+        margin-left: 5px;
+        text-align: center;
+        width: auto;
+    }
     #chart-type-select-label, #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
         font-weight: bold;
     }
@@ -1398,12 +1403,29 @@
         }
         enableDisableUploadFilesButton();
     }
+    String.prototype.width = function(font) {
+        var f = font || '12px arial',
+            o = $('<div>' + this + '</div>')
+                    .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': f})
+                    .appendTo($('body')),
+            w = o.width();
+
+        o.remove();
+
+        return w;
+    }
     function readAndPreviewInputFile(file) {
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
             uploadedFiles[numFilesUploaded].data = contents;
-           numFilesUploaded++;
+            numFilesUploaded++;
+            var inputLabel = '#input-label-' + numFilesUploaded;
+            $(inputLabel).val(file.name);
+            var inputWidth = $(inputLabel).val().width($(inputLabel).css( "fontSize" ) + " arial");
+            $(inputLabel).css({
+                width: inputWidth + 20
+            })
         };
 
         if (file) {
@@ -1486,7 +1508,7 @@
         var myID = 'input-button-' + inputFileTableRows;
         var myLabelID = 'input-label-' + inputFileTableRows;
         var $myID = "'#" + myID + "'";
-        var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" id="' + myLabelID + '" readonly></td></tr>';
+        var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td></tr>';
         // var newrow = '<tr><td><input type="file" onchange="inputFilesSelected(event)" class="input-file-row" id="input-button-' + inputFileTableRows + '"></td></tr>';
         table.append(newrow);
     }
