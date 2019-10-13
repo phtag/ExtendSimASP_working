@@ -843,8 +843,8 @@
         modelName: "",
         scenarioFolderPathname: "",
         modelPathname: "",
-        databasenames: [],
-        tablenames: [],
+        factorDatabasenames: [],
+        factorTablenames: [],
         variablenames: [],
         variableValues: [],
         blockNumbers: []
@@ -1144,11 +1144,11 @@
         g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
         g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         g_ScenarioDefinition.scenarioName = $('#scenario-name').val();
-        g_ScenarioDefinition.databasenames = [];
-        g_ScenarioDefinition.tablenames = [];
+        g_ScenarioDefinition.factorDatabasenames = [];
+        g_ScenarioDefinition.factorTablenames = [];
         for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
-            g_ScenarioDefinition.databasenames.push($('#target-database-' + (rowIndex + 1)).val());
-            g_ScenarioDefinition.tablenames.push($('#target-table-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factorDatabasenames.push($('#target-database-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factorTablenames.push($('#target-table-' + (rowIndex + 1)).val());
         }
 
         g_ScenarioDefinition.variablenames = [];
@@ -1379,9 +1379,15 @@
 
         addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length)
         .then(function(response) {
+            var targetDatabase;
+            var targetTable;
             for (i=0;i<g_ScenarioDefinition.uploadedDatabaseFiles.length;i++) {
                 inputLabel = '#database-input-label-' + (i + 1);
                 updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[i].name, 20);
+                targetDatabase = '#target-database-' + (i + 1);
+                $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[i]);
+                targetTable = '#target-table-' + (i + 1);
+                $(targetTable).val(g_ScenarioDefinition.factorTablenames[i]);
             }
         });
     }
@@ -2383,8 +2389,8 @@
                 var modelName =  g_ScenarioDefinition.modelName;
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                var databasename = g_ScenarioDefinition.databasenames[rowIndex];
-                var tablename = g_ScenarioDefinition.tablenames[rowIndex];
+                var databasename = g_ScenarioDefinition.factorDatabasenames[rowIndex];
+                var tablename = g_ScenarioDefinition.factorTablenames[rowIndex];
                 var dataContent = g_ScenarioDefinition.uploadedDatabaseFiles[rowIndex].data;
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddatastream",
