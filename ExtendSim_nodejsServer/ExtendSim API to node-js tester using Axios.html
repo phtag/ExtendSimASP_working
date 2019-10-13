@@ -1381,10 +1381,12 @@
         .then(function(response) {
             var targetDatabase;
             var targetTable;
+            alert('g_ScenarioDefinition.factorDatabasenames.length=' + g_ScenarioDefinition.factorDatabasenames.length);
             for (i=0;i<g_ScenarioDefinition.uploadedDatabaseFiles.length;i++) {
                 inputLabel = '#database-input-label-' + (i + 1);
                 updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[i].name, 20);
                 targetDatabase = '#target-database-' + (i + 1);
+                alert($(targetDatabase).val());
                 $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[i]);
                 targetTable = '#target-table-' + (i + 1);
                 $(targetTable).val(g_ScenarioDefinition.factorTablenames[i]);
@@ -1400,6 +1402,8 @@
         if (files) {
             [].forEach.call(files, readAndPreviewScenarioDefinitionFile);
         }
+        $('#scenarios-checkbox').prop('disabled', false);
+        $('#submit-scenarios-button').prop('disabled', false); 
     }
     function readAndPreviewScenarioDefinitionFile(file) {
         var reader  = new FileReader();
@@ -1596,7 +1600,6 @@
                         .then(function(response) {
                             createDatabaseInputsTableRow();
                             rowIndex++;
-                            alert('addNewDatabaseInputsTableRow: rowIndex=' + rowIndex);
                             if (rowIndex < numRows) {
                                 resolve(addNewDatabaseInputsTableRow(rowIndex, numRows));
                             }
