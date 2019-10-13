@@ -2382,7 +2382,6 @@
             }
         });
     }
-
     function uploadDataStreamsToModel_new(rowIndex) {
         return new Promise((resolve, reject) => {
             if (g_ScenarioDefinition.uploadedDatabaseFiles.length < 1) {
@@ -2555,7 +2554,7 @@
                     // uploadDataFilesToServer(0)
                     uploadDataFilesToServer_new(0)
                     .then(function(uploadDataFilesToServerResponse) {
-                        uploadDialogVariableDataToModel_new(0)
+                        uploadDialogVariableDataToModel(0)
                         .then(function(uploadDialogVariableDataToModelResponse) {
                                 // // Trigger the submission of the scenario
                             var modelName =  $("#user-models").val();
