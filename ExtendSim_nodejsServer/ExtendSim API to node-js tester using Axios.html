@@ -1369,6 +1369,7 @@
         updateButtonsState();
         // populate the factors input files table
         
+        inputFileTableRows = 0;
         for (var i=0;i<g_ScenarioDefinition.uploadedFiles.length;i++) {
             addNewInputFilesTableRow();
             inputLabel = '#input-label-' + inputFileTableRows;
@@ -1376,21 +1377,26 @@
         }
 
         // populate the factors database input files table
-
+        databaseInputsTableRows = 0;
         addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length)
         .then(function(response) {
             var targetDatabase;
             var targetTable;
-            alert('g_ScenarioDefinition.factorDatabasenames.length=' + g_ScenarioDefinition.factorDatabasenames.length);
             for (i=0;i<g_ScenarioDefinition.uploadedDatabaseFiles.length;i++) {
                 inputLabel = '#database-input-label-' + (i + 1);
                 updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[i].name, 20);
                 targetDatabase = '#target-database-' + (i + 1);
-                alert($(targetDatabase).val());
                 $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[i]);
                 targetTable = '#target-table-' + (i + 1);
                 $(targetTable).val(g_ScenarioDefinition.factorTablenames[i]);
             }
+            // populate data structures with loaded scenario data
+            uploadedFiles = g_ScenarioDefinition.uploadedFiles;
+            uploadedDatabaseFiles = g_ScenarioDefinition.uploadedDatabaseFiles;
+            $("#user-models").val() = g_ScenarioDefinition.modelPathname;
+            g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
+            $("#user-scenario-folder-pathname").val() = g_ScenarioDefinition.scenarioFolderPathname;
+            $('#scenario-name').val() = g_ScenarioDefinition.scenarioName;
         });
     }
     function populateScenarioResponsesSettings() {
@@ -1399,6 +1405,7 @@
     function loadScenarioDefinition(event) {
         var files = $("#" + event.target.id)[0].files;
         clearTableData();
+        loadedScenarioModelpathname = '';   //  force a query to the server to get the loaded model's data
         if (files) {
             [].forEach.call(files, readAndPreviewScenarioDefinitionFile);
         }
