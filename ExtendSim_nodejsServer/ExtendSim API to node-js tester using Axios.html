@@ -1369,7 +1369,6 @@
         updateButtonsState();
         // populate the factors input files table
         
-        inputFileTableRows = 0;
         for (var i=0;i<g_ScenarioDefinition.uploadedFiles.length;i++) {
             addNewInputFilesTableRow();
             inputLabel = '#input-label-' + inputFileTableRows;
@@ -1377,8 +1376,7 @@
         }
 
         // populate the factors database input files table
-        databaseInputsTableRows = 0;
-        addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length)
+        addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, true)
         .then(function(response) {
             var targetDatabase;
             var targetTable;
@@ -1393,6 +1391,7 @@
             // populate data structures with loaded scenario data
             uploadedFiles = g_ScenarioDefinition.uploadedFiles;
             uploadedDatabaseFiles = g_ScenarioDefinition.uploadedDatabaseFiles;
+            numDatabaseFilesUploaded = g_ScenarioDefinition.uploadedDatabaseFiles.length;
             $("#user-models").val() = g_ScenarioDefinition.modelPathname;
             g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
             $("#user-scenario-folder-pathname").val() = g_ScenarioDefinition.scenarioFolderPathname;
@@ -1405,6 +1404,9 @@
     function loadScenarioDefinition(event) {
         var files = $("#" + event.target.id)[0].files;
         clearTableData();
+        inputFileTableRows = 0;
+        databaseInputsTableRows = 0;
+        numDatabaseFilesUploaded = 0;
         loadedScenarioModelpathname = '';   //  force a query to the server to get the loaded model's data
         if (files) {
             [].forEach.call(files, readAndPreviewScenarioDefinitionFile);
@@ -1555,6 +1557,7 @@
         $("#file-inputs-table tr:last").remove();
     }
     function isSelectedScenarioModelLoaded() {
+        alert('loadedScenarioModelpathname=' + loadedScenarioModelpathname);
         if (loadedScenarioModelpathname !== getModelPathname()) {
             return false;
         } else {
@@ -1608,7 +1611,7 @@
                             createDatabaseInputsTableRow();
                             rowIndex++;
                             if (rowIndex < numRows) {
-                                resolve(addNewDatabaseInputsTableRow(rowIndex, numRows));
+                                resolve(addNewDatabaseInputsTableRow(rowIndex, numRows, false));
                             }
                             resolve(true);
                         })
