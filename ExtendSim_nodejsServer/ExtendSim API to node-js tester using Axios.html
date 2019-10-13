@@ -2410,7 +2410,7 @@
                 .then(function(response) {
                     rowIndex++;
                     if (rowIndex < g_ScenarioDefinition.uploadedDatabaseFiles.length) {
-                        resolve(uploadDataStreamsToModel(rowIndex));
+                        resolve(uploadDataStreamsToModel_new(rowIndex));
                     } else {
                         // All data streams have been sent to the user's models on the server
                         $("#database-inputs-uploaded-status").prop('checked', true);
@@ -2482,7 +2482,7 @@
                 .then(function(response) {
                     fileIndex++;
                     if (fileIndex < g_ScenarioDefinition.uploadedFiles.length) {
-                        resolve(uploadDataFilesToServer(fileIndex));
+                        resolve(uploadDataFilesToServer_new(fileIndex));
                     } else {
                         $("#files-uploaded-status").prop('checked', true);
                         resolve(true);
@@ -2555,7 +2555,7 @@
                     // uploadDataFilesToServer(0)
                     uploadDataFilesToServer_new(0)
                     .then(function(uploadDataFilesToServerResponse) {
-                        uploadDialogVariableDataToModel(0)
+                        uploadDialogVariableDataToModel_new(0)
                         .then(function(uploadDialogVariableDataToModelResponse) {
                                 // // Trigger the submission of the scenario
                             var modelName =  $("#user-models").val();
