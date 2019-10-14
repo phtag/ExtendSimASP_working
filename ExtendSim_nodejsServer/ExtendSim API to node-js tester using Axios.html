@@ -1374,7 +1374,7 @@
                 inputLabel = '#input-label-' + (i + 1);
                 updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedFiles[i].name, 20);
             }
-            addNewDatabaseInputsTableRow()
+            addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, false)
             .then(function(response) {
                 alert('Post addNewDatabaseInputsTableRow call');
             })
@@ -1568,7 +1568,6 @@
             if (rowIndex < numRows) {
                 resolve(addNewInputFilesTableRow(rowIndex, numRows));
             } else {
-                alert('Resolving addNewInputFilesTableRow');
                 resolve(true);
             }
         });
@@ -1618,8 +1617,32 @@
             $(targetTable).val(modelDatabases[0].tableNames[0]);
         }
     }
-    function addNewDatabaseInputsTableRow() {
+    function addNewDatabaseInputsTableRow(rowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
+            // if (!isSelectedScenarioModelLoaded()) {
+            //     var createScenariorFolderFlag = !doesScenarioFolderExist();
+            //     createScenarioFolder(createScenariorFolderFlag, false)
+            //     .then(function(createScenarioFolderResponse) {
+            //         // Copy user selected server model into scenario folder
+            //         copyModelToScenarioFolder(createScenariorFolderFlag)
+            //         .then(function(copyModelToScenarioFolderResponse) {
+            //             var modelPathname = getModelPathname();
+            //             updateModelInfo(modelPathname, clearTableDataFlag)
+            //             .then(function(response) {
+            //                 resolve(true);
+            //             })
+            //             .catch(function(error) {
+            //                 reject(error);
+            //             })
+            //         })
+            //         .catch(function(error) {
+            //             reject(error);
+            //         })
+            //     })
+            //     .catch(function(error) {
+            //         reject(error);
+            //     })
+            // } else {
             if (!isSelectedScenarioModelLoaded()) {
                 var createScenariorFolderFlag = !doesScenarioFolderExist();
                 createScenarioFolder(createScenariorFolderFlag, false)
@@ -1628,16 +1651,13 @@
                     copyModelToScenarioFolder(createScenariorFolderFlag)
                     .then(function(copyModelToScenarioFolderResponse) {
                         var modelPathname = getModelPathname();
-                        updateModelInfo(modelPathname, clearTableDataFlag)
+                        updateModelInfo(modelPathname, clearTableDataFlag) 
                         .then(function(response) {
                             resolve(true);
                         })
-                        .catch(function(error) {
-                            reject(error);
-                        })
                     })
                     .catch(function(error) {
-                        reject(error);
+                        resolve(true);
                     })
                 })
                 .catch(function(error) {
@@ -1645,7 +1665,8 @@
                 })
             } else {
                 resolve(true);
-            }         
+            }
+            // }         
         });
     }
 
