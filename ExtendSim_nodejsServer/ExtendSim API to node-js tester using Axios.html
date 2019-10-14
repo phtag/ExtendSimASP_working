@@ -1368,40 +1368,49 @@
         $('#scenario-name').val(g_ScenarioDefinition.scenarioName);
         updateButtonsState();
         // populate the factors input files table
-        alert('g_ScenarioDefinition.uploadedFiles.length=' + g_ScenarioDefinition.uploadedFiles.length);
         addNewInputFilesTableRow(0, g_ScenarioDefinition.uploadedFiles.length)
-        .then(function() {
+        .then(function(response) {
             for (var i=0;i<g_ScenarioDefinition.uploadedFiles.length;i++) {
-                inputLabel = '#input-label-' + i;
-                alert(inputLabel + ' file name=' + g_ScenarioDefinition.uploadedFiles[i].name);
+                inputLabel = '#input-label-' + (i + 1);
                 updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedFiles[i].name, 20);
             }
-        });
-
-        alert('g_ScenarioDefinition.uploadedDatabaseFiles.length=' + g_ScenarioDefinition.uploadedDatabaseFiles.length);
-
-        // populate the factors database input files table
-        addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, true)
-        .then(function(response) {
-            var targetDatabase;
-            var targetTable;
-            for (i=0;i<g_ScenarioDefinition.uploadedDatabaseFiles.length;i++) {
-                inputLabel = '#database-input-label-' + (i + 1);
-                updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[i].name, 20);
-                targetDatabase = '#target-database-' + (i + 1);
-                $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[i]);
-                targetTable = '#target-table-' + (i + 1);
-                $(targetTable).val(g_ScenarioDefinition.factorTablenames[i]);
-            }
-            // populate data structures with loaded scenario data
-            uploadedFiles = g_ScenarioDefinition.uploadedFiles;
-            uploadedDatabaseFiles = g_ScenarioDefinition.uploadedDatabaseFiles;
-            numDatabaseFilesUploaded = g_ScenarioDefinition.uploadedDatabaseFiles.length;
-            $("#user-models").val() = g_ScenarioDefinition.modelPathname;
-            g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
-            $("#user-scenario-folder-pathname").val() = g_ScenarioDefinition.scenarioFolderPathname;
-            $('#scenario-name').val() = g_ScenarioDefinition.scenarioName;
-        });
+            addNewDatabaseInputsTableRow()
+            .then(function(response) {
+                alert('Post addNewDatabaseInputsTableRow call');
+            })
+            .catch(function(error) {
+                alert('BIG FAT ERROR 2');              
+            })
+            // populate the factors database input files table
+            // addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, false)
+            // .then(function(response) {
+            //     alert('post addNewDatabaseInputsTableRow resolve...');
+            //     var targetDatabase;
+            //     var targetTable;
+            //     for (var j=0;j<g_ScenarioDefinition.uploadedDatabaseFiles.length;j++) {
+            //         inputLabel = '#database-input-label-' + (jQuery + 1);
+            //         updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[j].name, 20);
+            //         targetDatabase = '#target-database-' + (i + 1);
+            //         $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[j]);
+            //         targetTable = '#target-table-' + (j + 1);
+            //         $(targetTable).val(g_ScenarioDefinition.factorTablenames[j]);
+            //     }
+            //     // populate data structures with loaded scenario data
+            //     uploadedFiles = g_ScenarioDefinition.uploadedFiles;
+            //     uploadedDatabaseFiles = g_ScenarioDefinition.uploadedDatabaseFiles;
+            //     numDatabaseFilesUploaded = g_ScenarioDefinition.uploadedDatabaseFiles.length;
+            //     $("#user-models").val() = g_ScenarioDefinition.modelPathname;
+            //     g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
+            //     $("#user-scenario-folder-pathname").val() = g_ScenarioDefinition.scenarioFolderPathname;
+            //     $('#scenario-name').val() = g_ScenarioDefinition.scenarioName;
+            // })
+            // .catch(function(error) {
+            //     alert('BIG FAT ERROR 2');              
+            // })
+        })
+        .catch(function(error) {
+            alert('BIG FAT ERROR 1');
+        })
     }
     function populateScenarioResponsesSettings() {
 
@@ -1557,8 +1566,9 @@
             table.append(newrow);
             rowIndex++;
             if (rowIndex < numRows) {
-                addNewInputFilesTableRow(rowIndex, numRows);
+                resolve(addNewInputFilesTableRow(rowIndex, numRows));
             } else {
+                alert('Resolving addNewInputFilesTableRow');
                 resolve(true);
             }
         });
@@ -1608,7 +1618,38 @@
             $(targetTable).val(modelDatabases[0].tableNames[0]);
         }
     }
-    function addNewDatabaseInputsTableRow(rowIndex, numRows, clearTableDataFlag) {
+    function addNewDatabaseInputsTableRow() {
+        return new Promise((resolve, reject) => {
+            if (!isSelectedScenarioModelLoaded()) {
+                var createScenariorFolderFlag = !doesScenarioFolderExist();
+                createScenarioFolder(createScenariorFolderFlag, false)
+                .then(function(createScenarioFolderResponse) {
+                    // Copy user selected server model into scenario folder
+                    copyModelToScenarioFolder(createScenariorFolderFlag)
+                    .then(function(copyModelToScenarioFolderResponse) {
+                        var modelPathname = getModelPathname();
+                        updateModelInfo(modelPathname, clearTableDataFlag)
+                        .then(function(response) {
+                            resolve(true);
+                        })
+                        .catch(function(error) {
+                            reject(error);
+                        })
+                    })
+                    .catch(function(error) {
+                        reject(error);
+                    })
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
+            } else {
+                resolve(true);
+            }         
+        });
+    }
+
+    function addNewDatabaseInputsTableRow_OLD(rowIndex, numRows, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
                 var createScenariorFolderFlag = !doesScenarioFolderExist();
@@ -1624,8 +1665,10 @@
                             rowIndex++;
                             if (rowIndex < numRows) {
                                 resolve(addNewDatabaseInputsTableRow(rowIndex, numRows, false));
+                            } else {
+                                alert('Resolving addNewDatabaseInputsTableRow after adding ' + numRows + ' rows');
+                                resolve(true);
                             }
-                            resolve(true);
                         })
                         .catch(function(error) {
                             reject(error);
@@ -1640,7 +1683,13 @@
                 })
             } else {
                 createDatabaseInputsTableRow();
-                resolve(true);
+                rowIndex++;
+                if (rowIndex < numRows) {
+                    resolve(addNewDatabaseInputsTableRow(rowIndex, numRows, false));
+                } else {
+                    alert('Resolving addNewDatabaseInputsTableRow after adding ' + numRows + ' rows');
+                    resolve(true);
+                }
             }
         });
     }
@@ -2149,6 +2198,7 @@
     }
     function clearTableData() {
         // $("#file-inputs-table").empty();
+        alert('Clearing table data');
         $("#file-inputs-table").find("tr:not(:first)").remove();
         $("#database-inputs-table").find("tr:not(:first)").remove();
         $("#dialog-inputs-table").find("tr:not(:first)").remove();
