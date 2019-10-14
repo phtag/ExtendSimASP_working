@@ -1368,12 +1368,17 @@
         $('#scenario-name').val(g_ScenarioDefinition.scenarioName);
         updateButtonsState();
         // populate the factors input files table
-        
-        for (var i=0;i<g_ScenarioDefinition.uploadedFiles.length;i++) {
-            addNewInputFilesTableRow();
-            inputLabel = '#input-label-' + inputFileTableRows;
-            updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedFiles[i].name, 20);
-        }
+        alert('g_ScenarioDefinition.uploadedFiles.length=' + g_ScenarioDefinition.uploadedFiles.length);
+        addNewInputFilesTableRow(0, g_ScenarioDefinition.uploadedFiles.length)
+        .then(function() {
+            for (var i=0;i<g_ScenarioDefinition.uploadedFiles.length;i++) {
+                inputLabel = '#input-label-' + i;
+                alert(inputLabel + ' file name=' + g_ScenarioDefinition.uploadedFiles[i].name);
+                updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedFiles[i].name, 20);
+            }
+        });
+
+        alert('g_ScenarioDefinition.uploadedDatabaseFiles.length=' + g_ScenarioDefinition.uploadedDatabaseFiles.length);
 
         // populate the factors database input files table
         addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, true)
@@ -1540,15 +1545,23 @@
         }
     }
 
-    function addNewInputFilesTableRow() {
-        var table = $("#file-inputs-table");
-        inputFileTableRows++;
+    function addNewInputFilesTableRow(rowIndex, numRows) {
+        return new Promise((resolve, reject) => {
+            var table = $("#file-inputs-table");
+            inputFileTableRows++;
 
-        var myID = 'input-button-' + inputFileTableRows;
-        var myLabelID = 'input-label-' + inputFileTableRows;
-        var $myID = "'#" + myID + "'";
-        var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td></tr>';
-        table.append(newrow);
+            var myID = 'input-button-' + inputFileTableRows;
+            var myLabelID = 'input-label-' + inputFileTableRows;
+            var $myID = "'#" + myID + "'";
+            var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td></tr>';
+            table.append(newrow);
+            rowIndex++;
+            if (rowIndex < numRows) {
+                addNewInputFilesTableRow(rowIndex, numRows);
+            } else {
+                resolve(true);
+            }
+        });
     }
     function deleteInputFilesTableRow(event) {
         if (inputFileTableRows > 0) {
@@ -1557,7 +1570,6 @@
         $("#file-inputs-table tr:last").remove();
     }
     function isSelectedScenarioModelLoaded() {
-        alert('loadedScenarioModelpathname=' + loadedScenarioModelpathname);
         if (loadedScenarioModelpathname !== getModelPathname()) {
             return false;
         } else {
@@ -1596,7 +1608,7 @@
             $(targetTable).val(modelDatabases[0].tableNames[0]);
         }
     }
-    function addNewDatabaseInputsTableRow(rowIndex, numRows, clearTableData) {
+    function addNewDatabaseInputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
                 var createScenariorFolderFlag = !doesScenarioFolderExist();
@@ -1606,7 +1618,7 @@
                     copyModelToScenarioFolder(createScenariorFolderFlag)
                     .then(function(copyModelToScenarioFolderResponse) {
                         var modelPathname = getModelPathname();
-                        updateModelInfo(modelPathname, clearTableData)
+                        updateModelInfo(modelPathname, clearTableDataFlag)
                         .then(function(response) {
                             createDatabaseInputsTableRow();
                             rowIndex++;
@@ -1657,7 +1669,7 @@
             updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
         }
     }
-    function addNewDialogInputsTableRow(rowIndex, numRows, clearTableData) {
+    function addNewDialogInputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         if (!isSelectedScenarioModelLoaded()) {
             var createScenariorFolderFlag = !doesScenarioFolderExist();
             createScenarioFolder(createScenariorFolderFlag, false)
@@ -1666,7 +1678,7 @@
                 copyModelToScenarioFolder(createScenariorFolderFlag)
                 .then(function(copyModelToScenarioFolderResponse) {
                     var modelPathname = getModelPathname();
-                    updateModelInfo(modelPathname, clearTableData)
+                    updateModelInfo(modelPathname, clearTableDataFlag)
                     .then(function(response) {
                         createDialogInputsTableRow();
                     })
@@ -1702,7 +1714,7 @@
         }
     }
 
-    function addNewDialogOutputsTableRow(rowIndex, numRows, clearTableData) {
+    function addNewDialogOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         if (!isSelectedScenarioModelLoaded()) {
             var createScenariorFolderFlag = !doesScenarioFolderExist();
             createScenarioFolder(createScenariorFolderFlag, false)
@@ -1711,7 +1723,7 @@
                 copyModelToScenarioFolder(createScenariorFolderFlag)
                 .then(function(copyModelToScenarioFolderResponse) {
                     var modelPathname = getModelPathname();
-                    updateModelInfo(modelPathname, clearTableData)
+                    updateModelInfo(modelPathname, clearTableDataFlag)
                     .then(function(response) {
                         createDialogOutputsTableRow();
                     })
@@ -1750,7 +1762,7 @@
             $(sourceTable).val(modelDatabases[0].tableNames[0]);
         }
     }
-    function addNewDatabaseOutputsTableRow(rowIndex, numRows, clearTableData) {
+    function addNewDatabaseOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         if (!isSelectedScenarioModelLoaded()) {
             var createScenariorFolderFlag = !doesScenarioFolderExist();
             createScenarioFolder(createScenariorFolderFlag, false)
@@ -1759,7 +1771,7 @@
                 copyModelToScenarioFolder(createScenariorFolderFlag)
                 .then(function(copyModelToScenarioFolderResponse) {
                     var modelPathname = getModelPathname();
-                    updateModelInfo(modelPathname, clearTableData)
+                    updateModelInfo(modelPathname, clearTableDataFlag)
                     .then(function(response) {
                         createDatabaseOutputsTableRow();
                     })
@@ -2145,10 +2157,10 @@
         $("#dialog-outputs-table").find("tr:not(:first)").remove(); 
     }
 
-    function updateModelInfo(modelPathname, clearTableData) {
+    function updateModelInfo(modelPathname, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             updateLoadingDivVisibility(true);
-            if (clearTableData) {
+            if (clearTableDataFlag) {
                 clearTableData();
             }
             getmodeldatabases(modelPathname, getModelInfo)
