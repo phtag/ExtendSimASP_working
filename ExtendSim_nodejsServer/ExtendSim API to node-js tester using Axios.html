@@ -1376,6 +1376,17 @@
             }
             addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, false)
             .then(function(response) {
+                var targetDatabase;
+                var targetTable;
+                for (var j=0;j<g_ScenarioDefinition.uploadedDatabaseFiles.length;j++) {
+                    inputLabel = '#database-input-label-' + (j + 1);
+                    updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[j].name, 20);
+                    targetDatabase = '#target-database-' + (j + 1);
+                    $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[j]);
+                    targetTable = '#target-table-' + (j + 1);
+                    $(targetTable).val(g_ScenarioDefinition.factorTablenames[j]);
+                }
+
                 alert('Post addNewDatabaseInputsTableRow call');
             })
             .catch(function(error) {
@@ -1625,32 +1636,8 @@
             }
         });
     }
-    function addNewDatabaseInputsTableRow(rowIndex, numRows , clearTableDataFlag) {
+    function addNewDatabaseInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
-            // if (!isSelectedScenarioModelLoaded()) {
-            //     var createScenariorFolderFlag = !doesScenarioFolderExist();
-            //     createScenarioFolder(createScenariorFolderFlag, false)
-            //     .then(function(createScenarioFolderResponse) {
-            //         // Copy user selected server model into scenario folder
-            //         copyModelToScenarioFolder(createScenariorFolderFlag)
-            //         .then(function(copyModelToScenarioFolderResponse) {
-            //             var modelPathname = getModelPathname();
-            //             updateModelInfo(modelPathname, clearTableDataFlag)
-            //             .then(function(response) {
-            //                 resolve(true);
-            //             })
-            //             .catch(function(error) {
-            //                 reject(error);
-            //             })
-            //         })
-            //         .catch(function(error) {
-            //             reject(error);
-            //         })
-            //     })
-            //     .catch(function(error) {
-            //         reject(error);
-            //     })
-            // } else {
             if (!isSelectedScenarioModelLoaded()) {
                 var createScenariorFolderFlag = !doesScenarioFolderExist();
                 createScenarioFolder(createScenariorFolderFlag, false)
@@ -1661,7 +1648,7 @@
                         var modelPathname = getModelPathname();
                         updateModelInfo(modelPathname, clearTableDataFlag) 
                         .then(function(response) {
-                            createDatabaseInputsTableRow(0, numRows)
+                            createDatabaseInputsTableRow(startRowIndex, numRows)
                             .then(function(response) {
                                 resolve(true);
                             })
