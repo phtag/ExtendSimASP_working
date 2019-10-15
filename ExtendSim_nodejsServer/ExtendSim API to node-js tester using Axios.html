@@ -1137,7 +1137,11 @@
             }
         });
     }
-    function saveScenarioDefinition() {
+    function transferScenarioDefinitionToUserSessionsData() {
+        uploadedFiles = g_ScenarioDefinition.uploadedFiles;
+        uploadedDatabaseFiles = g_ScenarioDefinition.uploadedDatabaseFiles;
+    }
+    function transferUserSessionDataToScenarioDefinition() {
         g_ScenarioDefinition.uploadedFiles = uploadedFiles;
         g_ScenarioDefinition.uploadedDatabaseFiles = uploadedDatabaseFiles;
         g_ScenarioDefinition.modelPathname = $("#user-models").val();
@@ -1160,7 +1164,32 @@
             g_ScenarioDefinition.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
             g_ScenarioDefinition.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
         }
+    }
+    function saveScenarioDefinition() {
+        // g_ScenarioDefinition.uploadedFiles = uploadedFiles;
+        // g_ScenarioDefinition.uploadedDatabaseFiles = uploadedDatabaseFiles;
+        // g_ScenarioDefinition.modelPathname = $("#user-models").val();
+        // g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
+        // g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
+        // g_ScenarioDefinition.scenarioName = $('#scenario-name').val();
+        // g_ScenarioDefinition.factorDatabasenames = [];
+        // g_ScenarioDefinition.factorTablenames = [];
+        // for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
+        //     g_ScenarioDefinition.factorDatabasenames.push($('#target-database-' + (rowIndex + 1)).val());
+        //     g_ScenarioDefinition.factorTablenames.push($('#target-table-' + (rowIndex + 1)).val());
+        // }
 
+        // g_ScenarioDefinition.variablenames = [];
+        // g_ScenarioDefinition.variableValues = [];
+        // g_ScenarioDefinition.blockNumbers = [];
+
+        // for (rowIndex=0;rowIndex<dialogInputsTableRows;rowIndex++) {
+        //     g_ScenarioDefinition.variablenames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
+        //     g_ScenarioDefinition.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
+        //     g_ScenarioDefinition.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
+        // }
+
+        transferUserSessionDataToScenarioDefinition();
         var blob = new Blob([JSON.stringify(g_ScenarioDefinition)],
                 { type: "text/plain;charset=utf-8" });
         saveAs(blob, "scenarioData.txt");
@@ -1386,41 +1415,14 @@
                     targetTable = '#target-table-' + (j + 1);
                     $(targetTable).val(g_ScenarioDefinition.factorTablenames[j]);
                 }
-
-                alert('Post addNewDatabaseInputsTableRow call');
+                transferScenarioDefinitionToUserSessionsData();
             })
             .catch(function(error) {
-                alert('BIG FAT ERROR 2');              
+                alert('Error returned from addNewDatabaseInputsTableRow');              
             })
-            // populate the factors database input files table
-            // addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, false)
-            // .then(function(response) {
-            //     alert('post addNewDatabaseInputsTableRow resolve...');
-            //     var targetDatabase;
-            //     var targetTable;
-            //     for (var j=0;j<g_ScenarioDefinition.uploadedDatabaseFiles.length;j++) {
-            //         inputLabel = '#database-input-label-' + (jQuery + 1);
-            //         updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[j].name, 20);
-            //         targetDatabase = '#target-database-' + (i + 1);
-            //         $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[j]);
-            //         targetTable = '#target-table-' + (j + 1);
-            //         $(targetTable).val(g_ScenarioDefinition.factorTablenames[j]);
-            //     }
-            //     // populate data structures with loaded scenario data
-            //     uploadedFiles = g_ScenarioDefinition.uploadedFiles;
-            //     uploadedDatabaseFiles = g_ScenarioDefinition.uploadedDatabaseFiles;
-            //     numDatabaseFilesUploaded = g_ScenarioDefinition.uploadedDatabaseFiles.length;
-            //     $("#user-models").val() = g_ScenarioDefinition.modelPathname;
-            //     g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
-            //     $("#user-scenario-folder-pathname").val() = g_ScenarioDefinition.scenarioFolderPathname;
-            //     $('#scenario-name').val() = g_ScenarioDefinition.scenarioName;
-            // })
-            // .catch(function(error) {
-            //     alert('BIG FAT ERROR 2');              
-            // })
         })
         .catch(function(error) {
-            alert('BIG FAT ERROR 1');
+            alert('Error returned from addNewInputFilesTableRow');
         })
     }
     function populateScenarioResponsesSettings() {
@@ -1688,7 +1690,6 @@
                             if (rowIndex < numRows) {
                                 resolve(addNewDatabaseInputsTableRow(rowIndex, numRows, false));
                             } else {
-                                alert('Resolving addNewDatabaseInputsTableRow after adding ' + numRows + ' rows');
                                 resolve(true);
                             }
                         })
@@ -1709,7 +1710,6 @@
                 if (rowIndex < numRows) {
                     resolve(addNewDatabaseInputsTableRow(rowIndex, numRows, false));
                 } else {
-                    alert('Resolving addNewDatabaseInputsTableRow after adding ' + numRows + ' rows');
                     resolve(true);
                 }
             }
@@ -2220,7 +2220,6 @@
     }
     function clearTableData() {
         // $("#file-inputs-table").empty();
-        alert('Clearing table data');
         $("#file-inputs-table").find("tr:not(:first)").remove();
         $("#database-inputs-table").find("tr:not(:first)").remove();
         $("#dialog-inputs-table").find("tr:not(:first)").remove();
