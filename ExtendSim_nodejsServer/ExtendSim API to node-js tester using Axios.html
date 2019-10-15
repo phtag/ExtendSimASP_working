@@ -1548,6 +1548,16 @@
                 $("#scenario-factors").show();
                 $('#scenario-responses').show();
                 $('#' + DOMelementIDname).width('70%');
+            } else if (DOMelementIDname === "scenarios") {
+                $('#' + DOMelementIDname).width('70%');
+            } else if (DOMelementIDname === "scenario-database-inputs") {
+                $('#scenario-definition').width('70%');
+            } else if (DOMelementIDname === "scenario-dialog-inputs") {
+                $('#scenario-factors').width('70%');
+            } else if (DOMelementIDname === "scenario-database-outputs") {
+                $('#scenario-definition').width('70%');
+            } else if (DOMelementIDname === "scenario-dialog-outputs") {
+                $('#scenario-definition').width('70%');
             }
         } else {
             $('#' + DOMelementIDname + '-body').hide();
@@ -1558,10 +1568,10 @@
             } if ($('#scenario-definition-checkbox'). prop("checked") == true) {
                 if (DOMelementIDname === "scenario-factors") {
                     if ($('#scenario-responses-checkbox'). prop("checked") == false)
-                        $('#scenario-definition').width('50%');
+                        $('#scenario-definition').width('70%');
                 } else if (DOMelementIDname === "scenario-responses") {
                     if ($('#scenario-factors-checkbox'). prop("checked") == false)
-                        $('#scenario-definition').width('50%');
+                        $('#scenario-definition').width('70%');
                 }
             }
         }
@@ -1607,7 +1617,7 @@
     function createDatabaseInputsTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
             var table = $("#database-inputs-table");
-            $('#scenario-definition').width('auto');
+            // $('#scenario-definition').width('auto');
             databaseInputsTableRows++;
 
             var myID = 'database-input-button-' + databaseInputsTableRows;
@@ -1814,7 +1824,7 @@
     function createDatabaseOutputsTableRow() {
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
-        $('#scenario-definition').width('auto');
+        // $('#scenario-definition').width('auto');
         var newrow = 
         '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
         table.append(newrow);
