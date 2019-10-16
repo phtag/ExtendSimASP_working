@@ -1235,7 +1235,6 @@
                 $('.scenario-file-input-buttons').prop('disabled', false);
                 $('.scenario-database-input-buttons').prop('disabled', false);
                 $('.scenario-dialog-input-buttons').prop('disabled', false);
-                // $('.scenario-buttons').prop('disabled', false); 
                 $('#save-scenario-definition').prop('disabled', false);
                 $('#scenario-factors-checkbox').prop('disabled', false);
                 $('#scenario-responses-checkbox').prop('disabled', false);
@@ -1537,6 +1536,17 @@
         const scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
         const userModelPathname = $("#user-models").val();
     }
+    function areScenarioDefinitionChildredChecked() {
+        if ($('#scenario-factors-checkbox'). prop("checked") == true) {
+            return true;
+        } else if ($('#scenario-responses-checkbox'). prop("checked") == true) {
+            return true;
+        } else if ($('#scenario-setup-checkbox'). prop("checked") == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     function updateDOMelementVisibility(DOMelementIDname) {
         if ($('#' + DOMelementIDname + '-checkbox'). prop("checked") == true) {
             $('#' + DOMelementIDname + '-body').show();
@@ -1547,7 +1557,11 @@
             } else if (DOMelementIDname === "scenario-definition") {
                 $("#scenario-factors").show();
                 $('#scenario-responses').show();
-                $('#' + DOMelementIDname).width('70%');
+                if (areScenarioDefinitionChildredChecked()) {
+                    $('#' + DOMelementIDname).width('70%');
+                } else {
+                    $('#' + DOMelementIDname).width('50%');
+                }
             } else if (DOMelementIDname === "scenarios") {
                 $('#' + DOMelementIDname).width('70%');
             } else if (DOMelementIDname === "scenario-database-inputs") {
@@ -1600,6 +1614,7 @@
             inputFileTableRows--;
         }
         $("#file-inputs-table tr:last").remove();
+        uploadedFiles.pop();
     }
     function isSelectedScenarioModelLoaded() {
         if (loadedScenarioModelpathname !== getModelPathname()) {
@@ -1651,6 +1666,7 @@
     function addNewDatabaseInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
+                alert('addNewDatabaseInputsTableRow: not loaded');
                 var createScenariorFolderFlag = !doesScenarioFolderExist();
                 createScenarioFolder(createScenariorFolderFlag, false)
                 .then(function(createScenarioFolderResponse) {
@@ -1677,6 +1693,8 @@
                     reject(error);
                 })
             } else {
+                alert('addNewDatabaseInputsTableRow: already loaded');
+
                 resolve(true);
             }
             // }         
@@ -1731,6 +1749,7 @@
             databaseInputsTableRows--;
         }
         $("#database-inputs-table tr:last").remove();  
+        uploadedDatabaseFiles.pop();
     }
     
     function createDialogInputsTableRow() {
@@ -3060,6 +3079,21 @@
         $("#user-scenario-folder-pathname").val(folder);
                 
     });
+    $('input[type=checkbox]').change(function () {
+    if ($(this).prop("checked")) {
+        //do the stuff that you would do when 'checked'
+        thisId = $(this).attr('id');
+        if (thisId === 'scenario-definition') {
+
+        } else if (thisId === 'scenario-setup') {
+        } else if (thisId === 'scenario-setup') {
+        } else if (thisId === 'scenario-factors') {
+        } else if (thisId === 'scenario-responses') {
+        }
+        return;
+    }
+    //Here do the stuff you want to do when 'unchecked'
+});
 </script>
 </body>
 
