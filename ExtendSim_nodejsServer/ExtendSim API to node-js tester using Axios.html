@@ -607,7 +607,7 @@
                                 <input type="checkbox" id="scenario-database-inputs-checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'>Database Tables</input>    
                             </div>
                             <div id="scenario-database-inputs-body">
-                                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow()'>Add row</button>
+                                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow(0, 1, false)'>Add row</button>
                                 <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
                                 <table class="scenario-tables" id="database-inputs-table">
                                     <tr>
@@ -632,7 +632,7 @@
                                 <input type="checkbox" id="scenario-dialog-inputs-checkbox" onclick='updateDOMelementVisibility("scenario-dialog-inputs")'>Dialog Variables</input>    
                             </div>
                             <div id="scenario-dialog-inputs-body">
-                                <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow()'>Add row</button>
+                                <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow(0, 1, false)'>Add row</button>
                                 <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
                                 <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
                                 <table class="scenario-tables" id="dialog-inputs-table" style="width:auto">
@@ -804,7 +804,7 @@
         </div>    
     </div>
 </div> 
-    <script type="text/javascript">
+<script type="text/javascript">
     var modelBlocks = [];
     var blockNumbers = [];
     var dialogVariableTypes = [];
@@ -845,10 +845,191 @@
         modelPathname: "",
         factorDatabasenames: [],
         factorTablenames: [],
-        variablenames: [],
+        blockTypes: [],
+        variableTypes: [],
+        variableNames: [],
         variableValues: [],
         blockNumbers: []
     }
+    var g_containers = [
+    {
+            name: 'scenario-user-login',
+            width: {
+                checked: 'auto',
+                unchecked: '50%'
+            },
+            parent: {
+                name: '',
+                width: {
+                    checked: '',
+                    unchecked: ''
+                }
+            }
+        },
+        {
+            name: 'scenario-definition',
+            width: {
+                checked: 'auto',
+                unchecked: '50%'
+            },
+            parent: {
+                name: '',
+                width: {
+                    checked: '',
+                    unchecked: ''
+                }
+            }
+        },
+        {
+            name: 'scenarios',
+            width: {
+                checked: 'auto',
+                unchecked: '50%'
+            },
+            parent: {
+                name: '',
+                width: {
+                    checked: '',
+                    unchecked: ''
+                }
+            }
+        },
+        {
+            name: 'scenario-setup',
+            width: {
+                checked: '50%',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: '',
+                width: {
+                    checked: '',
+                    unchecked: ''
+                }
+            }
+        },
+        {
+            name: 'scenario-factors',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: 'scenario-definition',
+                width: {
+                    checked: 'auto',
+                    unchecked: '50%'
+                }
+            }
+        },
+        {
+            name: 'scenario-responses',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: '',
+                width: {
+                    checked: '',
+                    unchecked: ''
+                }
+            }
+        },
+        {
+            name: 'scenario-file-inputs',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: 'scenario-factors',
+                width: {
+                    checked: 'auto',
+                    unchecked: '60%'
+                }
+            }
+        },
+        {
+            name: 'scenario-database-inputs',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: 'scenario-factors',
+                width: {
+                    checked: 'auto',
+                    unchecked: '60%'
+                }
+            }
+        },
+        {
+            name: 'scenario-dialog-inputs',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: 'scenario-factors',
+                width: {
+                    checked: 'auto',
+                    unchecked: '60%'
+                }
+            }
+        },    
+        {
+            name: 'scenario-file-outputs',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: 'scenario-responses',
+                width: {
+                    checked: 'auto',
+                    unchecked: '60%'
+                }
+            }
+        },
+        {
+            name: 'scenario-database-outputs',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: 'scenario-responses',
+                width: {
+                    checked: 'auto',
+                    unchecked: '60%'
+                }
+            }
+        },
+        {
+            name: 'scenario-dialog-outputs',
+            width: {
+                checked: 'auto',
+                unchecked: '50%',
+                minimum: 300
+            },
+            parent: {
+                name: 'scenario-responses',
+                width: {
+                    checked: 'auto',
+                    unchecked: '60%'
+                }
+            }
+        }   
+    ];
     var g_myModalChart;
     var IPaddress = "";
     // var IPaddress = "http://184.171.246.58";
@@ -1155,44 +1336,25 @@
             g_ScenarioDefinition.factorTablenames.push($('#target-table-' + (rowIndex + 1)).val());
         }
 
-        g_ScenarioDefinition.variablenames = [];
+        g_ScenarioDefinition.blockTypes = [];
+        g_ScenarioDefinition.variableTypes = [];
+        g_ScenarioDefinition.variableNames = [];
         g_ScenarioDefinition.variableValues = [];
         g_ScenarioDefinition.blockNumbers = [];
 
         for (rowIndex=0;rowIndex<dialogInputsTableRows;rowIndex++) {
-            g_ScenarioDefinition.variablenames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.blockTypes.push($('#target-block-type-select-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.variableTypes.push($('#target-variable-type-select-' + (rowIndex + 1)).val());            
+            g_ScenarioDefinition.variableNames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
             g_ScenarioDefinition.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
             g_ScenarioDefinition.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
         }
     }
     function saveScenarioDefinition() {
-        // g_ScenarioDefinition.uploadedFiles = uploadedFiles;
-        // g_ScenarioDefinition.uploadedDatabaseFiles = uploadedDatabaseFiles;
-        // g_ScenarioDefinition.modelPathname = $("#user-models").val();
-        // g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
-        // g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
-        // g_ScenarioDefinition.scenarioName = $('#scenario-name').val();
-        // g_ScenarioDefinition.factorDatabasenames = [];
-        // g_ScenarioDefinition.factorTablenames = [];
-        // for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
-        //     g_ScenarioDefinition.factorDatabasenames.push($('#target-database-' + (rowIndex + 1)).val());
-        //     g_ScenarioDefinition.factorTablenames.push($('#target-table-' + (rowIndex + 1)).val());
-        // }
-
-        // g_ScenarioDefinition.variablenames = [];
-        // g_ScenarioDefinition.variableValues = [];
-        // g_ScenarioDefinition.blockNumbers = [];
-
-        // for (rowIndex=0;rowIndex<dialogInputsTableRows;rowIndex++) {
-        //     g_ScenarioDefinition.variablenames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
-        //     g_ScenarioDefinition.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
-        //     g_ScenarioDefinition.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
-        // }
-
         transferUserSessionDataToScenarioDefinition();
         var blob = new Blob([JSON.stringify(g_ScenarioDefinition)],
                 { type: "text/plain;charset=utf-8" });
-        saveAs(blob, "scenarioData.txt");
+        saveAs(blob, $('#scenario-name').val() + '_scenarioData.txt');
         $('#scenarios-checkbox').prop('disabled', false);
         $('#submit-scenarios-button').prop('disabled', false); 
     }
@@ -1414,7 +1576,30 @@
                     targetTable = '#target-table-' + (j + 1);
                     $(targetTable).val(g_ScenarioDefinition.factorTablenames[j]);
                 }
-                transferScenarioDefinitionToUserSessionsData();
+                addNewDialogInputsTableRow(0, g_ScenarioDefinition.variableNames.length, false)
+                .then(function(response) {
+                    var selectValue;
+                    for (var k=0;k<g_ScenarioDefinition.variableNames.length;k++) {
+                        selectValue = '#target-block-type-select-' + (k + 1);
+                        $(selectValue) = g_ScenarioDefinition.blockTypes[k];
+                        
+                        selectValue = '#target-variable-type-select-' + (k + 1);
+                        $(selectValue) = g_ScenarioDefinition.variableTypes[k];
+
+                        selectValue = '#target-variable-name-select-' + (k + 1);
+                        $(selectValue) = g_ScenarioDefinition.variableNames[k];
+
+                        selectValue = '#target-variable-value-select-' + (k + 1);
+                        $(selectValue) = g_ScenarioDefinition.variableValues[k];
+
+                        selectValue = '#target-block-number-select-' + (k + 1);
+                        $(selectValue) = g_ScenarioDefinition.blockNumbers[k];
+                    }
+                    transferScenarioDefinitionToUserSessionsData();
+                })
+                .catch(function(error) {
+                    alert('Error returned from addNewDialogInputsTableRow');
+                })
             })
             .catch(function(error) {
                 alert('Error returned from addNewDatabaseInputsTableRow');              
@@ -1550,28 +1735,28 @@
     function updateDOMelementVisibility(DOMelementIDname) {
         if ($('#' + DOMelementIDname + '-checkbox'). prop("checked") == true) {
             $('#' + DOMelementIDname + '-body').show();
-            $('#' + DOMelementIDname).width('auto');
+            // $('#' + DOMelementIDname).width('auto');
             if (DOMelementIDname === "scenario-user-login") {
-                $('#' + DOMelementIDname).width('70%');
+                // $('#' + DOMelementIDname).width('70%');
 
             } else if (DOMelementIDname === "scenario-definition") {
                 $("#scenario-factors").show();
                 $('#scenario-responses').show();
-                if (areScenarioDefinitionChildredChecked()) {
-                    $('#' + DOMelementIDname).width('70%');
-                } else {
-                    $('#' + DOMelementIDname).width('50%');
-                }
+                // if (areScenarioDefinitionChildredChecked()) {
+                //     $('#' + DOMelementIDname).width('70%');
+                // } else {
+                //     $('#' + DOMelementIDname).width('50%');
+                // }
             } else if (DOMelementIDname === "scenarios") {
-                $('#' + DOMelementIDname).width('70%');
+                // $('#' + DOMelementIDname).width('70%');
             } else if (DOMelementIDname === "scenario-database-inputs") {
-                $('#scenario-definition').width('70%');
+                // $('#scenario-definition').width('70%');
             } else if (DOMelementIDname === "scenario-dialog-inputs") {
-                $('#scenario-factors').width('70%');
+                // $('#scenario-factors').width('70%');
             } else if (DOMelementIDname === "scenario-database-outputs") {
-                $('#scenario-definition').width('70%');
+                // $('#scenario-definition').width('70%');
             } else if (DOMelementIDname === "scenario-dialog-outputs") {
-                $('#scenario-definition').width('70%');
+                // $('#scenario-definition').width('70%');
             }
         } else {
             $('#' + DOMelementIDname + '-body').hide();
@@ -1581,11 +1766,11 @@
                 $('#scenario-responses').hide();
             } if ($('#scenario-definition-checkbox'). prop("checked") == true) {
                 if (DOMelementIDname === "scenario-factors") {
-                    if ($('#scenario-responses-checkbox'). prop("checked") == false)
-                        $('#scenario-definition').width('70%');
+                    // if ($('#scenario-responses-checkbox'). prop("checked") == false)
+                        // $('#scenario-definition').width('70%');
                 } else if (DOMelementIDname === "scenario-responses") {
-                    if ($('#scenario-factors-checkbox'). prop("checked") == false)
-                        $('#scenario-definition').width('70%');
+                    // if ($('#scenario-factors-checkbox'). prop("checked") == false)
+                        // $('#scenario-definition').width('70%');
                 }
             }
         }
@@ -1666,7 +1851,6 @@
     function addNewDatabaseInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                alert('addNewDatabaseInputsTableRow: not loaded');
                 var createScenariorFolderFlag = !doesScenarioFolderExist();
                 createScenarioFolder(createScenariorFolderFlag, false)
                 .then(function(createScenarioFolderResponse) {
@@ -1693,54 +1877,15 @@
                     reject(error);
                 })
             } else {
-                alert('addNewDatabaseInputsTableRow: already loaded');
-
-                resolve(true);
-            }
-            // }         
-        });
-    }
-
-    function addNewDatabaseInputsTableRow_OLD(rowIndex, numRows, clearTableDataFlag) {
-        return new Promise((resolve, reject) => {
-            if (!isSelectedScenarioModelLoaded()) {
-                var createScenariorFolderFlag = !doesScenarioFolderExist();
-                createScenarioFolder(createScenariorFolderFlag, false)
-                .then(function(createScenarioFolderResponse) {
-                    // Copy user selected server model into scenario folder
-                    copyModelToScenarioFolder(createScenariorFolderFlag)
-                    .then(function(copyModelToScenarioFolderResponse) {
-                        var modelPathname = getModelPathname();
-                        updateModelInfo(modelPathname, clearTableDataFlag)
-                        .then(function(response) {
-                            createDatabaseInputsTableRow();
-                            rowIndex++;
-                            if (rowIndex < numRows) {
-                                resolve(addNewDatabaseInputsTableRow(rowIndex, numRows, false));
-                            } else {
-                                resolve(true);
-                            }
-                        })
-                        .catch(function(error) {
-                            reject(error);
-                        })
-                    })
-                    .catch(function(error) {
-                        reject(error);
-                    })
+                createDatabaseInputsTableRow(startRowIndex, numRows)
+                .then(function(response) {
+                    resolve(true);
                 })
                 .catch(function(error) {
                     reject(error);
                 })
-            } else {
-                createDatabaseInputsTableRow();
-                rowIndex++;
-                if (rowIndex < numRows) {
-                    resolve(addNewDatabaseInputsTableRow(rowIndex, numRows, false));
-                } else {
-                    resolve(true);
-                }
             }
+            // }         
         });
     }
 
@@ -1752,24 +1897,72 @@
         uploadedDatabaseFiles.pop();
     }
     
-    function createDialogInputsTableRow() {
-        var table = $("#dialog-inputs-table");
-        dialogInputsTableRows++;
-        var newrow = 
-        '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
-        table.append(newrow);
-        var blockType = '#target-block-type-select-' + dialogInputsTableRows;
-        for (var i = 0; i < modelBlocks.length; i++) {
-            $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
-        }
-        if (modelBlocks.length > 0) {
-            $(blockType).val(modelBlocks[0]);
-            var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
-            updateTargetBlockNumbersDropdown(dialogInputsTableRows);
-            updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
-        }
+    function createDialogInputsTableRow(rowIndex, numRows) {
+        return new Promise((resolve, reject) => {
+            var table = $("#dialog-inputs-table");
+            dialogInputsTableRows++;
+            var newrow = 
+            '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+            table.append(newrow);
+            var blockType = '#target-block-type-select-' + dialogInputsTableRows;
+            for (var i = 0; i < modelBlocks.length; i++) {
+                $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
+            }
+            if (modelBlocks.length > 0) {
+                $(blockType).val(modelBlocks[0]);
+                var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
+                updateTargetBlockNumbersDropdown(dialogInputsTableRows);
+                updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
+            }
+            rowIndex++;
+            if (rowIndex < numRows) {
+                resolve(createDialogInputsTableRow(rowIndex, numRows));
+            } else {
+                resolve(true);
+            }
+        });
     }
-    function addNewDialogInputsTableRow(rowIndex, numRows, clearTableDataFlag) {
+    function addNewDialogInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
+        return new Promise((resolve, reject) => {
+            if (!isSelectedScenarioModelLoaded()) {
+                var createScenariorFolderFlag = !doesScenarioFolderExist();
+                createScenarioFolder(createScenariorFolderFlag, false)
+                .then(function(createScenarioFolderResponse) {
+                    // Copy user selected server model into scenario folder
+                    copyModelToScenarioFolder(createScenariorFolderFlag)
+                    .then(function(copyModelToScenarioFolderResponse) {
+                        var modelPathname = getModelPathname();
+                        updateModelInfo(modelPathname, clearTableDataFlag) 
+                        .then(function(response) {
+                            createDialogInputsTableRow(startRowIndex, numRows)
+                            .then(function(response) {
+                                resolve(true);
+                            })
+                            .catch(function(error) {
+                                reject(error);
+                            })
+                        })
+                    })
+                    .catch(function(error) {
+                        resolve(true);
+                    })
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
+            } else {
+                createDialogInputsTableRow(startRowIndex, numRows)
+                .then(function(response) {
+                    resolve(true);
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
+            }
+            // }         
+        });
+    }
+    function addNewDialogInputsTableRow_OLD(rowIndex, numRows, clearTableDataFlag) {
         if (!isSelectedScenarioModelLoaded()) {
             var createScenariorFolderFlag = !doesScenarioFolderExist();
             createScenarioFolder(createScenariorFolderFlag, false)
@@ -3079,21 +3272,33 @@
         $("#user-scenario-folder-pathname").val(folder);
                 
     });
-    $('input[type=checkbox]').change(function () {
-    if ($(this).prop("checked")) {
-        //do the stuff that you would do when 'checked'
-        thisId = $(this).attr('id');
-        if (thisId === 'scenario-definition') {
 
-        } else if (thisId === 'scenario-setup') {
-        } else if (thisId === 'scenario-setup') {
-        } else if (thisId === 'scenario-factors') {
-        } else if (thisId === 'scenario-responses') {
+    //  checkbox click event handler
+    $('input[type=checkbox]').change(function () {
+        // manage container display widths
+        var thisCheckbox = $(this).attr('id');
+        var thisContainerId = thisCheckbox.substring(0, thisCheckbox.indexOf('-checkbox'));
+        setContainerWidth(thisContainerId, $(this).prop("checked"));
+    });
+    function setContainerWidth(elementName, checked) {
+        for (var i=0;i<g_containers.length;i++) {
+            if (g_containers[i].name === elementName) {
+                $('#' + elementName).css('min-width', g_containers[i].width.minimum + 'px');
+                if (checked) {
+                    $('#' + elementName).width(g_containers[i].width.checked);
+                    if (g_containers[i].parent.name !== '') {
+                        $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.checked);
+                    }
+                } else {
+                    $('#' + elementName).width(g_containers[i].width.unchecked);
+                    if (g_containers[i].parent.name !== '') {
+                        $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.unchecked);
+                    }
+                }
+            }
         }
-        return;
+        return $('#' + elementName).width();
     }
-    //Here do the stuff you want to do when 'unchecked'
-});
 </script>
 </body>
 
