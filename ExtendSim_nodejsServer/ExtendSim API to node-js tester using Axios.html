@@ -852,7 +852,7 @@
         blockNumbers: []
     }
     var g_containers = [
-    {
+        {
             name: 'scenario-user-login',
             width: {
                 checked: 'auto',
@@ -864,7 +864,16 @@
                     checked: '',
                     unchecked: ''
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-definition',
@@ -878,7 +887,30 @@
                     checked: '',
                     unchecked: ''
                 }
-            }
+            },
+            children: [
+                {
+                    name: 'scenario-setup',
+                    width: {
+                        checked: '70%',
+                        unchecked: '50%'
+                    }
+                },
+                {
+                    name: 'scenario-factors',
+                    width: {
+                        checked: 'auto',
+                        unchecked: '50%'
+                    }
+                },
+                {
+                    name: 'scenario-responses',
+                    width: {
+                        checked: 'auto',
+                        unchecked: '50%'
+                    }
+                }
+            ]
         },
         {
             name: 'scenarios',
@@ -892,12 +924,21 @@
                     checked: '',
                     unchecked: ''
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-setup',
             width: {
-                checked: '50%',
+                checked: '70%',
                 unchecked: '50%',
                 minimum: 300
             },
@@ -907,7 +948,16 @@
                     checked: '',
                     unchecked: ''
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-factors',
@@ -920,9 +970,18 @@
                 name: 'scenario-definition',
                 width: {
                     checked: 'auto',
-                    unchecked: '50%'
+                    unchecked: 'auto'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-responses',
@@ -932,12 +991,21 @@
                 minimum: 300
             },
             parent: {
-                name: '',
+                name: 'scenario-definition',
                 width: {
-                    checked: '',
-                    unchecked: ''
+                    checked: 'auto',
+                    unchecked: 'auto'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-file-inputs',
@@ -952,7 +1020,16 @@
                     checked: 'auto',
                     unchecked: '60%'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-database-inputs',
@@ -967,7 +1044,16 @@
                     checked: 'auto',
                     unchecked: '60%'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-dialog-inputs',
@@ -982,7 +1068,16 @@
                     checked: 'auto',
                     unchecked: '60%'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },    
         {
             name: 'scenario-file-outputs',
@@ -997,7 +1092,16 @@
                     checked: 'auto',
                     unchecked: '60%'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-database-outputs',
@@ -1012,7 +1116,16 @@
                     checked: 'auto',
                     unchecked: '60%'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         },
         {
             name: 'scenario-dialog-outputs',
@@ -1027,7 +1140,16 @@
                     checked: 'auto',
                     unchecked: '60%'
                 }
-            }
+            },
+            children: [
+                {
+                    name: '',
+                    width: {
+                        checked: '',
+                        unchecked: ''
+                    }
+                },
+            ],
         }   
     ];
     var g_myModalChart;
