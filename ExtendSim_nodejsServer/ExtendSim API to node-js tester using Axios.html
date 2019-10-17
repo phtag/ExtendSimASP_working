@@ -573,6 +573,8 @@
                     <div class="flex-container" id='scenario-setup-body'>
                         <label id="scenario-model-label">Scenario model:</button>
                         <select onchange="updateModelInfo()" id="user-models"></select>           
+                        <button onclick='$("#upload-user-model").click()'>Upload new model</button>
+                        <input type="file" id='upload-user-model' style='display: none' onchange='uploadUserModelFile(event)'></input>        
                         <br></br>
                         <label id="scenario-name-label">Scenario name:</label>
                         <input id="scenario-name"></input>
@@ -850,6 +852,10 @@
         variableNames: [],
         variableValues: [],
         blockNumbers: []
+    }
+    var g_uploadedUserModelFile = {
+        name: '',
+        filedata: ''
     }
     var g_containers = [
         {
@@ -1150,8 +1156,9 @@
                     }
                 },
             ],
-        }   
+        } 
     ];
+    var g_userModelsRootPath = "";
     var g_myModalChart;
     var IPaddress = "";
     // var IPaddress = "http://184.171.246.58";
@@ -1291,6 +1298,20 @@
         downloadLink.click();
         document.body.removeChild(downloadLink);
     }
+    function setUsersModelRootPath(userModelPaths) {
+        var rootPath = '';
+        for (var i = 0; i < userModelPaths.length; i++) {
+            rootPath = userModelPaths[i].substring(0, userModelPaths[i].lastIndexOf("\\"));
+            if (i === 0) {
+                g_userModelsRootPath = rootPath;
+            }
+            if (rootPath.length < g_userModelsRootPath.length) {
+                g_userModelsRootPath = rootPath;
+            }
+        }
+        alert('g_userModelsRootPath=' + g_userModelsRootPath);
+    }
+
     function exportScenarioModelTableToTextFile(event) {
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateLoadingDivVisibility(true);
@@ -1792,6 +1813,23 @@
             width: inputWidth + padding
         })
     }
+    function readAndPreviewUserModelFile(file) {
+        var reader  = new FileReader();
+        reader.onload = function(event) {
+            var contents = event.target.result;
+            g_uploadedUserModelFile.data = contents;
+            alert('Uploading model...');
+            uploadUserModelToServer()
+            .then(function(response) {
+                alert('User model uploaded to server');
+            })
+        };
+        if (file) {
+            console.log(file);
+            g_uploadedUserModelFile.name = file.name;
+            reader.readAsText(file);
+        }
+    }
     function readAndPreviewInputFile(file) {
         var reader  = new FileReader();
         reader.onload = function(event) {
@@ -1854,6 +1892,12 @@
             return true;
         } else {
             return false;
+        }
+    }
+    function uploadUserModelFile() {
+        var files = $("#" + event.target.id)[0].files;
+        if (files) {
+            [].forEach.call(files, readAndPreviewUserModelFile);
         }
     }
     function updateDOMelementVisibility(DOMelementIDname) {
@@ -2899,6 +2943,25 @@
             }
         });
     }
+    function uploadUserModelToServer() {
+        return new Promise((resolve, reject) => {
+            event.preventDefault();
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                data : {
+                    scenarioFolderPathname: g_userModelsRootPath,
+                    filename: g_uploadedUserModelFile.name,
+                    filedata: g_uploadedUserModelFile.data
+                }
+            })
+            .then(function(response) {
+                resolve(true);
+            });
+        });
+    }
     function uploadDataFilesToServer_new(fileIndex) {
         return new Promise((resolve, reject) => {
             if (g_ScenarioDefinition.uploadedFiles.length < 1) {
@@ -3133,6 +3196,8 @@
             })
             .then(function(response) {
                 var userModelPaths = response.data.userModelPaths;
+                setUsersModelRootPath(userModelPaths);
+
                 $('#user-models').empty(0);
                 for (var i = 0; i < userModelPaths.length; i++) {
                     $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i].substring(userModelPaths[i].lastIndexOf("\\") + 1) + '</option>');

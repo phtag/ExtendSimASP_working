@@ -8,6 +8,7 @@ var express = require('express');
 const routes = require('./routes');
 // const dotenv = require('dotenv').config(); 
 var cors = require("cors");
+var bodyParser = require('body-parser');
 
 // Sets up the Express App
 // =============================================================
@@ -54,6 +55,8 @@ app.use(function(req, res, next) {
   // Pass to next layer of middleware
   next();
 });
+app.use(bodyParser.json({ limit: "500mb" }));
+app.use(bodyParser.urlencoded({ limit: "500mb", extended: true, parameterLimit: 50000 }));
 // Add routes, both API and view
 app.use(routes);
 // var winax = require('winax');
