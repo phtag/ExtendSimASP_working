@@ -1579,21 +1579,23 @@
                 addNewDialogInputsTableRow(0, g_ScenarioDefinition.variableNames.length, false)
                 .then(function(response) {
                     var selectValue;
+                    var inputValue;
                     for (var k=0;k<g_ScenarioDefinition.variableNames.length;k++) {
                         selectValue = '#target-block-type-select-' + (k + 1);
-                        $(selectValue) = g_ScenarioDefinition.blockTypes[k];
+                        $(selectValue).val(g_ScenarioDefinition.blockTypes[k]);
                         
                         selectValue = '#target-variable-type-select-' + (k + 1);
-                        $(selectValue) = g_ScenarioDefinition.variableTypes[k];
+                        $(selectValue).val(g_ScenarioDefinition.variableTypes[k]);
+                        updateTargetDialogVariableDropdown((k + 1));  
 
                         selectValue = '#target-variable-name-select-' + (k + 1);
-                        $(selectValue) = g_ScenarioDefinition.variableNames[k];
+                        $(selectValue).val(g_ScenarioDefinition.variableNames[k]);
 
-                        selectValue = '#target-variable-value-select-' + (k + 1);
-                        $(selectValue) = g_ScenarioDefinition.variableValues[k];
+                        inputValue = '#target-variable-value-' + (k + 1);
+                        $(inputValue).val(g_ScenarioDefinition.variableValues[k]);
 
                         selectValue = '#target-block-number-select-' + (k + 1);
-                        $(selectValue) = g_ScenarioDefinition.blockNumbers[k];
+                        $(selectValue).val(g_ScenarioDefinition.blockNumbers[k]);
                     }
                     transferScenarioDefinitionToUserSessionsData();
                 })
