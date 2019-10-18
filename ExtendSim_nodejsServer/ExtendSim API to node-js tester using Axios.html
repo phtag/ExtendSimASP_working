@@ -1698,6 +1698,7 @@
         if (show) {
             $('#load_screen').show();
             $('#loading').show();
+            $('#loading').text("Uploading data to server. Please wait...");
         } else {
             $('#load_screen').hide();
             $('#loading').hide();
@@ -1826,10 +1827,9 @@
             var contents = event.target.result;
             g_uploadedUserModelFile.data = contents;
             console.log('g_uploadedUserModelFile.data=' + g_uploadedUserModelFile.data);
-            alert('Uploading model...');
             uploadUserModelToServer()
             .then(function(response) {
-                alert('User model uploaded to server');
+                updateLoadingDivVisibility(false);
             })
         };
         if (file) {
@@ -2955,6 +2955,7 @@
     function uploadUserModelToServer() {
         return new Promise((resolve, reject) => {
             event.preventDefault();
+            updateLoadingDivVisibility(true);
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/sendfile",
                 method: 'post',
