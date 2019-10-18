@@ -1250,8 +1250,6 @@
     updateDOMelementVisibility("scenario-database-outputs");
     updateDOMelementVisibility("scenario-dialog-outputs");
     updateLoadingDivVisibility(false);
-
-
     // function create_zip() {
     //     var zip = new JSZip();
     //     zip.add("hello1.txt", "Hello First World\n");
@@ -1321,7 +1319,7 @@
 
     function exportScenarioModelTableToTextFile(event) {
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
-        updateLoadingDivVisibility(true);
+        updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
         var modelInfo = buildDatabaseTableContentsStreamModelInfo(event.target.id);
         getDatabaseTableContentsStream(modelInfo, true)
         .then(function(response) {
@@ -1694,11 +1692,11 @@
         $('#modal-form-chart').show();
         $('#modal-form-contents').hide();
     }
-    function updateLoadingDivVisibility(show) {
+    function updateLoadingDivVisibility(show, textMessage) {
         if (show) {
             $('#load_screen').show();
             $('#loading').show();
-            $('#loading').text("Uploading data to server. Please wait...");
+            $('#loading').text(textMessage);
         } else {
             $('#load_screen').hide();
             $('#loading').hide();
@@ -2411,7 +2409,7 @@
         $('#modal-chart-axes-selection-dropdowns').hide();
         $('#view-model-chart-button').hide();
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
-        updateLoadingDivVisibility(true);
+        updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
         var modelInfo = buildDatabaseTableContentsStreamModelInfo(event.target.id);
         getDatabaseTableContentsStream(modelInfo, true)
         .then(function(response) {
@@ -2437,7 +2435,7 @@
         $('#modal-chart-axes-selection-dropdowns').show();
         $('#view-model-chart-button').show();
         $('#selected-response-table-name').val($("#source-table-" + rowIndex).val());
-        updateLoadingDivVisibility(true);
+        updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
         // getDatabaseTableContentsStream(modelInfo, true, displayTableChartModal)
         getDatabaseTableContentsStream(modelInfo, true)
         .then(function(response) {
@@ -2629,7 +2627,7 @@
 
     function updateModelInfo(modelPathname, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
-            updateLoadingDivVisibility(true);
+            updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
             if (clearTableDataFlag) {
                 clearTableData();
             }
@@ -2955,7 +2953,7 @@
     function uploadUserModelToServer() {
         return new Promise((resolve, reject) => {
             event.preventDefault();
-            updateLoadingDivVisibility(true);
+            updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/sendfile",
                 method: 'post',
@@ -3195,7 +3193,7 @@
         return new Promise((resolve, reject) => { 
             clearTableData();
             $("#get-user-models-button").prop('disabled', true);
-            updateLoadingDivVisibility(true);
+            updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/getUserModelPaths',
                 method: 'post',
