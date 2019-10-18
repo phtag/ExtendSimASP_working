@@ -352,7 +352,6 @@ module.exports = {
             }
         }).then(function(response){
             var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/UploadStream";
-            console.log("UploadStream: req.body.filedata=" + req.body.filedata);
             return axios({
                 url: queryURL,
                 method: 'post',
