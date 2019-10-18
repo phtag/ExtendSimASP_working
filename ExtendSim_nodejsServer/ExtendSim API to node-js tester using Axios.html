@@ -1251,6 +1251,14 @@
     updateDOMelementVisibility("scenario-dialog-outputs");
     updateLoadingDivVisibility(false);
 
+
+    // function create_zip() {
+    //     var zip = new JSZip();
+    //     zip.add("hello1.txt", "Hello First World\n");
+    //     zip.add("hello2.txt", "Hello Second World\n");
+    //     content = zip.generate();
+    //     location.href="data:application/zip;base64," + content;
+    // }
     function prepCSVRow(arr, columnCount, initial) {
         var row = ''; // this will hold data
         var delimeter = ','; // data slice separator, in excel it's `;`, in usual CSv it's `,`
@@ -1309,7 +1317,6 @@
                 g_userModelsRootPath = rootPath;
             }
         }
-        alert('g_userModelsRootPath=' + g_userModelsRootPath);
     }
 
     function exportScenarioModelTableToTextFile(event) {
@@ -1818,6 +1825,7 @@
         reader.onload = function(event) {
             var contents = event.target.result;
             g_uploadedUserModelFile.data = contents;
+            console.log('g_uploadedUserModelFile.data=' + g_uploadedUserModelFile.data);
             alert('Uploading model...');
             uploadUserModelToServer()
             .then(function(response) {
@@ -1827,7 +1835,8 @@
         if (file) {
             console.log(file);
             g_uploadedUserModelFile.name = file.name;
-            reader.readAsText(file);
+            reader.readAsBinaryString(file);
+            // reader.readAsArrayBuffer(file);
         }
     }
     function readAndPreviewInputFile(file) {
@@ -2949,8 +2958,9 @@
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/sendfile",
                 method: 'post',
-                accept : 'application/json',
-                contentType: 'application/json;charset=utf-8',
+                // accept : 'application/json',
+                // contentType: 'application/json;charset=utf-8',
+                // contentType: 'multipart/form-data',
                 data : {
                     scenarioFolderPathname: g_userModelsRootPath,
                     filename: g_uploadedUserModelFile.name,

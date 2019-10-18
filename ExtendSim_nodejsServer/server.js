@@ -8,19 +8,21 @@ var express = require('express');
 const routes = require('./routes');
 // const dotenv = require('dotenv').config(); 
 var cors = require("cors");
-var bodyParser = require('body-parser');
-
 // Sets up the Express App
 // =============================================================
 var app = express();
 var PORT = process.env.PORT || 3001;
 
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb', extended: true}));
+// app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+
 // Requiring our models for syncing
 // var db = require('./models');
 
 // Sets up the Express app to handle data parsing
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 console.log('Server starting...');
 // Static directory
@@ -55,8 +57,6 @@ app.use(function(req, res, next) {
   // Pass to next layer of middleware
   next();
 });
-app.use(bodyParser.json({ limit: "500mb" }));
-app.use(bodyParser.urlencoded({ limit: "500mb", extended: true, parameterLimit: 50000 }));
 // Add routes, both API and view
 app.use(routes);
 // var winax = require('winax');
@@ -64,11 +64,13 @@ app.use(routes);
 //   Arguments: '-platform offscreen'
 // });
 
+
 // ExtendSimApp.Execute('OpenExtendFile("C:\\Users\\peter\\Desktop\\ExtendSim ASP License\\ExtendSim ASP server\\ExtendSim models\\ASP v10 models\\ASP example model (GS).mox")');
 
 // Syncing our sequelize models and then starting our Express app
 // =============================================================
 // db.sequelize.sync({ force: false }).then(function() {
+  
 app.listen(PORT, function() {
   console.log('App listening on PORT ' + PORT);
 });

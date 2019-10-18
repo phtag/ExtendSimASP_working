@@ -339,13 +339,12 @@ module.exports = {
             accept: "application/json", 
         };     
         var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/UploadPathname";
-        // ?filepathname=" + encodeURIComponent(req.body.scenarioFolderPathname + "/" + req.body.filename);
         console.log("sendfile - filepathname=" + req.body.scenarioFolderPathname + "/" + req.body.filename);
         return axios({
             url: queryURL,
             method: 'post',
             accept : "application/json",
-            contentType: "application/json;charset=utf-8",
+            // contentType: "application/json;charset=utf-8",
             headers : myheaders,
             muteHttpExceptions : false,
             params: {
@@ -357,12 +356,10 @@ module.exports = {
             return axios({
                 url: queryURL,
                 method: 'post',
-                accept : 'application/json',
-                //    contentType: 'application/json;charset=utf-8',
+                // accept : 'application/json',
                 contentType: 'multipart/form-data',
                 headers : myheaders,
                 data: req.body.filedata,
-                //    payload : result,
                 muteHttpExceptions : false
             }).then(function(uploadResponse) 
             { 
