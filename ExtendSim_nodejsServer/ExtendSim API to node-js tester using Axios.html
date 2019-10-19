@@ -828,7 +828,7 @@
     var databaseOutputsTableRows = 0;
     var scenariosTableRows = 0;
     const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
-    var numFilesUploaded = 0;
+    // var numFilesUploaded = 0;
     var numDatabaseFilesUploaded = 0;
     var tableDataHtmlCode = "";
     var myCheckStatusInterval;
@@ -1764,6 +1764,7 @@
 
     }
     function loadScenarioDefinition(event) {
+        loadedScenarioModelpathname = '';
         var files = $("#" + event.target.id)[0].files;
         clearTableData();
         inputFileTableRows = 0;
@@ -1795,9 +1796,10 @@
         enableDisableUploadFilesToDatabaseTablesButton();    
     }
     function inputFilesSelected(event) {
+        var fileList = event.target.files
         var files = $("#" + event.target.id)[0].files;
         if (files) {
-            [].forEach.call(files, readAndPreviewInputFile);
+            [].forEach.call(files, readAndPreviewInputFile(fileList[0], event.target.id));
         }
         enableDisableUploadFilesButton();
     }
@@ -1823,7 +1825,20 @@
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
+            // var binary = "";
+            // var bytes = new Uint8Array(contents);
+            // var length = bytes.byteLength;
+            // alert('bytes loaded=' + length);
+            // for (var i = 0; i < length; i++) {
+            //     binary += String.fromCharCode(bytes[i]);
+            // }
+            // const data = new FormData();
+            // data.append(g_uploadedUserModelFile.name, contents);
+            // g_uploadedUserModelFile.data = data;
+            // g_uploadedUserModelFile.data = contents;
             g_uploadedUserModelFile.data = contents;
+            // g_uploadedUserModelFile.data = contents;
+            // g_uploadedUserModelFile.data = new Blob([contents]);
             console.log('g_uploadedUserModelFile.data=' + g_uploadedUserModelFile.data);
             uploadUserModelToServer()
             .then(function(response) {
@@ -1835,15 +1850,18 @@
             g_uploadedUserModelFile.name = file.name;
             reader.readAsBinaryString(file);
             // reader.readAsArrayBuffer(file);
+            // reader.readAsDataURL(file);
         }
     }
-    function readAndPreviewInputFile(file) {
+    function readAndPreviewInputFile(file, id) {
+        alert('File=' + file + ' id=' + id);
+        var fileIndex = Number(id.substring(id.lastIndexOf("-") + 1)) - 1;
+
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
-            uploadedFiles[numFilesUploaded].data = contents;
-            numFilesUploaded++;
-            var inputLabel = '#input-label-' + numFilesUploaded;
+            uploadedFiles[fileIndex].data = contents;
+            var inputLabel = '#input-label-' + (fileIndex + 1);
             updateInputLabel(inputLabel, file.name, 20);
         };
 
@@ -2957,9 +2975,10 @@
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/sendfile",
                 method: 'post',
-                // accept : 'application/json',
+                accept : 'application/json',
                 // contentType: 'application/json;charset=utf-8',
-                // contentType: 'multipart/form-data',
+                // contentType: 'application/json;charset=utf-8',
+                contentType: 'blob',
                 data : {
                     scenarioFolderPathname: g_userModelsRootPath,
                     filename: g_uploadedUserModelFile.name,
@@ -3488,6 +3507,7 @@
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.checked);
                     }
                 } else {
+                    alert('Setting width=' + g_containers[i].width.unchecked);
                     $('#' + elementName).width(g_containers[i].width.unchecked);
                     if (g_containers[i].parent.name !== '') {
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.unchecked);

@@ -334,6 +334,49 @@ module.exports = {
         })
 
     },
+    sendfile_TEXT: function(req, res) {
+        var myheaders = { 
+            accept: "application/json", 
+        };     
+        var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/UploadPathname";
+        console.log("sendfile - filepathname=" + req.body.scenarioFolderPathname + "/" + req.body.filename);
+        return axios({
+            url: queryURL,
+            method: 'post',
+            accept : "application/json",
+            contentType: "application/json;charset=utf-8",
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params: {
+                filepathname : req.body.scenarioFolderPathname + "/" + req.body.filename
+            }
+        }).then(function(response){
+            var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/UploadStream";
+            // var bytes = new Uint8Array(req.body.filedata);
+            // var bytes = req.body.filedata.buffer;
+            // console.log('Number of bytes uploaded=' + bytes.length);
+            var reader  = new FileReader();
+            reader.onload = function(event) {    
+                return axios({
+                    url: queryURL,
+                    method: 'post',
+                    accept : 'application/json',
+                    responseType:'arraybuffer',
+                    // contentType: 'multipart/form-data',
+                    // contentType: 'application/json;charset=utf-8',
+                    contentType: 'blob',
+                    headers : myheaders,
+                    data: event.target.result,
+                    muteHttpExceptions : false
+                }).then(function(uploadResponse) 
+                { 
+                    console.log("Upload RETURN");
+                    return res.json({result: uploadResponse.data})
+                })
+            }
+            reader.readAsArrayBuffer(req.body.filedata);
+        })
+    },
     sendfile: function(req, res) {
         var myheaders = { 
             accept: "application/json", 
@@ -344,7 +387,7 @@ module.exports = {
             url: queryURL,
             method: 'post',
             accept : "application/json",
-            // contentType: "application/json;charset=utf-8",
+            contentType: "application/json;charset=utf-8",
             headers : myheaders,
             muteHttpExceptions : false,
             params: {
@@ -352,11 +395,15 @@ module.exports = {
             }
         }).then(function(response){
             var queryURL =  "http://" + IPaddress + ":8090/StreamingService/web/UploadStream";
+            console.log('Sendfile: Uploading stream data');
             return axios({
                 url: queryURL,
                 method: 'post',
-                // accept : 'application/json',
-                contentType: 'multipart/form-data',
+                accept : 'application/json',
+                responseType:'arraybuffer',
+                // contentType: 'multipart/form-data',
+                // contentType: 'application/json;charset=utf-8',
+                contentType: 'blob',
                 headers : myheaders,
                 data: req.body.filedata,
                 muteHttpExceptions : false
