@@ -400,10 +400,10 @@ module.exports = {
                 url: queryURL,
                 method: 'post',
                 accept : 'application/json',
-                responseType:'arraybuffer',
+                // responseType:'arraybuffer',
                 // contentType: 'multipart/form-data',
-                // contentType: 'application/json;charset=utf-8',
-                contentType: 'blob',
+                contentType: 'application/json;charset=utf-8',
+                // contentType: 'blob',
                 headers : myheaders,
                 data: req.body.filedata,
                 muteHttpExceptions : false
