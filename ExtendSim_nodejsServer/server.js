@@ -8,6 +8,7 @@ var express = require('express');
 const routes = require('./routes');
 // const dotenv = require('dotenv').config(); 
 var cors = require("cors");
+global.atob = require("atob");
 // Sets up the Express App
 // =============================================================
 var app = express();
@@ -17,8 +18,10 @@ app.use(express.json({limit: '50000mb'}));
 app.use(express.urlencoded({limit: '50000mb', extended: true}));
 // app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-
+//  TESTING (temporary...)
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); 
 // Requiring our models for syncing
 // var db = require('./models');
 

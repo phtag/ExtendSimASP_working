@@ -7,6 +7,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css" />
 <style>
     table, th, td {
       border: 1px solid black;
@@ -807,6 +809,20 @@
     </div>
 </div> 
 <script type="text/javascript">
+    Dropzone.options.mydropzone = {
+        init: function() {
+            this.on("sending", function(file, xhr, formData) { 
+                for (var pair of formData.entries()) {
+                    alert(pair[0]+ ', ' + pair[1]); 
+                } 
+                uploadUserModelPathnameToServer(g_userModelsRootPath, file.name)
+                .then(function() {
+                    alert("Successfully sent model pathname to server");                    
+                })
+            });
+
+        }
+    };
     var modelBlocks = [];
     var blockNumbers = [];
     var dialogVariableTypes = [];
@@ -855,7 +871,8 @@
     }
     var g_uploadedUserModelFile = {
         name: '',
-        filedata: ''
+        filedata: '',
+        arrayBuffer: []
     }
     var g_containers = [
         {
@@ -1161,7 +1178,7 @@
     var g_userModelsRootPath = "";
     var g_myModalChart;
     var IPaddress = "";
-    // var IPaddress = "http://184.171.246.58";
+    // var IPaddress = "http://184.171.246.58"; 
 
     // const IPaddress = "localhost";
     // var queryURL_root = "http://" + IPaddress + ":8090/StreamingService/web/"
@@ -1250,13 +1267,28 @@
     updateDOMelementVisibility("scenario-database-outputs");
     updateDOMelementVisibility("scenario-dialog-outputs");
     updateLoadingDivVisibility(false);
-    // function create_zip() {
-    //     var zip = new JSZip();
-    //     zip.add("hello1.txt", "Hello First World\n");
-    //     zip.add("hello2.txt", "Hello Second World\n");
-    //     content = zip.generate();
-    //     location.href="data:application/zip;base64," + content;
-    // }
+    
+    $("#the-form").submit(function(event) {
+        event.preventDefault();
+
+        // alert('Got here. file=' + file);
+        var formData = new FormData(this);
+        var extendsimmodelfile = $('#extendsim-model-file');
+        var fakepath = $('#extendsim-model-file').val();
+        extendSimModelFilename = fakepath.substring(fakepath.lastIndexOf("\\") + 1);
+        alert('ExtendSim model name=' + extendSimModelFilename);
+        uploadUserModelPathnameToServer(g_userModelsRootPath, extendSimModelFilename)
+        .then(function() {
+            var xhr = new XMLHttpRequest();
+            // Add any event handlers here...
+            xhr.open('POST', "http://184.171.246.58:3001/api/ExtendSim/sendmodelfile", true);
+            xhr.send(formData);
+            alert('Sent form data. formData=' + formData);
+            updateLoadingDivVisibility(false);
+            return false; // To avoid actual submission of the form
+        })
+    });
+        
     function prepCSVRow(arr, columnCount, initial) {
         var row = ''; // this will hold data
         var delimeter = ','; // data slice separator, in excel it's `;`, in usual CSv it's `,`
@@ -1821,25 +1853,51 @@
             width: inputWidth + padding
         })
     }
+    function ab2str(buf) {
+        return String.fromCharCode.apply(null, new Uint8Array(buf));
+    }
+    function uploadModelFile() {
+        
+    }
+    function Decodeuint8arr(uint8array){
+        return new TextDecoder("utf-8").decode(uint8array);
+    }
     function readAndPreviewUserModelFile(file) {
         var reader  = new FileReader();
+        var data = new FormData();
+
         reader.onload = function(event) {
             var contents = event.target.result;
-            // var binary = "";
-            // var bytes = new Uint8Array(contents);
-            // var length = bytes.byteLength;
-            // alert('bytes loaded=' + length);
-            // for (var i = 0; i < length; i++) {
-            //     binary += String.fromCharCode(bytes[i]);
-            // }
+            console.log('Contents=' + contents);
+            var binary = "";
+            var bytes = new Uint8Array(contents);
+            var length = bytes.byteLength;
+            alert('bytes uploaded=' + length);
+            for (var i = 0; i < length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
             // const data = new FormData();
             // data.append(g_uploadedUserModelFile.name, contents);
-            // g_uploadedUserModelFile.data = data;
+            // g_uploadedUserModelFile.data = ab2str(contents);
+            var binaryString = Decodeuint8arr(bytes);
+            // alert('binary bytes=' + binary.length);
+            // alert('binaryString bytes=' + binaryString.length);
+
+            console.log('File data=' + binaryString);
+            g_uploadedUserModelFile.data = binary;
+            // g_uploadedUserModelFile.data = bytes;
+            g_uploadedUserModelFile.arrayBuffer = bytes;
+            // g_uploadedUserModelFile.data = binaryString;
             // g_uploadedUserModelFile.data = contents;
-            g_uploadedUserModelFile.data = contents;
+
+            // var data_index = contents.indexOf('base64') + 7
+            // var filedata = contents.slice(data_index, contents.length)
+            // var decodedFile = atob(filedata);
+            // g_uploadedUserModelFile.data = new Blob([bytes]);
             // g_uploadedUserModelFile.data = contents;
             // g_uploadedUserModelFile.data = new Blob([contents]);
-            console.log('g_uploadedUserModelFile.data=' + g_uploadedUserModelFile.data);
+            // data.append(g_uploadedUserModelFile.name, g_uploadedUserModelFile.data);
+
             uploadUserModelToServer()
             .then(function(response) {
                 updateLoadingDivVisibility(false);
@@ -1848,9 +1906,10 @@
         if (file) {
             console.log(file);
             g_uploadedUserModelFile.name = file.name;
-            reader.readAsBinaryString(file);
-            // reader.readAsArrayBuffer(file);
+            // reader.readAsBinaryString(file);
+            reader.readAsArrayBuffer(file);
             // reader.readAsDataURL(file);
+            // reader.readAsText(file);
         }
     }
     function readAndPreviewInputFile(file, id) {
@@ -2968,21 +3027,71 @@
             }
         });
     }
+    function uploadUserModelPathnameToServer(modelpathname, modelfilename) {
+        return new Promise((resolve, reject) => {
+            alert('uploadUserModelPathnameToServer: modelpathname=' + modelpathname);
+            // event.preventDefault();
+            updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/sendmodelpathname",
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                // contentType: 'application/octet-stream',
+                // contentType: 'blob',
+                // contentType: 'multipart/form-data',
+                data : {
+                    scenarioFolderPathname: modelpathname,
+                    filename: modelfilename
+                }
+            })
+            .then(function(response) {
+                resolve(true);
+            });
+        });
+    }
     function uploadUserModelToServer() {
         return new Promise((resolve, reject) => {
             event.preventDefault();
+            alert('bytes=' + g_uploadedUserModelFile.data.length);
             updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
             axios({
-                url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+                // url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+                url: proxyurl + queryURL_root + "ExtendSim/uploadmodelfile",
                 method: 'post',
                 accept : 'application/json',
                 // contentType: 'application/json;charset=utf-8',
-                // contentType: 'application/json;charset=utf-8',
-                contentType: 'blob',
+                // contentType: 'application/octet-stream',
+                // contentType: 'blob',
+                // contentType: 'multipart/form-data',
                 data : {
                     scenarioFolderPathname: g_userModelsRootPath,
                     filename: g_uploadedUserModelFile.name,
                     filedata: g_uploadedUserModelFile.data
+                }
+            })
+            .then(function(response) {
+                resolve(true);
+            });
+        });
+    }
+    function uploadUserModelToServer_AB() {
+        return new Promise((resolve, reject) => {
+            event.preventDefault();
+            alert('bytes=' + g_uploadedUserModelFile.data.length);
+            updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
+            axios({
+                url: proxyurl + queryURL_root + "ExtendSim/sendmodelfile",
+                method: 'post',
+                accept : 'application/json',
+                // contentType: 'application/json;charset=utf-8',
+                contentType: 'application/octet-stream',
+                // contentType: 'blob',
+                // contentType: 'multipart/form-data',
+                data : {
+                    scenarioFolderPathname: g_userModelsRootPath,
+                    filename: g_uploadedUserModelFile.name,
+                    arrayBuffer: g_uploadedUserModelFile.arrayBuffer
                 }
             })
             .then(function(response) {
