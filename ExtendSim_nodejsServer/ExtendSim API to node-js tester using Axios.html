@@ -399,22 +399,23 @@
         padding-right: 10px;
         margin: auto;
         margin-bottom: 20px;
-        width: auto;
+        /* width: auto; */
+        /* width: 50%; */
         background-color:rgb(221, 220, 220);
         text-align: center; 
         vertical-align: top; 
     }
     #scenario-setup  {
         background-color:rgb(247, 155, 155);
-        min-width: 550px;
+        /* min-width: 550px; */
     }
     #scenario-factors  {
         background-color:rgb(252, 235, 162);
-        min-width: 550px;
+        /* min-width: 550px; */
     }
     #scenario-responses {
         background-color:rgb(155, 251, 195);
-        min-width: 550px;
+        /* min-width: 550px; */
     }
 
     #scenario-file-inputs, #scenario-database-inputs, #scenario-dialog-inputs {
@@ -574,7 +575,7 @@
                     </div>
                     <div class="flex-container" id='scenario-setup-body'>
                         <label id="scenario-model-label">Scenario model:</button>
-                        <select onchange="updateModelInfo()" id="user-models"></select>           
+                        <select onchange="respondToUserModelSelection()" id="user-models"></select>           
                         <button onclick='$("#upload-user-model").click()'>Upload new model</button>
                         <input type="file" id='upload-user-model' style='display: none' onchange='uploadUserModelFile(event)'></input>        
                         <br></br>
@@ -1531,6 +1532,7 @@
     }
     function saveScenarioDefinition() {
         transferUserSessionDataToScenarioDefinition();
+        alert('model name=' + g_ScenarioDefinition.modelName);
         var blob = new Blob([JSON.stringify(g_ScenarioDefinition)],
                 { type: "text/plain;charset=utf-8" });
         saveAs(blob, $('#scenario-name').val() + '_scenarioData.txt');
@@ -1735,7 +1737,16 @@
     }
     function populateScenarioFactorsSettings() {
         var inputLabel = "";
+        // set scenario DOM elements
         $('#scenario-name').val(g_ScenarioDefinition.scenarioName);
+        $("#user-models").val(g_ScenarioDefinition.modelName);
+        $("#user-scenario-folder-pathname").val(g_ScenarioDefinition.scenarioFolderPathname);
+
+        alert('Scenario name=' + $('#scenario-name').val());
+        alert('Model name=' + $('#user-models').val());
+        alert('Scenario name=' + $('#user-scenario-folder-pathname').val());
+        loadedScenarioModelpathname = getModelPathname();
+        alert('loadedScenarioModelpathname=' + loadedScenarioModelpathname);
         updateButtonsState();
         // populate the factors input files table
         addNewInputFilesTableRow(0, g_ScenarioDefinition.uploadedFiles.length)
@@ -1871,7 +1882,6 @@
             var binary = "";
             var bytes = new Uint8Array(contents);
             var length = bytes.byteLength;
-            // alert('bytes uploaded=' + length);
             for (var i = 0; i < length; i++) {
                 binary += String.fromCharCode(bytes[i]);
             }
@@ -1879,8 +1889,6 @@
             // data.append(g_uploadedUserModelFile.name, contents);
             // g_uploadedUserModelFile.data = ab2str(contents);
             var binaryString = Decodeuint8arr(bytes);
-            // alert('binary bytes=' + binary.length);
-            // alert('binaryString bytes=' + binaryString.length);
 
             console.log('File data=' + binaryString);
             g_uploadedUserModelFile.data = binary;
@@ -1899,8 +1907,11 @@
 
             uploadUserModelToServer()
             .then(function(response) {
-                updateLoadingDivVisibility(false);
-            })
+                getUserModelPaths()
+                .then(function(getUserModelPathsResponse) {
+                    updateLoadingDivVisibility(false);
+                });
+            });
         };
         if (file) {
             console.log(file);
@@ -1912,7 +1923,6 @@
         }
     }
     function readAndPreviewInputFile(file, id) {
-        // alert('File=' + file + ' id=' + id);
         var fileIndex = Number(id.substring(id.lastIndexOf("-") + 1)) - 1;
 
         var reader  = new FileReader();
@@ -2059,6 +2069,14 @@
             return true;
         }
     }
+    function respondToUserModelSelection() {
+        // clear tables
+        clearTableData();
+        // clear scenario pathname
+        $("#user-scenario-folder-pathname").val("");
+        // update state of web page DOM elements
+        updateButtonsState();
+    }
     function getModelPathname() {
         var modelName =  $("#user-models").val();
         modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
@@ -2150,23 +2168,23 @@
     
     function createDialogInputsTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
-            var table = $("#dialog-inputs-table");
-            dialogInputsTableRows++;
-            var newrow = 
-            '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
-            table.append(newrow);
-            var blockType = '#target-block-type-select-' + dialogInputsTableRows;
-            for (var i = 0; i < modelBlocks.length; i++) {
-                $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
-            }
-            if (modelBlocks.length > 0) {
-                $(blockType).val(modelBlocks[0]);
-                var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
-                updateTargetBlockNumbersDropdown(dialogInputsTableRows);
-                updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
-            }
-            rowIndex++;
             if (rowIndex < numRows) {
+                var table = $("#dialog-inputs-table");
+                dialogInputsTableRows++;
+                var newrow = 
+                '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+                table.append(newrow);
+                var blockType = '#target-block-type-select-' + dialogInputsTableRows;
+                for (var i = 0; i < modelBlocks.length; i++) {
+                    $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
+                }
+                if (modelBlocks.length > 0) {
+                    $(blockType).val(modelBlocks[0]);
+                    var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
+                    updateTargetBlockNumbersDropdown(dialogInputsTableRows);
+                    updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
+                }
+                rowIndex++;
                 resolve(createDialogInputsTableRow(rowIndex, numRows));
             } else {
                 resolve(true);
@@ -2287,7 +2305,6 @@
     function createDatabaseOutputsTableRow() {
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
-        // $('#scenario-definition').width('auto');
         var newrow = 
         '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
         table.append(newrow);
@@ -3345,13 +3362,6 @@
                 this.updateButtonsState();
                 updateLoadingDivVisibility(false);
                 resolve(response);
-                // getmodeldatabases( $('#user-models').val(), getModelInfo)
-                // .then(function(response) {
-                //     resolve(response);
-                // })
-                // .catch(function(error) {
-                //     reject(error);
-                // })
             });
         });
     }
@@ -3614,8 +3624,15 @@
                     if (g_containers[i].parent.name !== '') {
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.checked);
                     }
+                    for (var j=0;j<g_containers[i].children.length;j++) {
+                        if ($('#' + g_containers[i].children[j].name).prop('checked')) {
+                            $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.checked);
+                        }
+                        else {
+                            $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.unchecked);
+                        }
+                    }
                 } else {
-                    // alert('Setting width=' + g_containers[i].width.unchecked);
                     $('#' + elementName).width(g_containers[i].width.unchecked);
                     if (g_containers[i].parent.name !== '') {
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.unchecked);
