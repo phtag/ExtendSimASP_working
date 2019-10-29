@@ -1739,14 +1739,8 @@
         var inputLabel = "";
         // set scenario DOM elements
         $('#scenario-name').val(g_ScenarioDefinition.scenarioName);
-        $("#user-models").val(g_ScenarioDefinition.modelName);
+        $("#user-models").val(g_ScenarioDefinition.modelPathname);
         $("#user-scenario-folder-pathname").val(g_ScenarioDefinition.scenarioFolderPathname);
-
-        alert('Scenario name=' + $('#scenario-name').val());
-        alert('Model name=' + $('#user-models').val());
-        alert('Scenario name=' + $('#user-scenario-folder-pathname').val());
-        loadedScenarioModelpathname = getModelPathname();
-        alert('loadedScenarioModelpathname=' + loadedScenarioModelpathname);
         updateButtonsState();
         // populate the factors input files table
         addNewInputFilesTableRow(0, g_ScenarioDefinition.uploadedFiles.length)
