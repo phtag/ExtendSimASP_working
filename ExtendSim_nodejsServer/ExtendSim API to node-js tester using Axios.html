@@ -1767,10 +1767,15 @@
                     for (var k=0;k<g_ScenarioDefinition.variableNames.length;k++) {
                         selectValue = '#target-block-type-select-' + (k + 1);
                         $(selectValue).val(g_ScenarioDefinition.blockTypes[k]);
-                        
+                        updateTargetBlockNumbersDropdown(k + 1);
+
+                        selectValue = '#target-block-number-select-' + (k + 1);
+                        $(selectValue).val(g_ScenarioDefinition.blockNumbers[k]);
+                        updateTargetDialogVariableTypeDropdown(k + 1);
+
                         selectValue = '#target-variable-type-select-' + (k + 1);
                         $(selectValue).val(g_ScenarioDefinition.variableTypes[k]);
-                        updateTargetDialogVariableDropdown((k + 1));  
+                        updateTargetDialogVariableDropdown(k + 1);  
 
                         selectValue = '#target-variable-name-select-' + (k + 1);
                         $(selectValue).val(g_ScenarioDefinition.variableNames[k]);
@@ -1778,8 +1783,6 @@
                         inputValue = '#target-variable-value-' + (k + 1);
                         $(inputValue).val(g_ScenarioDefinition.variableValues[k]);
 
-                        selectValue = '#target-block-number-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinition.blockNumbers[k]);
                     }
                     transferScenarioDefinitionToUserSessionsData();
                 })
