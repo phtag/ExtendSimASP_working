@@ -1532,7 +1532,6 @@
     }
     function saveScenarioDefinition() {
         transferUserSessionDataToScenarioDefinition();
-        alert('model name=' + g_ScenarioDefinition.modelName);
         var blob = new Blob([JSON.stringify(g_ScenarioDefinition)],
                 { type: "text/plain;charset=utf-8" });
         saveAs(blob, $('#scenario-name').val() + '_scenarioData.txt');
@@ -1827,7 +1826,6 @@
     function databasefilesSelected(event) {
         var fileList = event.target.files
         var files = $("#" + event.target.id)[0].files;
-        alert('databasefilesSelected: fileList[0]=' + fileList[0] + ' id=' + event.target.id);
         if (files) {
             readAndPreviewDatabaseInputFile(fileList[0], event.target.id);
             // [].forEach.call(files, readAndPreviewDatabaseInputFile(fileList[0], event.target.id));
@@ -1855,7 +1853,6 @@
         return w;
     }
     function updateInputLabel(inputLabel, inputValue, padding) {
-        alert('updateInputLabel: input label=' + inputLabel + ' inputValue=' + inputValue);
         $(inputLabel).val(inputValue);
         var inputWidth = $(inputLabel).val().width($(inputLabel).css( "fontSize" ) + " arial");
         $(inputLabel).css({
@@ -3044,8 +3041,6 @@
     }
     function uploadUserModelPathnameToServer(modelpathname, modelfilename) {
         return new Promise((resolve, reject) => {
-            // alert('uploadUserModelPathnameToServer: modelpathname=' + modelpathname);
-            // event.preventDefault();
             updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
             axios({
                 url: proxyurl + queryURL_root + "ExtendSim/sendmodelpathname",
@@ -3068,7 +3063,6 @@
     function uploadUserModelToServer() {
         return new Promise((resolve, reject) => {
             event.preventDefault();
-            // alert('bytes=' + g_uploadedUserModelFile.data.length);
             updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
             axios({
                 // url: proxyurl + queryURL_root + "ExtendSim/sendfile",
@@ -3083,30 +3077,6 @@
                     scenarioFolderPathname: g_userModelsRootPath,
                     filename: g_uploadedUserModelFile.name,
                     filedata: g_uploadedUserModelFile.data
-                }
-            })
-            .then(function(response) {
-                resolve(true);
-            });
-        });
-    }
-    function uploadUserModelToServer_AB() {
-        return new Promise((resolve, reject) => {
-            event.preventDefault();
-            // alert('bytes=' + g_uploadedUserModelFile.data.length);
-            updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
-            axios({
-                url: proxyurl + queryURL_root + "ExtendSim/sendmodelfile",
-                method: 'post',
-                accept : 'application/json',
-                // contentType: 'application/json;charset=utf-8',
-                contentType: 'application/octet-stream',
-                // contentType: 'blob',
-                // contentType: 'multipart/form-data',
-                data : {
-                    scenarioFolderPathname: g_userModelsRootPath,
-                    filename: g_uploadedUserModelFile.name,
-                    arrayBuffer: g_uploadedUserModelFile.arrayBuffer
                 }
             })
             .then(function(response) {
