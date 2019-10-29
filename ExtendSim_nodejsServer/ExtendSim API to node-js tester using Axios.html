@@ -2272,6 +2272,7 @@
             var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
             updateSourceBlockNumbersDropdown(dialogOutputsTableRows);
             updateSourceDialogVariableTypeDropdown(dialogOutputsTableRows);
+            downloadDialogVariableDataFromModel(dialogOutputsTableRows - 1);
         }
     }
 
@@ -2896,6 +2897,7 @@
                 var variableName = $('#source-variable-name-select-' + (rowIndex + 1)).val();
                 var variableValue = $('#source-variable-value-' + (rowIndex + 1)).val();
                 var blockNumber = $('#source-block-number-select-' + (rowIndex + 1)).val();
+                alert('downloadDialogVariableDataFromModel: Getting value for variable=' + variableName);
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/getdialogvariabledata",
                     method: 'post',
@@ -3616,6 +3618,11 @@
         }
         return $('#' + elementName).width();
     }
+    $('#dialog-outputs-table').on('change', 'select', function () {
+        var selectElementId = $(this).closest('select').attr('id');
+        var rowIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
+        downloadDialogVariableDataFromModel(rowIndex);
+    });
 </script>
 </body>
 
