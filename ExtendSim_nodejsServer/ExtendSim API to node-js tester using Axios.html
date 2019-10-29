@@ -1825,9 +1825,12 @@
         }
     }
     function databasefilesSelected(event) {
+        var fileList = event.target.files
         var files = $("#" + event.target.id)[0].files;
+        alert('databasefilesSelected: fileList[0]=' + fileList[0] + ' id=' + event.target.id);
         if (files) {
-            [].forEach.call(files, readAndPreviewDatabaseInputFile);
+            readAndPreviewDatabaseInputFile(fileList[0], event.target.id);
+            // [].forEach.call(files, readAndPreviewDatabaseInputFile(fileList[0], event.target.id));
         }
         enableDisableUploadFilesToDatabaseTablesButton();    
     }
@@ -1835,7 +1838,8 @@
         var fileList = event.target.files
         var files = $("#" + event.target.id)[0].files;
         if (files) {
-            [].forEach.call(files, readAndPreviewInputFile(fileList[0], event.target.id));
+            readAndPreviewInputFile(fileList[0], event.target.id);
+            // [].forEach.call(files, readAndPreviewInputFile(fileList[0], event.target.id));
         }
         enableDisableUploadFilesButton();
     }
@@ -1851,6 +1855,7 @@
         return w;
     }
     function updateInputLabel(inputLabel, inputValue, padding) {
+        alert('updateInputLabel: input label=' + inputLabel + ' inputValue=' + inputValue);
         $(inputLabel).val(inputValue);
         var inputWidth = $(inputLabel).val().width($(inputLabel).css( "fontSize" ) + " arial");
         $(inputLabel).css({
@@ -1934,13 +1939,13 @@
             reader.readAsText(file);
         }
     }
-    function readAndPreviewDatabaseInputFile(file) {
+    function readAndPreviewDatabaseInputFile(file, id) {
+        var rowIndex = Number(id.substring(id.lastIndexOf("-") + 1));
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
-            uploadedDatabaseFiles[numDatabaseFilesUploaded].data = contents;
-            numDatabaseFilesUploaded++;
-            var inputLabel = '#database-input-label-' + numDatabaseFilesUploaded;
+            uploadedDatabaseFiles[rowIndex - 1].data = contents;
+            var inputLabel = '#database-input-label-' + rowIndex;
             updateInputLabel(inputLabel, file.name, 20);
         };
 
@@ -3619,11 +3624,13 @@
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.checked);
                     }
                     for (var j=0;j<g_containers[i].children.length;j++) {
-                        if ($('#' + g_containers[i].children[j].name).prop('checked')) {
-                            $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.checked);
-                        }
-                        else {
-                            $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.unchecked);
+                        if (g_containers[i].children[j].name !== '') {
+                            if ($('#' + g_containers[i].children[j].name).prop('checked')) {
+                                $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.checked);
+                            }
+                            else {
+                                $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.unchecked);
+                            }
                         }
                     }
                 } else {
