@@ -748,9 +748,9 @@
                                         </th>
                                     </tr>
                                 </table>
-                                <button class="download-dialog-outputs-button" onclick="downloadDialogVariableDataFromModel(0)">Get dialog variable values</button>
+                                <!-- <button class="download-dialog-outputs-button" onclick="downloadDialogVariableDataFromModel(0)">Get dialog variable values</button>
                                 <label id="dialog-outputs-uploaded-status-label">Inputs uploaded:</label>
-                                <input id="dialog-outputs-uploaded-status" type="checkbox"></input>
+                                <input id="dialog-outputs-uploaded-status" type="checkbox"></input> -->
                             </div>
                         </div>     
                     </div>
@@ -2897,7 +2897,6 @@
                 var variableName = $('#source-variable-name-select-' + (rowIndex + 1)).val();
                 var variableValue = $('#source-variable-value-' + (rowIndex + 1)).val();
                 var blockNumber = $('#source-block-number-select-' + (rowIndex + 1)).val();
-                alert('downloadDialogVariableDataFromModel: Getting value for variable=' + variableName);
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/getdialogvariabledata",
                     method: 'post',
