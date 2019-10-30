@@ -499,7 +499,7 @@
                 </div>
             </div>
             <button class="buttons, modal-buttons" id="view-model-chart-button" onclick="viewModalChart()">View chart</button>
-            <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportDataTableToTextFile('selected-database-outputs-table')">Export</button>
+            <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportDataTableToTextFile($('#selected-response-table-name').val())">Export</button>
             <button class="buttons, modal-buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
        </div>  
         <div class="modal-content">
@@ -517,7 +517,7 @@
         <div class="modal-form">
             <label id="selected-file-name-label">File name:</label>
             <input id="selected-file-name" type='text' readonly></input>
-            <button class="buttons" id="export-file-contents-modal" onclick="exportDataTableToTextFile('selected-file-contents-table')">Export</button>
+            <button class="buttons" id="export-file-contents-modal" onclick="exportDataTableToTextFile($('#selected-file-name').val())">Export</button>
             <button class="buttons" id="close-file-contents-modal" onclick="closeFileContentsModal(event)">Close</button>
         </div>  
         <div class="modal-content">
@@ -856,19 +856,24 @@
         data: []
     }
     var g_ScenarioDefinition = {
-        scenarioName: "",
-        uploadedFiles: [],
-        uploadedDatabaseFiles: [],
-        modelName: "",
-        scenarioFolderPathname: "",
-        modelPathname: "",
-        factorDatabasenames: [],
-        factorTablenames: [],
-        blockTypes: [],
-        variableTypes: [],
-        variableNames: [],
-        variableValues: [],
-        blockNumbers: []
+        factors: {
+            scenarioName: "",
+            uploadedFiles: [],
+            uploadedDatabaseFiles: [],
+            modelName: "",
+            scenarioFolderPathname: "",
+            modelPathname: "",
+            factorDatabasenames: [],
+            factorTablenames: [],
+            blockTypes: [],
+            variableTypes: [],
+            variableNames: [],
+            variableValues: [],
+            blockNumbers: []
+        },
+        responses: {
+
+        }
     }
     var g_uploadedUserModelFile = {
         name: '',
@@ -916,22 +921,22 @@
                 {
                     name: 'scenario-setup',
                     width: {
-                        checked: '70%',
-                        unchecked: '50%'
+                        checked: 'auto',
+                        unchecked: '70%'
                     }
                 },
                 {
                     name: 'scenario-factors',
                     width: {
                         checked: 'auto',
-                        unchecked: '50%'
+                        unchecked: '70%'
                     }
                 },
                 {
                     name: 'scenario-responses',
                     width: {
                         checked: 'auto',
-                        unchecked: '50%'
+                        unchecked: '70%'
                     }
                 }
             ]
@@ -940,7 +945,7 @@
             name: 'scenarios',
             width: {
                 checked: 'auto',
-                unchecked: '50%'
+                unchecked: '70%'
             },
             parent: {
                 name: '',
@@ -962,8 +967,8 @@
         {
             name: 'scenario-setup',
             width: {
-                checked: '70%',
-                unchecked: '50%',
+                checked: 'auto',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
@@ -987,7 +992,7 @@
             name: 'scenario-factors',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
@@ -999,19 +1004,33 @@
             },
             children: [
                 {
-                    name: '',
+                    name: 'scenario-file-inputs',
                     width: {
-                        checked: '',
-                        unchecked: ''
+                        checked: 'auto',
+                        unchecked: '70%'
                     }
                 },
+                {
+                    name: 'scenario-database-inputs',
+                    width: {
+                        checked: 'auto',
+                        unchecked: '70%'
+                    }
+                },
+                {
+                    name: 'scenario-dialog-inputs',
+                    width: {
+                        checked: 'auto',
+                        unchecked: '70%'
+                    }
+                }
             ],
         },
         {
             name: 'scenario-responses',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
@@ -1499,35 +1518,35 @@
         });
     }
     function transferScenarioDefinitionToUserSessionsData() {
-        uploadedFiles = g_ScenarioDefinition.uploadedFiles;
-        uploadedDatabaseFiles = g_ScenarioDefinition.uploadedDatabaseFiles;
+        uploadedFiles = g_ScenarioDefinition.factors.uploadedFiles;
+        uploadedDatabaseFiles = g_ScenarioDefinition.factors.uploadedDatabaseFiles;
     }
     function transferUserSessionDataToScenarioDefinition() {
-        g_ScenarioDefinition.uploadedFiles = uploadedFiles;
-        g_ScenarioDefinition.uploadedDatabaseFiles = uploadedDatabaseFiles;
-        g_ScenarioDefinition.modelPathname = $("#user-models").val();
-        g_ScenarioDefinition.modelName = g_ScenarioDefinition.modelPathname.substring(g_ScenarioDefinition.modelPathname.lastIndexOf("\\") + 1);
-        g_ScenarioDefinition.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
-        g_ScenarioDefinition.scenarioName = $('#scenario-name').val();
-        g_ScenarioDefinition.factorDatabasenames = [];
-        g_ScenarioDefinition.factorTablenames = [];
+        g_ScenarioDefinition.factors.uploadedFiles = uploadedFiles;
+        g_ScenarioDefinition.factors.uploadedDatabaseFiles = uploadedDatabaseFiles;
+        g_ScenarioDefinition.factors.modelPathname = $("#user-models").val();
+        g_ScenarioDefinition.factors.modelName = g_ScenarioDefinition.factors.modelPathname.substring(g_ScenarioDefinition.factors.modelPathname.lastIndexOf("\\") + 1);
+        g_ScenarioDefinition.factors.scenarioFolderPathname = $("#user-scenario-folder-pathname").val();
+        g_ScenarioDefinition.factors.scenarioName = $('#scenario-name').val();
+        g_ScenarioDefinition.factors.factorDatabasenames = [];
+        g_ScenarioDefinition.factors.factorTablenames = [];
         for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
-            g_ScenarioDefinition.factorDatabasenames.push($('#target-database-' + (rowIndex + 1)).val());
-            g_ScenarioDefinition.factorTablenames.push($('#target-table-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factors.factorDatabasenames.push($('#target-database-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factors.factorTablenames.push($('#target-table-' + (rowIndex + 1)).val());
         }
 
-        g_ScenarioDefinition.blockTypes = [];
-        g_ScenarioDefinition.variableTypes = [];
-        g_ScenarioDefinition.variableNames = [];
-        g_ScenarioDefinition.variableValues = [];
-        g_ScenarioDefinition.blockNumbers = [];
+        g_ScenarioDefinition.factors.blockTypes = [];
+        g_ScenarioDefinition.factors.variableTypes = [];
+        g_ScenarioDefinition.factors.variableNames = [];
+        g_ScenarioDefinition.factors.variableValues = [];
+        g_ScenarioDefinition.factors.blockNumbers = [];
 
         for (rowIndex=0;rowIndex<dialogInputsTableRows;rowIndex++) {
-            g_ScenarioDefinition.blockTypes.push($('#target-block-type-select-' + (rowIndex + 1)).val());
-            g_ScenarioDefinition.variableTypes.push($('#target-variable-type-select-' + (rowIndex + 1)).val());            
-            g_ScenarioDefinition.variableNames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
-            g_ScenarioDefinition.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
-            g_ScenarioDefinition.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factors.blockTypes.push($('#target-block-type-select-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factors.variableTypes.push($('#target-variable-type-select-' + (rowIndex + 1)).val());            
+            g_ScenarioDefinition.factors.variableNames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factors.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
+            g_ScenarioDefinition.factors.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
         }
     }
     function saveScenarioDefinition() {
@@ -1737,51 +1756,51 @@
     function populateScenarioFactorsSettings() {
         var inputLabel = "";
         // set scenario DOM elements
-        $('#scenario-name').val(g_ScenarioDefinition.scenarioName);
-        $("#user-models").val(g_ScenarioDefinition.modelPathname);
-        $("#user-scenario-folder-pathname").val(g_ScenarioDefinition.scenarioFolderPathname);
+        $('#scenario-name').val(g_ScenarioDefinition.factors.scenarioName);
+        $("#user-models").val(g_ScenarioDefinition.factors.modelPathname);
+        $("#user-scenario-folder-pathname").val(g_ScenarioDefinition.factors.scenarioFolderPathname);
         updateButtonsState();
         // populate the factors input files table
-        addNewInputFilesTableRow(0, g_ScenarioDefinition.uploadedFiles.length)
+        addNewInputFilesTableRow(0, g_ScenarioDefinition.factors.uploadedFiles.length)
         .then(function(response) {
-            for (var i=0;i<g_ScenarioDefinition.uploadedFiles.length;i++) {
+            for (var i=0;i<g_ScenarioDefinition.factors.uploadedFiles.length;i++) {
                 inputLabel = '#input-label-' + (i + 1);
-                updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedFiles[i].name, 20);
+                updateInputLabel(inputLabel, g_ScenarioDefinition.factors.uploadedFiles[i].name, 20);
             }
-            addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.uploadedDatabaseFiles.length, false)
+            addNewDatabaseInputsTableRow(0, g_ScenarioDefinition.factors.uploadedDatabaseFiles.length, false)
             .then(function(response) {
                 var targetDatabase;
                 var targetTable;
-                for (var j=0;j<g_ScenarioDefinition.uploadedDatabaseFiles.length;j++) {
+                for (var j=0;j<g_ScenarioDefinition.factors.uploadedDatabaseFiles.length;j++) {
                     inputLabel = '#database-input-label-' + (j + 1);
-                    updateInputLabel(inputLabel, g_ScenarioDefinition.uploadedDatabaseFiles[j].name, 20);
+                    updateInputLabel(inputLabel, g_ScenarioDefinition.factors.uploadedDatabaseFiles[j].name, 20);
                     targetDatabase = '#target-database-' + (j + 1);
-                    $(targetDatabase).val(g_ScenarioDefinition.factorDatabasenames[j]);
+                    $(targetDatabase).val(g_ScenarioDefinition.factors.factorDatabasenames[j]);
                     targetTable = '#target-table-' + (j + 1);
-                    $(targetTable).val(g_ScenarioDefinition.factorTablenames[j]);
+                    $(targetTable).val(g_ScenarioDefinition.factors.factorTablenames[j]);
                 }
-                addNewDialogInputsTableRow(0, g_ScenarioDefinition.variableNames.length, false)
+                addNewDialogInputsTableRow(0, g_ScenarioDefinition.factors.variableNames.length, false)
                 .then(function(response) {
                     var selectValue;
                     var inputValue;
-                    for (var k=0;k<g_ScenarioDefinition.variableNames.length;k++) {
+                    for (var k=0;k<g_ScenarioDefinition.factors.variableNames.length;k++) {
                         selectValue = '#target-block-type-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinition.blockTypes[k]);
+                        $(selectValue).val(g_ScenarioDefinition.factors.blockTypes[k]);
                         updateTargetBlockNumbersDropdown(k + 1);
 
                         selectValue = '#target-block-number-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinition.blockNumbers[k]);
+                        $(selectValue).val(g_ScenarioDefinition.factors.blockNumbers[k]);
                         updateTargetDialogVariableTypeDropdown(k + 1);
 
                         selectValue = '#target-variable-type-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinition.variableTypes[k]);
+                        $(selectValue).val(g_ScenarioDefinition.factors.variableTypes[k]);
                         updateTargetDialogVariableDropdown(k + 1);  
 
                         selectValue = '#target-variable-name-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinition.variableNames[k]);
+                        $(selectValue).val(g_ScenarioDefinition.factors.variableNames[k]);
 
                         inputValue = '#target-variable-value-' + (k + 1);
-                        $(inputValue).val(g_ScenarioDefinition.variableValues[k]);
+                        $(inputValue).val(g_ScenarioDefinition.factors.variableValues[k]);
 
                     }
                     transferScenarioDefinitionToUserSessionsData();
@@ -2776,6 +2795,7 @@
     }
     function getServerFile(filepath) {
         return new Promise((resolve, reject) => {
+            alert('getServerFile: getting file=' + filepath);
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/getfile',
                 method: 'post',
@@ -2967,16 +2987,16 @@
     }
     function uploadDataStreamsToModel_new(rowIndex) {
         return new Promise((resolve, reject) => {
-            if (g_ScenarioDefinition.uploadedDatabaseFiles.length < 1) {
+            if (g_ScenarioDefinition.factors.uploadedDatabaseFiles.length < 1) {
                 // Exit since there is not data to push 
                 resolve(true);
             } else {
-                var modelName =  g_ScenarioDefinition.modelName;
+                var modelName =  g_ScenarioDefinition.factors.modelName;
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                var databasename = g_ScenarioDefinition.factorDatabasenames[rowIndex];
-                var tablename = g_ScenarioDefinition.factorTablenames[rowIndex];
-                var dataContent = g_ScenarioDefinition.uploadedDatabaseFiles[rowIndex].data;
+                var databasename = g_ScenarioDefinition.factors.factorDatabasenames[rowIndex];
+                var tablename = g_ScenarioDefinition.factors.factorTablenames[rowIndex];
+                var dataContent = g_ScenarioDefinition.factors.uploadedDatabaseFiles[rowIndex].data;
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddatastream",
                     method: 'post',
@@ -2991,7 +3011,7 @@
                 })
                 .then(function(response) {
                     rowIndex++;
-                    if (rowIndex < g_ScenarioDefinition.uploadedDatabaseFiles.length) {
+                    if (rowIndex < g_ScenarioDefinition.factors.uploadedDatabaseFiles.length) {
                         resolve(uploadDataStreamsToModel_new(rowIndex));
                     } else {
                         // All data streams have been sent to the user's models on the server
@@ -3090,7 +3110,7 @@
     }
     function uploadDataFilesToServer_new(fileIndex) {
         return new Promise((resolve, reject) => {
-            if (g_ScenarioDefinition.uploadedFiles.length < 1) {
+            if (g_ScenarioDefinition.factors.uploadedFiles.length < 1) {
                 // Exit since there are no files to copy
                 resolve(true);
             } else {
@@ -3102,13 +3122,13 @@
                     contentType: 'application/json;charset=utf-8',
                     data : {
                         scenarioFolderPathname: $("#user-scenario-folder-pathname").val(),
-                        filename: g_ScenarioDefinition.uploadedFiles[fileIndex].name,
-                        filedata: g_ScenarioDefinition.uploadedFiles[fileIndex].data
+                        filename: g_ScenarioDefinition.factors.uploadedFiles[fileIndex].name,
+                        filedata: g_ScenarioDefinition.factors.uploadedFiles[fileIndex].data
                     }
                 })
                 .then(function(response) {
                     fileIndex++;
-                    if (fileIndex < g_ScenarioDefinition.uploadedFiles.length) {
+                    if (fileIndex < g_ScenarioDefinition.factors.uploadedFiles.length) {
                         resolve(uploadDataFilesToServer_new(fileIndex));
                     } else {
                         $("#files-uploaded-status").prop('checked', true);
@@ -3595,11 +3615,16 @@
                 if (checked) {
                     $('#' + elementName).width(g_containers[i].width.checked);
                     if (g_containers[i].parent.name !== '') {
+                        alert('Setting parent width=' + g_containers[i].parent.width.checked);
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.checked);
                     }
+                    var childrenChecked = false;
+                    var validChildren = 0;
                     for (var j=0;j<g_containers[i].children.length;j++) {
                         if (g_containers[i].children[j].name !== '') {
+                            validChildren++;
                             if ($('#' + g_containers[i].children[j].name).prop('checked')) {
+                                childrenChecked = true;
                                 $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.checked);
                             }
                             else {
@@ -3607,8 +3632,16 @@
                             }
                         }
                     }
+                    if (!childrenChecked && (validChildren > 0)) {
+                        alert('Setting width=' + g_containers[i].width.unchecked);
+                        $('#' + elementName).width(g_containers[i].width.unchecked);                       
+                    } else {
+                        alert('Setting width=' + g_containers[i].width.checked);
+                        $('#' + elementName).width(g_containers[i].width.checked);                       
+                    }
                 } else {
                     $('#' + elementName).width(g_containers[i].width.unchecked);
+                    alert('Setting width=' + g_containers[i].width.unchecked);
                     if (g_containers[i].parent.name !== '') {
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.unchecked);
                     }
