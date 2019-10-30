@@ -2012,7 +2012,7 @@
         }
     }
     function updateDOMelementVisibility(DOMelementIDname) {
-        if ($('#' + DOMelementIDname + '-checkbox'). prop("checked") == true) {
+        if ($('#' + DOMelementIDname + '-checkbox').prop("checked") == true) {
             $('#' + DOMelementIDname + '-body').show();
             // $('#' + DOMelementIDname).width('auto');
             if (DOMelementIDname === "scenario-user-login") {
@@ -3623,11 +3623,13 @@
                     for (var j=0;j<g_containers[i].children.length;j++) {
                         if (g_containers[i].children[j].name !== '') {
                             validChildren++;
-                            if ($('#' + g_containers[i].children[j].name).prop('checked')) {
+                            if ($('#' + g_containers[i].children[j].name + '-checkbox').prop('checked')) {
                                 childrenChecked = true;
+                                alert('CHECKED: Setting ' + g_containers[i].children[j].name + ' width=' + g_containers[i].children[j].width.checked);
                                 $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.checked);
                             }
                             else {
+                                alert('UNCHECKED: Setting ' + g_containers[i].children[j].name + ' width=' + g_containers[i].children[j].width.unchecked);
                                 $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.unchecked);
                             }
                         }
