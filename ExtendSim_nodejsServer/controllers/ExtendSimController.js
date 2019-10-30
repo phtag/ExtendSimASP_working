@@ -101,6 +101,7 @@ module.exports = {
             muteHttpExceptions : false,
             params : {
                 modelPathname : req.body.modelpathname,
+                modelInfoBlockName: req.body.modelInfoBlockName,
                 closeModel: req.body.closeModel
             }
         })
