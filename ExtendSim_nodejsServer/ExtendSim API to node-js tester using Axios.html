@@ -1054,14 +1054,14 @@
             name: 'scenario-file-inputs',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
                 name: 'scenario-factors',
                 width: {
                     checked: 'auto',
-                    unchecked: '60%'
+                    unchecked: '70%'
                 }
             },
             children: [
@@ -1078,14 +1078,14 @@
             name: 'scenario-database-inputs',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
                 name: 'scenario-factors',
                 width: {
                     checked: 'auto',
-                    unchecked: '60%'
+                    unchecked: '70%'
                 }
             },
             children: [
@@ -1102,14 +1102,14 @@
             name: 'scenario-dialog-inputs',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
                 name: 'scenario-factors',
                 width: {
                     checked: 'auto',
-                    unchecked: '60%'
+                    unchecked: '70%'
                 }
             },
             children: [
@@ -1126,14 +1126,14 @@
             name: 'scenario-file-outputs',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
                 name: 'scenario-responses',
                 width: {
                     checked: 'auto',
-                    unchecked: '60%'
+                    unchecked: '70%'
                 }
             },
             children: [
@@ -1150,14 +1150,14 @@
             name: 'scenario-database-outputs',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
                 name: 'scenario-responses',
                 width: {
                     checked: 'auto',
-                    unchecked: '60%'
+                    unchecked: '70%'
                 }
             },
             children: [
@@ -1174,14 +1174,14 @@
             name: 'scenario-dialog-outputs',
             width: {
                 checked: 'auto',
-                unchecked: '50%',
+                unchecked: '70%',
                 minimum: 300
             },
             parent: {
                 name: 'scenario-responses',
                 width: {
                     checked: 'auto',
-                    unchecked: '60%'
+                    unchecked: '70%'
                 }
             },
             children: [
@@ -3615,7 +3615,7 @@
                 if (checked) {
                     $('#' + elementName).width(g_containers[i].width.checked);
                     if (g_containers[i].parent.name !== '') {
-                        alert('Setting parent width=' + g_containers[i].parent.width.checked);
+                        // alert('Setting parent width=' + g_containers[i].parent.width.checked);
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.checked);
                     }
                     var childrenChecked = false;
@@ -3633,15 +3633,15 @@
                         }
                     }
                     if (!childrenChecked && (validChildren > 0)) {
-                        alert('Setting width=' + g_containers[i].width.unchecked);
+                        // alert('Setting width=' + g_containers[i].width.unchecked);
                         $('#' + elementName).width(g_containers[i].width.unchecked);                       
                     } else {
-                        alert('Setting width=' + g_containers[i].width.checked);
+                        // alert('Setting width=' + g_containers[i].width.checked);
                         $('#' + elementName).width(g_containers[i].width.checked);                       
                     }
                 } else {
                     $('#' + elementName).width(g_containers[i].width.unchecked);
-                    alert('Setting width=' + g_containers[i].width.unchecked);
+                    // alert('Setting width=' + g_containers[i].width.unchecked);
                     if (g_containers[i].parent.name !== '') {
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.unchecked);
                     }
