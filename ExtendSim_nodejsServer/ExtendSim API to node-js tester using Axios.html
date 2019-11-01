@@ -1240,6 +1240,7 @@
     const proxyurl = "";
     const pathname = "C:\Users\Administrator\Documents\ExtendSim10ASP_Prod\ASP\ASP Servers\ExtendSim Models\Analyst 1";
     const c_Completed_status = 3;
+    const c_scenarioIDColumn = 1;
     const c_scenarioStatusColumn = 4; 
     const c_scenarioFolderPathnameColumn = 5;
 
@@ -1317,6 +1318,12 @@
     updateDOMelementVisibility("scenario-database-outputs");
     updateDOMelementVisibility("scenario-dialog-outputs");
     updateLoadingDivVisibility(false);
+
+    function updateScenariosTableCellValue(rowIndex, columnIndex, cellValue) {
+        var table = $("#scenarios-table");
+        var statusValue = table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + columnIndex + ')').text(); 
+        table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + columnIndex + ')').text(cellValue); 
+    }
     
     $("#the-form").submit(function(event) {
         event.preventDefault();
@@ -1550,7 +1557,7 @@
     function transferScenarioDefinitionToUserSessionsData(scenarioIndex) {
         uploadedFiles = g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles;
         uploadedDatabaseFiles = g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles;
-        // addNewScenarioTableRow();
+        addNewScenarioTableRow();
     }
     function transferUserSessionDataToScenarioDefinition() {
         g_ScenarioDefinitions.push(g_scenarioDefinition);
@@ -1581,6 +1588,7 @@
             g_ScenarioDefinitions[scenarioIndex].factors.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
             g_ScenarioDefinitions[scenarioIndex].factors.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
         }
+        addNewScenarioTableRow();
         return scenarioIndex;
     }
     function saveScenarioDefinition() {
@@ -1591,7 +1599,6 @@
         saveAs(blob, $('#scenario-name').val() + '_scenarioData.txt');
         $('#scenarios-checkbox').prop('disabled', false);
         $('#submit-scenarios-button').prop('disabled', false); 
-        // addNewScenarioTableRow();
     }
 
     function doesScenarioFolderExist() {
@@ -2452,10 +2459,10 @@
         g_scenariosTableRows++;
         var newrow = 
         // '<tr><td><input type="text" id="scenario-id-' + g_scenariosTableRows + '" value="' + $("#scenario-id").val() + '"></td><td><input type="text" id="scenario-name-' + g_scenariosTableRows + '" value="' + $("#scenario-name").val() + '"></input></td><td><input type="text" id="scenario-status-' + g_scenariosTableRows + '" value="' + $("#scenario-status").val() + '"></input></td><td><input type="text" id="scenario-folder-pathname-' + g_scenariosTableRows + '" value="' + $("#user-scenario-folder-pathname").val() + '"></input></td></tr>'
-        '<tr class="scenarios-table-row" id="scenarios-table-row-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '"></td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
+        '<tr class="scenarios-table-row" id="scenarios-table-row-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" value="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '"></td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
         table.append(newrow);
         $('#scenarios-table-body').width('90%');
-        myCheckStatusInterval = setInterval(()=> {checkScenarioStatus($("#scenario-id").val(), g_scenariosTableRows, c_scenarioStatusColumn)}, 500);
+        // myCheckStatusInterval = setInterval(()=> {checkScenarioStatus($("#scenario-id").val(), g_scenariosTableRows, c_scenarioStatusColumn)}, 500);
     }
 
     function updateTargetTableSelect(event) {
@@ -2819,12 +2826,11 @@
             if (response.data.modelRunStatus === c_Completed_status) {
                 clearInterval(myCheckStatusInterval);
                 $('#submit-scenarios-button').prop('disabled', false);
+                $('#run-selected-scenarios-button').prop('disabled', false);
                 $('#remove-selected-scenario-folders-button').prop('disabled', false);
                 updateButtonsState();
             }
-            var table = $("#scenarios-table");
-            var statusValue = table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + colIndex + ')').text(); 
-            table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + colIndex + ')').text(scenarioStatusValues[response.data.modelRunStatus - 1]); 
+            updateScenariosTableCellValue(rowIndex, colIndex, scenarioStatusValues[response.data.modelRunStatus - 1]);
             $('#scenario-status').val(scenarioStatusValues[response.data.modelRunStatus - 1]);
         });
     }
@@ -2868,7 +2874,7 @@
             })
         });
     }
-    function createScenarioFolder(callServer, copyModelToFolder) {
+    function createScenarioFolder(callServer, copyModelToFolder, rowIndex) {
         return new Promise((resolve, reject) => {
             if (callServer) {
             axios({
@@ -2883,9 +2889,9 @@
                 }
             })
             .then(function(response) {
-                alert('createScenarioFolder: copyModelToFolder=' + copyModelToFolder);
                 // Storing an array of results in the results variable
-                $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
+                updateScenariosTableCellValue(rowIndex, c_scenarioFolderPathnameColumn, response.data.scenarioFolderPathname);
+                // $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
                 $('#create-scenario-folder-button').prop('disabled', true);
                 $('#copy-model-to-scenario-folder').prop('disabled', false);
                 if (copyModelToFolder) {
@@ -3219,10 +3225,11 @@
 
         // create the scenario folder
         var createScenariorFolderFlag;
-        // $('.scenarios-table-row').each(function () {
-        //     var selectElementId = $(this).attr('id');
-        //     var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
-        //     alert('selectElementId=' + selectElementId + ' scenarioIndex=' + scenarioIndex);
+        var rowIndex = 0;
+        $('.scenarios-table-row').each(function () {
+            var selectElementId = $(this).attr('id');
+            var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
+            alert('selectElementId=' + selectElementId + ' scenarioIndex=' + scenarioIndex);
             $('#submit-scenarios-button').prop('disabled', true);
             // Check to see if there is more than the heading in the scenarios table
             if ($('#scenarios-table tr').length > 1) {
@@ -3231,12 +3238,14 @@
                 createScenariorFolderFlag = !doesScenarioFolderExist();
             }
             var scenarioIndex = g_ScenarioDefinitions.length - 1;
-            createScenarioFolder(createScenariorFolderFlag)
+            createScenarioFolder(createScenariorFolderFlag, false, rowIndex)
             .then(function(createScenarioFolderResponse) {
+                alert('After createScenarioFolder');
                 // Copy user selected server model into scenario folder
                 copyModelToScenarioFolder(createScenariorFolderFlag)
                 .then(function(copyModelToScenarioFolderResponse) {
                     // uploadDataStreamsToModel(0)
+                    alert('After copyModelToScenarioFolder');
                     uploadDataStreamsToModel_new(0, scenarioIndex)
                     .then(function(uploadDataStreamsToModelResponse) {
                         // uploadDataFilesToServer(0)
@@ -3261,11 +3270,11 @@
                                     }
                                 })
                                 .then(function(response) {
-                                    $("#scenario-id").val(response.data.scenarioID);
-                                    addNewScenarioTableRow();
+                                    // $("#scenario-id").val(response.data.scenarioID);
+                                    checkScenarioStatus(response.data.scenarioID, rowIndex, c_scenarioIDColumn)                                    
+                                    // addNewScenarioTableRow();
                                     updateButtonsState();
                                 });
-
                             })
                         });
                     })
@@ -3277,7 +3286,8 @@
             .catch(function(error1) {
                 alert('createScenarioFolder error=' + error1);
             });
-        // });
+            rowIndex++;
+        });
     }
 
     function getModelDatabaseTableFields(modelpathname, databasename, tablename) {  
