@@ -1,0 +1,8 @@
+Hi Carla,
+
+Peter Tag
+Simulation Architect
+
+ExtendSim ASP: Running ExtendSim simulations from the web
+
+The new ExtendSim ASP license provides businesses, organizations, and individual licensees with the means to publish their ExtendSim models on a server and make them available to remotely perform model analyses on a client without having to install ExtendSim on the client. In this presentation, we will demonstrate how to interface with ExtendSim models from a browser using the ExtendSim ASP license.

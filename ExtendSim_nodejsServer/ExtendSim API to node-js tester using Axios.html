@@ -1580,14 +1580,17 @@
             g_ScenarioDefinitions[scenarioIndex].factors.variableValues.push($('#target-variable-value-' + (rowIndex + 1)).val());
             g_ScenarioDefinitions[scenarioIndex].factors.blockNumbers.push($('#target-block-number-select-' + (rowIndex + 1)).val());
         }
+        return scenarioIndex;
     }
     function saveScenarioDefinition() {
-        transferUserSessionDataToScenarioDefinition();
-        var blob = new Blob([JSON.stringify(g_ScenarioDefinitions)],
+        var scenarioIndex = transferUserSessionDataToScenarioDefinition();
+        // save by index
+        var blob = new Blob([JSON.stringify(g_ScenarioDefinitions[scenarioIndex])],
                 { type: "text/plain;charset=utf-8" });
         saveAs(blob, $('#scenario-name').val() + '_scenarioData.txt');
         $('#scenarios-checkbox').prop('disabled', false);
         $('#submit-scenarios-button').prop('disabled', false); 
+        addNewScenarioTableRow();
     }
 
     function doesScenarioFolderExist() {
@@ -1795,6 +1798,7 @@
         // populate the factors input files table
         addNewInputFilesTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length)
         .then(function(response) {
+            alert('populateScenarioFactorsSettings: Adding input files...');
             for (var i=0;i<g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length;i++) {
                 inputLabel = '#input-label-' + (i + 1);
                 updateInputLabel(inputLabel, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles[i].name, 20);
@@ -1833,7 +1837,7 @@
                         $(inputValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableValues[k]);
 
                     }
-                    transferScenarioDefinitionToUserSessionsData();
+                    transferScenarioDefinitionToUserSessionsData(scenarioIndex);
                 })
                 .catch(function(error) {
                     alert('Error returned from addNewDialogInputsTableRow');
@@ -1867,8 +1871,10 @@
     function readAndPreviewScenarioDefinitionFile(file) {
         var reader  = new FileReader();
         reader.onload = function(event) {
-            g_ScenarioDefinitions = JSON.parse(event.target.result);
-            populateScenarioFactorsSettings(g_scenariosTableRows);
+            g_ScenarioDefinitions.push(g_scenarioDefinition);
+            var scenarioIndex = g_ScenarioDefinitions.length - 1;
+            g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
+            populateScenarioFactorsSettings(scenarioIndex);
         };
         if (file) {
             console.log(file);
@@ -2444,6 +2450,7 @@
     function addNewScenarioTableRow() {
         var table = $("#scenarios-table");
         g_scenariosTableRows++;
+        alert('addNewScenarioTableRow: adding new scenario row');
         var newrow = 
         // '<tr><td><input type="text" id="scenario-id-' + g_scenariosTableRows + '" value="' + $("#scenario-id").val() + '"></td><td><input type="text" id="scenario-name-' + g_scenariosTableRows + '" value="' + $("#scenario-name").val() + '"></input></td><td><input type="text" id="scenario-status-' + g_scenariosTableRows + '" value="' + $("#scenario-status").val() + '"></input></td><td><input type="text" id="scenario-folder-pathname-' + g_scenariosTableRows + '" value="' + $("#user-scenario-folder-pathname").val() + '"></input></td></tr>'
         '<tr class="scenarios-table-row" id="scenarios-table-row-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '">Submitted</td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
