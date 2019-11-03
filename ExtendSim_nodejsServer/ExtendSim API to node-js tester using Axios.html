@@ -773,7 +773,7 @@
                 <div>
                     <div>
                         <div id='submit-scenarios'>
-                            <button class="scenario-buttons" id="submit-scenarios-button" onclick='submitSelectedSimulationScenarios(event)'>Submit scenario</button>
+                            <button class="scenario-buttons" id="submit-scenarios-button" onclick='submitSelectedSimulationScenarios(event, 0)'>Submit scenario</button>
                         </div>            
                     </div>
                     <label id="scenario-id-label">Scenario ID:</label>
@@ -3227,17 +3227,18 @@
             }
         });
     }
-    function submitSelectedSimulationScenarios(event) {
-        // Trigger the sequence of calls required to:
-        //  1. create a scenario folder
-        //  2. copy the user model and server files to the scenario folder
-        //  3. Push factor data to the scenario folder and model
-        //  4. Submit the scenario on the server
+    function submitSelectedSimulationScenarios(event, rowIndex) {
+        return new Promise((resolve, reject) => { 
+            // Trigger the sequence of calls required to:
+            //  1. create a scenario folder
+            //  2. copy the user model and server files to the scenario folder
+            //  3. Push factor data to the scenario folder and model
+            //  4. Submit the scenario on the server
 
-        // create the scenario folder
-        var createScenariorFolderFlag;
-        var rowIndex = 0;
-        $('.scenarios-table-row').each(function () {
+            // create the scenario folder
+            var createScenariorFolderFlag;
+            // var rowIndex = 0;
+            // $('.scenarios-table-row').each(function () {
             updateScenariosTableCellValue((rowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
             var selectElementId = $(this).attr('id');
             var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
@@ -3279,10 +3280,14 @@
                                     }
                                 })
                                 .then(function(response) {
+                                    alert('Successfully submitted scenario ID=' + response.data.scenarioID);
                                     updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
                                     myCheckStatusInterval = setInterval(()=> {checkScenarioStatus(response.data.scenarioID, rowIndex)}, c_statusCheckInterval);
                                     updateButtonsState();
                                     rowIndex++;
+                                    if (rowIndex < ($('#scenarios-table tr').length) {
+                                        resolve(submitSelectedSimulationScenarios(event, rowIndex));
+                                    }
                                 });
                             })
                         });
