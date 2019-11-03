@@ -1806,63 +1806,67 @@
         // set scenario DOM elements
         $('#scenario-name').val(g_ScenarioDefinitions[scenarioIndex].factors.scenarioName);
         $("#user-models").val(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname);
-        $("#user-scenario-folder-pathname").val(g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname);
+        loadedScenarioModelpathname = $("#user-models").val();
+        // $("#user-scenario-folder-pathname").val(g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname);
+        $("#user-scenario-folder-pathname").val('');
         updateButtonsState();
-        updateModelInfo($("#user-models").val(), clearTableDataFlag);
-        // populate the factors input files table
-        addNewInputFilesTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length)
+        updateModelInfo($("#user-models").val(), true)
         .then(function(response) {
-            for (var i=0;i<g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length;i++) {
-                inputLabel = '#input-label-' + (i + 1);
-                updateInputLabel(inputLabel, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles[i].name, 20);
-            }
-            addNewDatabaseInputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles.length, false)
+            // populate the factors input files table
+            addNewInputFilesTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length)
             .then(function(response) {
-                var targetDatabase;
-                var targetTable;
-                for (var j=0;j<g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles.length;j++) {
-                    inputLabel = '#database-input-label-' + (j + 1);
-                    updateInputLabel(inputLabel, g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles[j].name, 20);
-                    targetDatabase = '#target-database-' + (j + 1);
-                    $(targetDatabase).val(g_ScenarioDefinitions[scenarioIndex].factors.factorDatabasenames[j]);
-                    targetTable = '#target-table-' + (j + 1);
-                    $(targetTable).val(g_ScenarioDefinitions[scenarioIndex].factors.factorTablenames[j]);
+                for (var i=0;i<g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length;i++) {
+                    inputLabel = '#input-label-' + (i + 1);
+                    updateInputLabel(inputLabel, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles[i].name, 20);
                 }
-                addNewDialogInputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length, false)
+                addNewDatabaseInputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles.length, false)
                 .then(function(response) {
-                    var selectValue;
-                    var inputValue;
-                    for (var k=0;k<g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length;k++) {
-                        selectValue = '#target-block-type-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.blockTypes[k]);
-                        updateTargetBlockNumbersDropdown(k + 1);
-                        selectValue = '#target-block-number-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.blockNumbers[k]);
-                        updateTargetDialogVariableTypeDropdown(k + 1);
-                        selectValue = '#target-variable-type-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableTypes[k]);
-                        updateTargetDialogVariableDropdown(k + 1);  
-
-                        selectValue = '#target-variable-name-select-' + (k + 1);
-                        $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableNames[k]);
-
-                        inputValue = '#target-variable-value-' + (k + 1);
-                        $(inputValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableValues[k]);
-
+                    var targetDatabase;
+                    var targetTable;
+                    for (var j=0;j<g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles.length;j++) {
+                        inputLabel = '#database-input-label-' + (j + 1);
+                        updateInputLabel(inputLabel, g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles[j].name, 20);
+                        targetDatabase = '#target-database-' + (j + 1);
+                        $(targetDatabase).val(g_ScenarioDefinitions[scenarioIndex].factors.factorDatabasenames[j]);
+                        targetTable = '#target-table-' + (j + 1);
+                        $(targetTable).val(g_ScenarioDefinitions[scenarioIndex].factors.factorTablenames[j]);
                     }
-                    transferScenarioDefinitionToUserSessionsData(scenarioIndex);
+                    addNewDialogInputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length, false)
+                    .then(function(response) {
+                        var selectValue;
+                        var inputValue;
+                        for (var k=0;k<g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length;k++) {
+                            selectValue = '#target-block-type-select-' + (k + 1);
+                            $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.blockTypes[k]);
+                            updateTargetBlockNumbersDropdown(k + 1);
+                            selectValue = '#target-block-number-select-' + (k + 1);
+                            $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.blockNumbers[k]);
+                            updateTargetDialogVariableTypeDropdown(k + 1);
+                            selectValue = '#target-variable-type-select-' + (k + 1);
+                            $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableTypes[k]);
+                            updateTargetDialogVariableDropdown(k + 1);  
+
+                            selectValue = '#target-variable-name-select-' + (k + 1);
+                            $(selectValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableNames[k]);
+
+                            inputValue = '#target-variable-value-' + (k + 1);
+                            $(inputValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableValues[k]);
+
+                        }
+                        transferScenarioDefinitionToUserSessionsData(scenarioIndex);
+                    })
+                    .catch(function(error) {
+                        alert('Error returned from addNewDialogInputsTableRow');
+                    })
                 })
                 .catch(function(error) {
-                    alert('Error returned from addNewDialogInputsTableRow');
+                    alert('Error returned from addNewDatabaseInputsTableRow');              
                 })
             })
             .catch(function(error) {
-                alert('Error returned from addNewDatabaseInputsTableRow');              
+                alert('Error returned from addNewInputFilesTableRow');
             })
-        })
-        .catch(function(error) {
-            alert('Error returned from addNewInputFilesTableRow');
-        })
+        });
     }
     function populateScenarioResponsesSettings() {
 
