@@ -859,6 +859,7 @@
     var myCheckStatusInterval;
     var loadedScenarioModelpathname = "";
     var g_modelChartCreated = false;
+    var g_loadingScenarioData = false;
     var g_chartData = {
         labels: [],
         data: []
@@ -1243,6 +1244,7 @@
     const c_scenarioIDColumn = 1;
     const c_scenarioStatusColumn = 4; 
     const c_scenarioFolderPathnameColumn = 5;
+    const c_statusCheckInterval = 500;
 
     const c_DB_FIELDTYPE_INTEGER_VALUE = 4096;
     const c_DB_FIELDTYPE_INTEGER_BOOLEAN = 4097;
@@ -1322,7 +1324,6 @@
     g_ScenarioDefinitions = [];
 
     function updateScenariosTableCellValue(rowIndex, columnIndex, cellValue) {
-        // alert('updateScenariosTableCellValue: setting value=' + cellValue + ' at row=' + rowIndex + ' column=' + columnIndex);
         var table = $("#scenarios-table");
         var statusValue = table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + columnIndex + ')').text(); 
         table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + columnIndex + ')').text(cellValue); 
@@ -1561,6 +1562,7 @@
         uploadedFiles = g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles;
         uploadedDatabaseFiles = g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles;
         addNewScenarioTableRow();
+        g_loadingScenarioData = false;
     }
     function transferUserSessionDataToScenarioDefinition() {
         g_ScenarioDefinitions.push(g_scenarioDefinition);
@@ -1806,6 +1808,7 @@
         $("#user-models").val(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname);
         $("#user-scenario-folder-pathname").val(g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname);
         updateButtonsState();
+        updateModelInfo($("#user-models").val(), clearTableDataFlag);
         // populate the factors input files table
         addNewInputFilesTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length)
         .then(function(response) {
@@ -1865,6 +1868,7 @@
 
     }
     function loadScenarioDefinition(event) {
+        g_loadingScenarioData = true;
         loadedScenarioModelpathname = '';
         var files = $("#" + event.target.id)[0].files;
         clearTableData();
@@ -2143,9 +2147,13 @@
         updateButtonsState();
     }
     function getModelPathname() {
-        var modelName =  $("#user-models").val();
-        modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-        var modelPathname = $("#user-scenario-folder-pathname").val() + '\\' + modelName;
+        if (g_loadingScenarioData) {
+            var modelPathname = $("#user-models").val();
+        } else {
+            var modelName =  $("#user-models").val();
+            modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+            var modelPathname = $("#user-scenario-folder-pathname").val() + '\\' + modelName;
+        }
         return modelPathname;
     }
     function createDatabaseInputsTableRow(rowIndex, numRows) {
@@ -2834,7 +2842,7 @@
                 $('#remove-selected-scenario-folders-button').prop('disabled', false);
                 updateButtonsState();
             }
-            updateScenariosTableCellValue((rowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus - 1]);
+            updateScenariosTableCellValue(rowIndex, c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus - 1]);
             // $('#scenario-status').val(scenarioStatusValues[response.data.modelRunStatus - 1]);
         });
     }
@@ -3269,8 +3277,10 @@
                                 })
                                 .then(function(response) {
                                     updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
-                                    // $("#scenario-id").val(response.data.scenarioID);
-                                    checkScenarioStatus(response.data.scenarioID, rowIndex);                                   
+                                    
+                                    myCheckStatusInterval = setInterval(()=> {checkScenarioStatus(response.data.scenarioID, rowIndex)}, c_statusCheckInterval);
+                                    // myCheckStatusInterval = setInterval(checkScenarioStatus(response.data.scenarioID, rowIndex), 100);
+                                    // checkScenarioStatus(response.data.scenarioID, rowIndex);                                   
                                     // addNewScenarioTableRow();
                                     updateButtonsState();
                                     rowIndex++;
