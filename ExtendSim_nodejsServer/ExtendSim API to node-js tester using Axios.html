@@ -3285,7 +3285,7 @@
                                     myCheckStatusInterval = setInterval(()=> {checkScenarioStatus(response.data.scenarioID, rowIndex)}, c_statusCheckInterval);
                                     updateButtonsState();
                                     rowIndex++;
-                                    if (rowIndex < ($('#scenarios-table tr').length) {
+                                    if (rowIndex < ($('#scenarios-table tr').length)) {
                                         resolve(submitSelectedSimulationScenarios(event, rowIndex));
                                     }
                                 });
