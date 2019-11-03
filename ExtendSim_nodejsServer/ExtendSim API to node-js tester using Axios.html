@@ -852,7 +852,7 @@
     var dialogOutputsTableRows = 0;
     var databaseOutputsTableRows = 0;
     var g_scenariosTableRows = 0;
-    const scenarioStatusValues = ['Waiting to run', 'Running', 'Completed', 'Aborted']
+    const scenarioStatusValues = ['Unsubmitted', 'Submitted', 'Running', 'Completed', 'Aborted']
     // var numFilesUploaded = 0;
     var numDatabaseFilesUploaded = 0;
     var tableDataHtmlCode = "";
@@ -2474,8 +2474,7 @@
         var table = $("#scenarios-table");
         g_scenariosTableRows++;
         var newrow = 
-        // '<tr><td><input type="text" id="scenario-id-' + g_scenariosTableRows + '" value="' + $("#scenario-id").val() + '"></td><td><input type="text" id="scenario-name-' + g_scenariosTableRows + '" value="' + $("#scenario-name").val() + '"></input></td><td><input type="text" id="scenario-status-' + g_scenariosTableRows + '" value="' + $("#scenario-status").val() + '"></input></td><td><input type="text" id="scenario-folder-pathname-' + g_scenariosTableRows + '" value="' + $("#user-scenario-folder-pathname").val() + '"></input></td></tr>'
-        '<tr class="scenarios-table-row" id="scenarios-table-row-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" value="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '"></td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
+        '<tr class="scenarios-table-row" id="scenarios-table-row-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" value="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '">' + scenarioStatusValues[0] + '</td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
         table.append(newrow);
         $('#scenarios-table-body').width('90%');
     }
@@ -2846,8 +2845,7 @@
                 $('#remove-selected-scenario-folders-button').prop('disabled', false);
                 updateButtonsState();
             }
-            updateScenariosTableCellValue(rowIndex, c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus - 1]);
-            // $('#scenario-status').val(scenarioStatusValues[response.data.modelRunStatus - 1]);
+            updateScenariosTableCellValue(rowIndex, c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus]);
         });
     }
     function getServerFile(filepath) {
@@ -3240,6 +3238,7 @@
         var createScenariorFolderFlag;
         var rowIndex = 0;
         $('.scenarios-table-row').each(function () {
+            updateScenariosTableCellValue((rowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
             var selectElementId = $(this).attr('id');
             var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
             $('#submit-scenarios-button').prop('disabled', true);
@@ -3281,11 +3280,7 @@
                                 })
                                 .then(function(response) {
                                     updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
-                                    
                                     myCheckStatusInterval = setInterval(()=> {checkScenarioStatus(response.data.scenarioID, rowIndex)}, c_statusCheckInterval);
-                                    // myCheckStatusInterval = setInterval(checkScenarioStatus(response.data.scenarioID, rowIndex), 100);
-                                    // checkScenarioStatus(response.data.scenarioID, rowIndex);                                   
-                                    // addNewScenarioTableRow();
                                     updateButtonsState();
                                     rowIndex++;
                                 });
@@ -3639,7 +3634,7 @@
                 }
             })
             .then(function(response) {
-                $("#scenario-status").val(scenarioStatusValues[response.data.modelRunStatus - 1]);
+                $("#scenario-status").val(scenarioStatusValues[response.data.modelRunStatus]);
             });
            break;
       }
