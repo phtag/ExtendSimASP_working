@@ -3240,7 +3240,10 @@
             // var rowIndex = 0;
             // $('.scenarios-table-row').each(function () {
             updateScenariosTableCellValue((rowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
-            var selectElementId = $(this).attr('id');
+            
+            // var selectElementId = $(this).attr('id');
+            var selectElementId = $('#scenarios-table-row-' + (rowIndex + 1));
+            alert('Submitting scenario for id=' + selectElementId);
             var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
             $('#submit-scenarios-button').prop('disabled', true);
             // Check to see if there is more than the heading in the scenarios table
