@@ -1838,6 +1838,7 @@
                     }
                     addNewDialogInputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length, false)
                     .then(function(response) {
+                        alert('Num dialog varialbes=' + g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length);
                         var selectValue;
                         var inputValue;
                         for (var k=0;k<g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length;k++) {
@@ -1897,7 +1898,6 @@
             g_ScenarioDefinitions.push(g_scenarioDefinition);
             var scenarioIndex = g_ScenarioDefinitions.length - 1;
             g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
-            // alert('Uploaded database files=' + g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles.length + ' scenarioIndex=' + scenarioIndex);
             populateScenarioFactorsSettings(scenarioIndex);
         };
         if (file) {
@@ -2254,17 +2254,17 @@
                 var table = $("#dialog-inputs-table");
                 dialogInputsTableRows++;
                 var newrow = 
-                '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+                '<tr><td><select id="target-block-type-select-' + (rowIndex + 1) + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + (rowIndex + 1) + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + (rowIndex + 1) + '"></input></td></tr>'     
                 table.append(newrow);
-                var blockType = '#target-block-type-select-' + dialogInputsTableRows;
+                var blockType = '#target-block-type-select-' + (rowIndex + 1);
                 for (var i = 0; i < modelBlocks.length; i++) {
                     $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
                 }
                 if (modelBlocks.length > 0) {
                     $(blockType).val(modelBlocks[0]);
-                    var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
-                    updateTargetBlockNumbersDropdown(dialogInputsTableRows);
-                    updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
+                    var blockNumber = '#target-block-number-select-' + (rowIndex + 1);
+                    updateTargetBlockNumbersDropdown((rowIndex + 1));
+                    updateTargetDialogVariableTypeDropdown((rowIndex + 1));
                 }
                 rowIndex++;
                 resolve(createDialogInputsTableRow(rowIndex, numRows));
