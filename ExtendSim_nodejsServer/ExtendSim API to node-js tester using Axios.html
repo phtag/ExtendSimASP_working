@@ -773,7 +773,7 @@
                 <div>
                     <div>
                         <div id='submit-scenarios'>
-                            <button class="scenario-buttons" id="submit-scenarios-button" onclick='submitSelectedSimulationScenarios(event, 0)'>Submit scenario</button>
+                            <button class="scenario-buttons" id="submit-scenarios-button" onclick='submitSelectedSimulationScenarios(0)'>Submit scenario</button>
                         </div>            
                     </div>
                     <label id="scenario-id-label">Scenario ID:</label>
@@ -1838,7 +1838,6 @@
                     }
                     addNewDialogInputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length, false)
                     .then(function(response) {
-                        alert('Num dialog varialbes=' + g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length);
                         var selectValue;
                         var inputValue;
                         for (var k=0;k<g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length;k++) {
@@ -2843,13 +2842,17 @@
         })
         .then(function(response) {
             g_submittedScenarios[submittedScenarioIndex].status = response.data.modelRunStatus;
-            updateScenariosTableCellValue(tableRowIndex, c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus]);
+            updateScenariosTableCellValue((tableRowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus]);
             if ((g_submittedScenarios[submittedScenarioIndex].status == c_Completed_status) || (g_submittedScenarios[submittedScenarioIndex].status == c_Aborted_status)) {
                 clearInterval(myCheckStatusInterval);
                 $('#submit-scenarios-button').prop('disabled', false);
                 $('#run-selected-scenarios-button').prop('disabled', false);
                 $('#remove-selected-scenario-folders-button').prop('disabled', false);
                 updateButtonsState();
+                tableRowIndex++;
+                if ((tableRowIndex + 1) < ($('#scenarios-table tr').length)) {
+                    submitSelectedSimulationScenarios(tableRowIndex);
+                }
             } else {
                 myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(tableRowIndex, submittedScenarioIndex)}, c_statusCheckTimeout);
             }
@@ -3015,9 +3018,9 @@
                 var modelName =  $("#user-models").val();
                 modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
                 var modelpathname = scenarioFolderPathname + "\\" + modelName;
-                var variableName = $('#target-variable-name-select-' + (rowIndex + 1)).val();
-                var variableValue = $('#target-variable-value-' + (rowIndex + 1)).val();
-                var blockNumber = $('#target-block-number-select-' + (rowIndex + 1)).val();
+                var variableName = g_ScenarioDefinitions[scenarioIndex].factors.variableNames[rowIndex];
+                var variableValue = g_ScenarioDefinitions[scenarioIndex].factors.variableValues[rowIndex];
+                var blockNumber = g_ScenarioDefinitions[scenarioIndex].factors.blockNumbers[rowIndex];
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/senddialogvariabledata",
                     method: 'post',
@@ -3035,7 +3038,7 @@
                 .then(function(response) {
                 //  Advance to the next row
                     rowIndex++;
-                    if (rowIndex < dialogInputsTableRows) {
+                    if (rowIndex < g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length) {
                         resolve(uploadDialogVariableDataToModel(rowIndex, scenarioIndex, scenarioFolderPathname));
                     } else {
                         // All dialog variable values pushed to server
@@ -3238,9 +3241,11 @@
     function waitForRunningSimulationScenarios() {
         return new Promise((resolve, reject) => { 
             if (getNumRunningSimulationScenarios() === 0) {
+                alert('RESOLVING...');
                 resolve(true);
             } else {
-                resolve(setTimeout(()=> {waitForRunningSimulationScenarios()}, c_waitForRunningSimulationScenariosInterval));
+                alert('Setting timeout')
+                resolve(setTimeout(()=> waitForRunningSimulationScenarios(), c_waitForRunningSimulationScenariosInterval));
             }
         });
     }
@@ -3254,7 +3259,7 @@
         }
         return numRunningSimulationScenarios;
     }
-    function submitSelectedSimulationScenarios(event, rowIndex) {
+    function submitSelectedSimulationScenarios(rowIndex) {
         return new Promise((resolve, reject) => { 
             // Trigger the sequence of calls required to:
             //  1. create a scenario folder
@@ -3264,78 +3269,82 @@
 
             // create the scenario folder
             var createScenariorFolderFlag;
-            updateScenariosTableCellValue((rowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
-            waitForRunningSimulationScenarios()
-            .then(function() {
-                // var selectElementId = $(this).attr('id');
-                var scenariosTable = $('#scenarios-table');
-                var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
-                var selectElementId = $(thisRow).attr('id');
-                var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
-                var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
-
-                $('#submit-scenarios-button').prop('disabled', true);
-                // Check to see if there is more than the heading in the scenarios table
-                if ($('#scenarios-table tr').length > 1) {
-                    createScenariorFolderFlag = true;
-                } else {
-                    createScenariorFolderFlag = !doesScenarioFolderExist();
+            // waitForRunningSimulationScenarios()
+            // .then(function(response) {
+            var scenariosTable = $('#scenarios-table');
+            // mark the scenarios as being submitted
+            if (rowIndex === 0) {
+                for (var i=0;i<$('#scenarios-table tr').length;i++) {
+                    updateScenariosTableCellValue((i + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
                 }
-                createScenarioFolder(createScenariorFolderFlag, false, scenarioFolderName, rowIndex)
-                .then(function(createScenarioFolderResponse) {
-                    var scenarioFolderPathname = createScenarioFolderResponse;
-                    // Copy user selected server model into scenario folder
-                    copyModelToScenarioFolder(createScenariorFolderFlag, scenarioFolderPathname)
-                    .then(function(copyModelToScenarioFolderResponse) {
-                        // uploadDataStreamsToModel(0)
-                        uploadDataStreamsToModel_new(0, scenarioIndex, scenarioFolderPathname)
-                        .then(function(uploadDataStreamsToModelResponse) {
-                            // uploadDataFilesToServer(0)
-                            uploadDataFilesToServer_new(0, scenarioIndex, scenarioFolderPathname)
-                            .then(function(uploadDataFilesToServerResponse) {
-                                uploadDialogVariableDataToModel(0, scenarioIndex, scenarioFolderPathname)
-                                .then(function(uploadDialogVariableDataToModelResponse) {
-                                        // // Trigger the submission of the scenario
-                                    var modelName =  $("#user-models").val();
-                                    modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-                                    var modelPathname = scenarioFolderPathname + "\\" + modelName;
-                                    var userLoginSessionID = $("#user-login-session-id").val();
-                                    axios({
-                                        url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenario',
-                                        method: 'post',
-                                        accept : 'application/json',
-                                        contentType: 'application/json;charset=utf-8',
-                                        data: {
-                                            userLoginSessionID: userLoginSessionID,
-                                            modelPathname: modelPathname,
-                                            removeFolderOnCompletion: false
-                                        }
-                                    })
-                                    .then(function(response) {
-                                        updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
-                                        g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
-                                                                    rowIndex: rowIndex,
-                                                                    status: 0 });
-                                        myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(rowIndex, (g_submittedScenarios.length - 1))}, c_statusCheckTimeout);
-                                        updateButtonsState();
-                                        rowIndex++;
-                                        if ((rowIndex + 1) < ($('#scenarios-table tr').length)) {
-                                            resolve(submitSelectedSimulationScenarios(event, rowIndex));
-                                        }
-                                    });
+            }
+            var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
+            var selectElementId = $(thisRow).attr('id');
+            var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
+            var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
+            alert('submitSelectedSimulationScenarios: scenarioindex=' + scenarioIndex);
+            $('#submit-scenarios-button').prop('disabled', true);
+            // Check to see if there is more than the heading in the scenarios table
+            if ($('#scenarios-table tr').length > 1) {
+                createScenariorFolderFlag = true;
+            } else {
+                createScenariorFolderFlag = !doesScenarioFolderExist();
+            }
+            createScenarioFolder(createScenariorFolderFlag, false, scenarioFolderName, rowIndex)
+            .then(function(createScenarioFolderResponse) {
+                var scenarioFolderPathname = createScenarioFolderResponse;
+                // Copy user selected server model into scenario folder
+                copyModelToScenarioFolder(createScenariorFolderFlag, scenarioFolderPathname)
+                .then(function(copyModelToScenarioFolderResponse) {
+                    // uploadDataStreamsToModel(0)
+                    uploadDataStreamsToModel_new(0, scenarioIndex, scenarioFolderPathname)
+                    .then(function(uploadDataStreamsToModelResponse) {
+                        // uploadDataFilesToServer(0)
+                        uploadDataFilesToServer_new(0, scenarioIndex, scenarioFolderPathname)
+                        .then(function(uploadDataFilesToServerResponse) {
+                            uploadDialogVariableDataToModel(0, scenarioIndex, scenarioFolderPathname)
+                            .then(function(uploadDialogVariableDataToModelResponse) {
+                                    // // Trigger the submission of the scenario
+                                var modelName =  $("#user-models").val();
+                                modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                                var modelPathname = scenarioFolderPathname + "\\" + modelName;
+                                var userLoginSessionID = $("#user-login-session-id").val();
+                                axios({
+                                    url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenario',
+                                    method: 'post',
+                                    accept : 'application/json',
+                                    contentType: 'application/json;charset=utf-8',
+                                    data: {
+                                        userLoginSessionID: userLoginSessionID,
+                                        modelPathname: modelPathname,
+                                        removeFolderOnCompletion: false
+                                    }
                                 })
-                            });
-                        })
-                    })
-                    .catch(function(copyModelToScenarioFolderError) {
-                        alert('copyModelToScenarioFolder error=' + copyModelToScenarioFolderError);
+                                .then(function(response) {
+                                    updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
+                                    g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
+                                                                rowIndex: rowIndex,
+                                                                status: 0 });
+                                    myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(rowIndex, (g_submittedScenarios.length - 1))}, c_statusCheckTimeout);
+                                    updateButtonsState();
+                                    // rowIndex++;
+                                    // if ((rowIndex + 1) < ($('#scenarios-table tr').length)) {
+                                    //     resolve(submitSelectedSimulationScenarios(event, rowIndex));
+                                    // }
+                                });
+                            })
+                        });
                     })
                 })
-                .catch(function(error1) {
-                    alert('createScenarioFolder error=' + error1);
-                });
+                .catch(function(copyModelToScenarioFolderError) {
+                    alert('copyModelToScenarioFolder error=' + copyModelToScenarioFolderError);
+                })
             })
-        });
+            .catch(function(error1) {
+                alert('createScenarioFolder error=' + error1);
+            });
+        })
+        // });
     }
 
     function getModelDatabaseTableFields(modelpathname, databasename, tablename) {  

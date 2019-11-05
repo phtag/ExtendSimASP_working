@@ -452,16 +452,16 @@ module.exports = {
         };     
         var queryURL =  "http://" + IPaddress + ":8080/ExtendSimService/web/ES_SetModelData";
         // ?filepathname=" + encodeURIComponent(req.body.scenarioFolderPathname + "/" + req.body.filename);
+        console.log("senddialogvariabledata - model pathname =" + req.body.modelPathname + 
+        " blockNumber=" + req.body.blockNumber + 
+        " variable name=" + req.body.variableName +
+        " variable value=" + variableValue);
         var item = req.body.variableName + ":#" +
                     req.body.blockNumber.toString() + ":" +
                     req.body.row.toString() + ":" +
                     req.body.column.toString();
         var variableValue = req.body.variableValue.toString();
         var modelPathname = req.body.modelPathname;
-        console.log("senddialogvariabledata - model pathname =" + req.body.modelPathname + 
-            " blockNumber=" + req.body.blockNumber + 
-            " variable name=" + req.body.variableName +
-            " variable value=" + variableValue);
         return axios({
             url: queryURL,
             method: 'post',
