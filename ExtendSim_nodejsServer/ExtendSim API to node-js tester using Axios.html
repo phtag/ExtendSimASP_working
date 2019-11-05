@@ -770,8 +770,8 @@
                 <input type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
             </div>
             <div id='scenarios-body'>
-                <div>
-                    <div>
+                <!-- <div> -->
+                    <!-- <div>
                         <div id='submit-scenarios'>
                             <button class="scenario-buttons" id="submit-scenarios-button" onclick='submitSelectedSimulationScenarios(0)'>Submit scenario</button>
                         </div>            
@@ -784,7 +784,7 @@
                     <label id="user-scenario-folder-pathname-label">Selected Scenario folder pathname:</label>
                     <input id="user-scenario-folder-pathname" readonly></input>    
     
-                </div>
+                </div> -->
                 <div id="scenarios-table-body">
                     <table class="scenario-tables" id="scenarios-table">
                         <tr>
@@ -809,7 +809,7 @@
                         </tr>
                     </table>
                     <div id='remove-selected-button'>
-                        <button class="scenario-buttons" id="run-selected-scenarios-button">Run selected scenarios</button>
+                        <button class="scenario-buttons" id="run-selected-scenarios-button" onclick='submitSelectedSimulationScenarios(0)'>Run selected scenarios</button>
                         <button id="remove-selected-scenario-folders-button"  onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
                     </div>
                 </div>
@@ -1061,7 +1061,6 @@
             width: {
                 checked: 'auto',
                 unchecked: '70%',
-                minimum: 300
             },
             parent: {
                 name: 'scenario-definition',
@@ -1072,12 +1071,26 @@
             },
             children: [
                 {
-                    name: '',
+                    name: 'scenario-file-outputs',
                     width: {
-                        checked: '',
-                        unchecked: ''
+                        checked: 'auto',
+                        unchecked: '70%'
                     }
                 },
+                {
+                    name: 'scenario-database-outputs',
+                    width: {
+                        checked: 'auto',
+                        unchecked: '70%'
+                    }
+                },
+                {
+                    name: 'scenario-dialog-outputs',
+                    width: {
+                        checked: 'auto',
+                        unchecked: '70%'
+                    }
+                }
             ],
         },
         {
@@ -1608,7 +1621,9 @@
                 { type: "text/plain;charset=utf-8" });
         saveAs(blob, $('#scenario-name').val() + '_scenarioData.txt');
         $('#scenarios-checkbox').prop('disabled', false);
-        $('#submit-scenarios-button').prop('disabled', false); 
+        // $('#submit-scenarios-button').prop('disabled', false); 
+        $('#run-selected-scenarios-button').prop('disabled', false); 
+        
     }
 
     function doesScenarioFolderExist() {
@@ -1889,7 +1904,8 @@
             [].forEach.call(files, readAndPreviewScenarioDefinitionFile);
         }
         $('#scenarios-checkbox').prop('disabled', false);
-        $('#submit-scenarios-button').prop('disabled', false); 
+        // $('#submit-scenarios-button').prop('disabled', false); 
+        $('#run-selected-scenarios-button').prop('disabled', false); 
     }
     function readAndPreviewScenarioDefinitionFile(file) {
         var reader  = new FileReader();
@@ -2845,7 +2861,7 @@
             updateScenariosTableCellValue((tableRowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus]);
             if ((g_submittedScenarios[submittedScenarioIndex].status == c_Completed_status) || (g_submittedScenarios[submittedScenarioIndex].status == c_Aborted_status)) {
                 clearInterval(myCheckStatusInterval);
-                $('#submit-scenarios-button').prop('disabled', false);
+                // $('#submit-scenarios-button').prop('disabled', false);
                 $('#run-selected-scenarios-button').prop('disabled', false);
                 $('#remove-selected-scenario-folders-button').prop('disabled', false);
                 updateButtonsState();
@@ -3282,7 +3298,8 @@
             var selectElementId = $(thisRow).attr('id');
             var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
             var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
-            $('#submit-scenarios-button').prop('disabled', true);
+            // $('#submit-scenarios-button').prop('disabled', true);
+            $('#run-selected-scenarios-button').prop('disabled', true); 
             // Check to see if there is more than the heading in the scenarios table
             if ($('#scenarios-table tr').length > 1) {
                 createScenariorFolderFlag = true;
@@ -3740,7 +3757,8 @@
                     }
                     if (!childrenChecked && (validChildren > 0)) {
                         // alert('Setting width=' + g_containers[i].width.unchecked);
-                        $('#' + elementName).width(g_containers[i].width.unchecked);                       
+                        $('#' + elementName).width(g_containers[i].width.unchecked);  
+                        alert('Setting width=' + g_containers[i].width.unchecked);                     
                     } else {
                         // alert('Setting width=' + g_containers[i].width.checked);
                         $('#' + elementName).width(g_containers[i].width.checked);                       
