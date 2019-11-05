@@ -3282,7 +3282,6 @@
             var selectElementId = $(thisRow).attr('id');
             var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
             var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
-            alert('submitSelectedSimulationScenarios: scenarioindex=' + scenarioIndex);
             $('#submit-scenarios-button').prop('disabled', true);
             // Check to see if there is more than the heading in the scenarios table
             if ($('#scenarios-table tr').length > 1) {
