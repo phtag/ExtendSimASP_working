@@ -550,6 +550,7 @@
                         Username:
                     </label> 
                     <input class="login" id="username" type="text" name="username" value="analyst2"></input>
+                    <!-- <input class="login" id="username" type="text" name="username" value="reliability"></input> -->
                     <label  for='password'>
                         Password: 
                     </label>
@@ -770,7 +771,7 @@
                 <input type='checkbox' id='scenarios-checkbox' onclick='updateDOMelementVisibility("scenarios")'>Scenarios</input>
             </div>
             <div id='scenarios-body'>
-                <!-- <div> -->
+                <div>
                     <!-- <div>
                         <div id='submit-scenarios'>
                             <button class="scenario-buttons" id="submit-scenarios-button" onclick='submitSelectedSimulationScenarios(0)'>Submit scenario</button>
@@ -781,10 +782,10 @@
                     <label id="scenario-status-label">Scenario status:</label>
                     <input id="scenario-status"></input> 
                     <br></br>
+                    <label id="user-scenario-folder-pathname-label">Selected Scenario folder pathname:</label> -->
                     <label id="user-scenario-folder-pathname-label">Selected Scenario folder pathname:</label>
-                    <input id="user-scenario-folder-pathname" readonly></input>    
-    
-                </div> -->
+                    <input id="user-scenario-folder-pathname" readonly></input> 
+                </div>
                 <div id="scenarios-table-body">
                     <table class="scenario-tables" id="scenarios-table">
                         <tr>
@@ -997,15 +998,15 @@
         {
             name: 'scenario-setup',
             width: {
-                checked: 'auto',
+                checked: '70%',
                 unchecked: '70%',
                 minimum: 300
             },
             parent: {
-                name: '',
+                name: 'scenario-definition',
                 width: {
-                    checked: '',
-                    unchecked: ''
+                    checked: 'auto',
+                    unchecked: 'auto'
                 }
             },
             children: [
@@ -1848,6 +1849,7 @@
                         updateInputLabel(inputLabel, g_ScenarioDefinitions[scenarioIndex].factors.uploadedDatabaseFiles[j].name, 20);
                         targetDatabase = '#target-database-' + (j + 1);
                         $(targetDatabase).val(g_ScenarioDefinitions[scenarioIndex].factors.factorDatabasenames[j]);
+                        updateTargetTableList(j + 1);
                         targetTable = '#target-table-' + (j + 1);
                         $(targetTable).val(g_ScenarioDefinitions[scenarioIndex].factors.factorTablenames[j]);
                     }
@@ -2171,13 +2173,13 @@
         updateButtonsState();
     }
     function getModelPathname() {
-        if (g_loadingScenarioData) {
-            var modelPathname = $("#user-models").val();
-        } else {
-            var modelName =  $("#user-models").val();
-            modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-            var modelPathname = $("#user-scenario-folder-pathname").val() + '\\' + modelName;
-        }
+        // if (g_loadingScenarioData) {
+        var modelPathname = $("#user-models").val();
+        // } else {
+        //     var modelName =  $("#user-models").val();
+        //     modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+        //     var modelPathname = $("#user-scenario-folder-pathname").val() + '\\' + modelName;
+        // }
         return modelPathname;
     }
     function createDatabaseInputsTableRow(rowIndex, numRows) {
@@ -2217,30 +2219,15 @@
     function addNewDatabaseInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                var createScenariorFolderFlag = !doesScenarioFolderExist();
-                createScenarioFolder(createScenariorFolderFlag, false)
-                .then(function(createScenarioFolderResponse) {
-                    // Copy user selected server model into scenario folder
-                    copyModelToScenarioFolder(createScenariorFolderFlag)
-                    .then(function(copyModelToScenarioFolderResponse) {
-                        var modelPathname = getModelPathname();
-                        updateModelInfo(modelPathname, clearTableDataFlag) 
-                        .then(function(response) {
-                            createDatabaseInputsTableRow(startRowIndex, numRows)
-                            .then(function(response) {
-                                resolve(true);
-                            })
-                            .catch(function(error) {
-                                reject(error);
-                            })
-                        })
-                    })
-                    .catch(function(error) {
+                updateModelInfo($("#user-models").val(), true)
+                .then(function(response) {
+                    createDatabaseInputsTableRow(startRowIndex, numRows)
+                    .then(function(response) {
                         resolve(true);
                     })
-                })
-                .catch(function(error) {
-                    reject(error);
+                    .catch(function(error) {
+                        reject(error);
+                    })
                 })
             } else {
                 createDatabaseInputsTableRow(startRowIndex, numRows)
@@ -2291,30 +2278,15 @@
     function addNewDialogInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                var createScenariorFolderFlag = !doesScenarioFolderExist();
-                createScenarioFolder(createScenariorFolderFlag, false)
-                .then(function(createScenarioFolderResponse) {
-                    // Copy user selected server model into scenario folder
-                    copyModelToScenarioFolder(createScenariorFolderFlag)
-                    .then(function(copyModelToScenarioFolderResponse) {
-                        var modelPathname = getModelPathname();
-                        updateModelInfo(modelPathname, clearTableDataFlag) 
-                        .then(function(response) {
-                            createDialogInputsTableRow(startRowIndex, numRows)
-                            .then(function(response) {
-                                resolve(true);
-                            })
-                            .catch(function(error) {
-                                reject(error);
-                            })
-                        })
-                    })
-                    .catch(function(error) {
+                updateModelInfo($("#user-models").val(), true)
+                .then(function(response) {
+                    createDialogInputsTableRow(startRowIndex, numRows)
+                    .then(function(response) {
                         resolve(true);
                     })
-                })
-                .catch(function(error) {
-                    reject(error);
+                    .catch(function(error) {
+                        reject(error);
+                    })
                 })
             } else {
                 createDialogInputsTableRow(startRowIndex, numRows)
@@ -2328,26 +2300,6 @@
             // }         
         });
     }
-    function addNewDialogInputsTableRow_OLD(rowIndex, numRows, clearTableDataFlag) {
-        if (!isSelectedScenarioModelLoaded()) {
-            var createScenariorFolderFlag = !doesScenarioFolderExist();
-            createScenarioFolder(createScenariorFolderFlag, false)
-            .then(function(createScenarioFolderResponse) {
-                // Copy user selected server model into scenario folder
-                copyModelToScenarioFolder(createScenariorFolderFlag)
-                .then(function(copyModelToScenarioFolderResponse) {
-                    var modelPathname = getModelPathname();
-                    updateModelInfo(modelPathname, clearTableDataFlag)
-                    .then(function(response) {
-                        createDialogInputsTableRow();
-                    })
-                })
-            })
-        } else {
-            createDialogInputsTableRow();
-        }
-    }
-
     function deleteDialogInputsTableRow(event) {
         if (dialogInputsTableRows > 0) {
             dialogInputsTableRows--;
@@ -2373,21 +2325,14 @@
             downloadDialogVariableDataFromModel(dialogOutputsTableRows - 1);
         }
     }
-
     function addNewDialogOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         if (!isSelectedScenarioModelLoaded()) {
-            var createScenariorFolderFlag = !doesScenarioFolderExist();
-            createScenarioFolder(createScenariorFolderFlag, false)
-            .then(function(createScenarioFolderResponse) {
-                // Copy user selected server model into scenario folder
-                copyModelToScenarioFolder(createScenariorFolderFlag)
-                .then(function(copyModelToScenarioFolderResponse) {
-                    var modelPathname = getModelPathname();
-                    updateModelInfo(modelPathname, clearTableDataFlag)
-                    .then(function(response) {
-                        createDialogOutputsTableRow();
-                    })
-                })
+            updateModelInfo($("#user-models").val(), true)
+            .then(function(response) {
+                createDialogOutputsTableRow();
+            })
+            .catch(function(error) {
+                reject(error);
             })
         } else {
             createDialogOutputsTableRow();
@@ -2404,7 +2349,7 @@
         var table = $("#database-outputs-table");
         databaseOutputsTableRows++;
         var newrow = 
-        '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
+        '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button class="scenario-database-output-buttons" id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
         table.append(newrow);
         var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
         for (var i = 0; i < modelDatabases.length; i++) {
@@ -2423,18 +2368,12 @@
     }
     function addNewDatabaseOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         if (!isSelectedScenarioModelLoaded()) {
-            var createScenariorFolderFlag = !doesScenarioFolderExist();
-            createScenarioFolder(createScenariorFolderFlag, false)
-            .then(function(createScenarioFolderResponse) {
-                // Copy user selected server model into scenario folder
-                copyModelToScenarioFolder(createScenariorFolderFlag)
-                .then(function(copyModelToScenarioFolderResponse) {
-                    var modelPathname = getModelPathname();
-                    updateModelInfo(modelPathname, clearTableDataFlag)
-                    .then(function(response) {
-                        createDatabaseOutputsTableRow();
-                    })
-                })
+            updateModelInfo($("#user-models").val(), true)
+            .then(function(response) {
+                createDatabaseOutputsTableRow();
+            })
+            .catch(function(error) {
+                reject(error);
             })
         } else {
             createDatabaseOutputsTableRow();
@@ -2498,36 +2437,30 @@
         table.append(newrow);
         $('#scenarios-table-body').width('90%');
     }
-
-    function updateTargetTableSelect(event) {
-        // var index = event.target.id.lastIndexOf('-') + 1;
-        // var rowIndex = event.target.id.substring(index);
-        var rowIndex = getRowIndexFromTableRowId(event.target.id);
+    function updateTargetTableList(rowIndex) {
         var targetDatabase = '#target-database-' + rowIndex;
         var matchindex = modelDatabases.findIndex(x => x.name === $(targetDatabase).val());
         if (matchindex >= 0) {
             var targetTable = '#target-table-' + rowIndex;
-            // $(targetTable).empty();
-            $(targetTable).find("tr:not(:first)").remove();
+            $(targetTable).empty();
             for (var i = 0; i < modelDatabases[matchindex].tableNames.length; i++) {
                 $(targetTable).append('<option value="' + modelDatabases[matchindex].tableNames[i] + '">' + modelDatabases[matchindex].tableNames[i] + '</option>');
             }
             if (modelDatabases[matchindex].tableNames.length > 0) {
                 $(targetTable).val(modelDatabases[matchindex].tableNames[0]);
             }
-        }     
-    }
-
-    function updateSourceTableSelect(event) {
-        // var index = event.target.id.lastIndexOf('-') + 1;
-        // var rowIndex = event.target.id.substring(index);
+        }
+    }     
+    function updateTargetTableSelect(event) {
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
-        var sourceDatabase = '#source-database-' + rowIndex;
+        updateTargetTableList(rowIndex);
+    }
+    function updateSourceTableList(rowIndex) {
+    var sourceDatabase = '#source-database-' + rowIndex;
         var matchindex = modelDatabases.findIndex(x => x.name === $(sourceDatabase).val());
         if (matchindex >= 0) {
             var sourceTable = '#source-table-' + rowIndex;
-            // $(sourceTable).empty();
-            $(sourceTable).find("tr:not(:first)").remove();
+            $(sourceTable).empty();
             for (var i = 0; i < modelDatabases[matchindex].tableNames.length; i++) {
                 $(sourceTable).append('<option value="' + modelDatabases[matchindex].tableNames[i] + '">' + modelDatabases[matchindex].tableNames[i] + '</option>');
             }
@@ -2535,6 +2468,10 @@
                 $(sourceTable).val(modelDatabases[matchindex].tableNames[0]);
             }
         }
+    }
+    function updateSourceTableSelect(event) {
+        var rowIndex = getRowIndexFromTableRowId(event.target.id);
+        updateSourceTableList(rowIndex);
     }
 
     function deleteDatabaseOutputsTableRow(event) {
@@ -2821,6 +2758,7 @@
             }
             getmodeldatabases(modelPathname, getModelInfo)
             .then(function(response) {
+                // save the currently loaded model name
                 loadedScenarioModelpathname = modelPathname;
                 resolve(true);
             })
@@ -2932,7 +2870,7 @@
             .then(function(response) {
                 // Storing an array of results in the results variable
                 updateScenariosTableCellValue((rowIndex + 1), c_scenarioFolderPathnameColumn, response.data.scenarioFolderPathname);
-                // $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
+                $("#user-scenario-folder-pathname").val(response.data.scenarioFolderPathname);
                 $('#create-scenario-folder-button').prop('disabled', true);
                 $('#copy-model-to-scenario-folder').prop('disabled', false);
                 if (copyModelToFolder) {
@@ -3254,17 +3192,17 @@
             }
         });
     }
-    function waitForRunningSimulationScenarios() {
-        return new Promise((resolve, reject) => { 
-            if (getNumRunningSimulationScenarios() === 0) {
-                alert('RESOLVING...');
-                resolve(true);
-            } else {
-                alert('Setting timeout')
-                resolve(setTimeout(()=> waitForRunningSimulationScenarios(), c_waitForRunningSimulationScenariosInterval));
-            }
-        });
-    }
+    // function waitForRunningSimulationScenarios() {
+    //     return new Promise((resolve, reject) => { 
+    //         if (getNumRunningSimulationScenarios() === 0) {
+    //             alert('RESOLVING...');
+    //             resolve(true);
+    //         } else {
+    //             alert('Setting timeout')
+    //             resolve(setTimeout(()=> waitForRunningSimulationScenarios(), c_waitForRunningSimulationScenariosInterval));
+    //         }
+    //     });
+    // }
     function getNumRunningSimulationScenarios() {
         var numRunningSimulationScenarios = 0;
         for (var i=0;i<g_submittedScenarios.length;i++) {
@@ -3758,7 +3696,6 @@
                     if (!childrenChecked && (validChildren > 0)) {
                         // alert('Setting width=' + g_containers[i].width.unchecked);
                         $('#' + elementName).width(g_containers[i].width.unchecked);  
-                        alert('Setting width=' + g_containers[i].width.unchecked);                     
                     } else {
                         // alert('Setting width=' + g_containers[i].width.checked);
                         $('#' + elementName).width(g_containers[i].width.checked);                       
