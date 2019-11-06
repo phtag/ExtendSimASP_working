@@ -115,7 +115,7 @@
         height: 100%;
     }
     /* #modal-form-chart {
-        height: 100%;
+        height: 70%;
     } */
     #modal-x-axis-field-select, #modal-y-axis-field-select  {
         margin-right: 10px;
@@ -512,7 +512,7 @@
                 </table>
             </div>
             <div id="modal-chart-container">
-                <canvas id="modal-form-chart"  width=auto></canvas>
+                <canvas id="modal-form-chart" width=auto></canvas>
             </div>
         </div>
     </div> 
@@ -530,7 +530,8 @@
                 </table>
             </div>
             <div class="container">
-                <canvas id="modal-form-chart"  width=auto></canvas>
+                <!-- <canvas id="modal-form-chart"  width=auto></canvas> -->
+                <canvas id="modal-form-chart"  width=80% height=80%></canvas>
             </div>
         </div>
     </div>     
@@ -1398,10 +1399,12 @@
     function exportDataTableToTextFile(tableName) {
         var titles = [];
         var data = [];
-        $('#' + tableName + ' th').each(function() {
+        var tableId = 'selected-database-outputs-table';
+        alert('Tablename=' + tableName);
+        $('#' + tableId + ' th').each(function() {
             titles.push($(this).text());
         });
-        $('#' + tableName + ' td').each(function() {
+        $('#' + tableId + ' td').each(function() {
             data.push($(this).text());
         });
         var CSVString = prepCSVRow(titles, titles.length, '');
