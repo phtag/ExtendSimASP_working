@@ -528,6 +528,39 @@ module.exports = {
             })
         })
     },
+    submitsimulationscenariotoblock: function(req, res) {
+        const myheaders = { 
+            accept: "application/json", 
+        };
+        const userLoginSessionID = req.body.userLoginSessionID;
+        const modelPathname = req.body.modelPathname;
+        const removeFolderOnCompletion = req.body.modelPathname;
+        var scenarioID;
+        var queryURL = "http://" + IPaddress + ":8080/ExtendSimService/web/SubmitSimulationScenario_DB";
+        console.log("submitsimulationscenariotoblock: submitting simulation scenario for userLoginSessionID=" + req.body.userLoginSessionID + ' to block number=' + req.body.blockNumber + ' with run button name=' + req.body.runButtonName);
+        return axios({
+            url: queryURL,
+            method: 'post',
+            accept : "application/json",
+            contentType: "application/json;charset=utf-8",
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params: 
+            {
+                userLoginSession_ID: req.body.userLoginSessionID,
+                modelPathname: req.body.modelPathname,
+                runButtonName: req.body.runButtonName,
+                blockNumber: req.body.blockNumber,
+                quitExtendSim: req.body.quitExtendSim,
+                removeScenarioFolderOnCompletion: req.body.removeFolderOnCompletion,
+                sysGlobalStr5: req.body.sysGlobalStr5
+            }
+        }).then(function(response) {
+            scenarioID = response.data;
+            console.log("ExtendSimSubmitScenario: scenarioID=" + response.data);
+            return res.json({scenarioID: response.data});     
+        });
+    },
     submitsimulationscenario: function(req, res) {
         const myheaders = { 
             accept: "application/json", 

@@ -553,8 +553,8 @@
                     <label  for='username'>
                         Username:
                     </label> 
-                    <input class="login" id="username" type="text" name="username" value="analyst2"></input>
-                    <!-- <input class="login" id="username" type="text" name="username" value="reliability"></input> -->
+                    <!-- <input class="login" id="username" type="text" name="username" value="analyst2"></input> -->
+                    <input class="login" id="username" type="text" name="username" value="reliability"></input>
                     <label  for='password'>
                         Password: 
                     </label>
@@ -866,6 +866,7 @@
     var loadedScenarioModelpathname = "";
     var g_modelChartCreated = false;
     var g_loadingScenarioData = false;
+    var g_RSMblockNumber = -1;
     var g_chartData = {
         labels: [],
         data: []
@@ -1268,7 +1269,9 @@
     const c_waitForRunningSimulationScenariosInterval = 1000;
     const c_statusCheckInterval = 500;
     const c_statusCheckTimeout = 500;
-
+ 
+    const c_ReliabilityScenarioManager_blockName = "Reliability Scenario Manager";
+    const c_ReliabilityScenarioManager_runButtonName = "SCEN_RunSelected_btn";
     const c_DB_FIELDTYPE_INTEGER_VALUE = 4096;
     const c_DB_FIELDTYPE_INTEGER_BOOLEAN = 4097;
     const c_DB_FIELDTYPE_REAL_GENERAL = 8192;
@@ -2602,7 +2605,14 @@
         }
         updateSourceDialogVariableTypeDropdown(rowIndex);
     }
-
+    function getReliabilityScenarioManagerBlockNumber() {
+        for (var i=0;i<modelBlockInfo.length;i++) {
+            if (modelBlockInfo[i].blockName === c_ReliabilityScenarioManager_blockName) {
+                return modelBlockInfo[i].blockNumber;
+            }
+        }
+        return -1;
+    }
     function updateTargetBlockNumbersDropdown(rowIndex) {
         var blockType = '#target-block-type-select-' + rowIndex;
         var blockNumber = '#target-block-number-select-' + rowIndex;
@@ -2622,7 +2632,6 @@
         }
         updateTargetDialogVariableTypeDropdown(rowIndex);
     }
-
     function updateTargetDialogVariableTypeDropdown(rowIndex) {
         var blockNumber = '#target-block-number-select-' + rowIndex;
         var dialogVariableType = '#target-variable-type-select-' + rowIndex;
@@ -3265,33 +3274,62 @@
                             uploadDialogVariableDataToModel(0, scenarioIndex, scenarioFolderPathname)
                             .then(function(uploadDialogVariableDataToModelResponse) {
                                     // // Trigger the submission of the scenario
-                                var modelName =  $("#user-models").val();
-                                modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-                                var modelPathname = scenarioFolderPathname + "\\" + modelName;
-                                var userLoginSessionID = $("#user-login-session-id").val();
-                                axios({
-                                    url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenario',
-                                    method: 'post',
-                                    accept : 'application/json',
-                                    contentType: 'application/json;charset=utf-8',
-                                    data: {
-                                        userLoginSessionID: userLoginSessionID,
-                                        modelPathname: modelPathname,
-                                        removeFolderOnCompletion: false
-                                    }
-                                })
-                                .then(function(response) {
-                                    updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
-                                    g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
-                                                                rowIndex: rowIndex,
-                                                                status: 0 });
-                                    myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(rowIndex, (g_submittedScenarios.length - 1))}, c_statusCheckTimeout);
-                                    updateButtonsState();
-                                    // rowIndex++;
-                                    // if ((rowIndex + 1) < ($('#scenarios-table tr').length)) {
-                                    //     resolve(submitSelectedSimulationScenarios(event, rowIndex));
-                                    // }
-                                });
+                                if (g_RSMblockNumber > 0) {
+                                    alert('Submitting simulation to submitsimulationscenariotoblock');
+                                    const c_ReliabilityScenarioManager_blockName = "Reliability Scenario Manager";
+                                    const c_ReliabilityScenarioManager_runButtonName = "SCEN_RunSelected_btn";
+                                    var modelName =  $("#user-models").val();
+                                    modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                                    var modelPathname = scenarioFolderPathname + "\\" + modelName;
+                                    var userLoginSessionID = $("#user-login-session-id").val();
+                                    axios({
+                                        url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenariotoblock',
+                                        method: 'post',
+                                        accept : 'application/json',
+                                        contentType: 'application/json;charset=utf-8',
+                                        data: {
+                                            userLoginSessionID: userLoginSessionID,
+                                            modelPathname: modelPathname,
+                                            runButtonName: c_ReliabilityScenarioManager_runButtonName,
+                                            blockNumber: g_RSMblockNumber,
+                                            quitExtendSim: true,
+                                            removeFolderOnCompletion: false,
+                                            sysGlobalStr5: ""
+                                        }
+                                    })
+                                    .then(function(response) {
+                                        updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
+                                        g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
+                                                                    rowIndex: rowIndex,
+                                                                    status: 0 });
+                                        myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(rowIndex, (g_submittedScenarios.length - 1))}, c_statusCheckTimeout);
+                                        updateButtonsState();
+                                    });
+                                } else {
+                                    var modelName =  $("#user-models").val();
+                                    modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                                    var modelPathname = scenarioFolderPathname + "\\" + modelName;
+                                    var userLoginSessionID = $("#user-login-session-id").val();
+                                    axios({
+                                        url: proxyurl + queryURL_root + 'ExtendSim/submitsimulationscenario',
+                                        method: 'post',
+                                        accept : 'application/json',
+                                        contentType: 'application/json;charset=utf-8',
+                                        data: {
+                                            userLoginSessionID: userLoginSessionID,
+                                            modelPathname: modelPathname,
+                                            removeFolderOnCompletion: false
+                                        }
+                                    })
+                                    .then(function(response) {
+                                        updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
+                                        g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
+                                                                    rowIndex: rowIndex,
+                                                                    status: 0 });
+                                        myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(rowIndex, (g_submittedScenarios.length - 1))}, c_statusCheckTimeout);
+                                        updateButtonsState();
+                                    });
+                                }
                             })
                         });
                     })
@@ -3510,6 +3548,7 @@
                     }
                     modelBlocks = Array.from(new Set(tempArray));
                     modelBlocks.sort();
+                    g_RSMblockNumber = getReliabilityScenarioManagerBlockNumber();
                     updateLoadingDivVisibility(false);
                     resolve(response);
                 } else {

@@ -18,6 +18,7 @@ router.route('/sendmodelpathname').post(ExtendSimController.sendmodelpathname);
 router.route('/sendmodelfile').post(ExtendSimController.sendmodelfile);
 router.route('/senddatastream').post(ExtendSimController.senddatastream);
 router.route('/senddialogvariabledata').post(ExtendSimController.senddialogvariabledata);
+router.route('/submitsimulationscenariotoblock').post(ExtendSimController.submitsimulationscenariotoblock);
 router.route('/submitsimulationscenario').post(ExtendSimController.submitsimulationscenario);
 router.route('/checkmodelrunstatus').post(ExtendSimController.checkmodelrunstatus);
 router.route('/getdatabasetablecontentsstream').post(ExtendSimController.getdatabasetablecontentsstream);
