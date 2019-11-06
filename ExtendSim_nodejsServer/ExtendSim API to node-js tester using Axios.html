@@ -1406,7 +1406,6 @@
         var titles = [];
         var data = [];
         var tableId = 'selected-database-outputs-table';
-        alert('Tablename=' + tableName);
         $('#' + tableId + ' th').each(function() {
             titles.push($(this).text());
         });
@@ -3275,7 +3274,6 @@
                             .then(function(uploadDialogVariableDataToModelResponse) {
                                     // // Trigger the submission of the scenario
                                 if (g_RSMblockNumber > 0) {
-                                    alert('Submitting simulation to submitsimulationscenariotoblock');
                                     const c_ReliabilityScenarioManager_blockName = "Reliability Scenario Manager";
                                     const c_ReliabilityScenarioManager_runButtonName = "SCEN_RunSelected_btn";
                                     var modelName =  $("#user-models").val();
