@@ -132,6 +132,9 @@
     #save-scenario-definition {
         margin: 0px 20px 20px 20px;
     }
+    #selected-response-table-name {
+        margin-right: 20px;
+    }
     #selected-response-table-name-label {
         font-size: 18px;
         font-family: Arial, Helvetica, sans-serif;
@@ -154,7 +157,7 @@
         /* margin: 0px auto 10px; */
         margin: 10px auto;
         width: auto;
-        max-width: 500px;
+        max-width: 600px;
         z-index: 100;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
@@ -166,13 +169,13 @@
         text-align: center;
     }
     .modal-buttons {
-        margin: 0px 10px 0px 10px;   
+        margin: 0px 1px 0px 1px;   
     }
     #modal-chart-axes-selection-dropdowns {
         /* padding: 20px; */
-        margin: 2%;
+        margin: 1%;
         background-color: rgb(216, 216, 216);
-        border-width: 2px;
+        border-width: 1px;
         border-style: solid;
         border-radius: 10px;
         border-color: rgb(0, 0, 0);
@@ -490,6 +493,9 @@
         <div class="modal-form">
             <label id="selected-response-table-name-label">Table name:</label>
             <input id="selected-response-table-name" type='text' readonly></input>
+            <button class="buttons, modal-buttons" id="view-model-chart-button" onclick="viewModalChart()">View chart</button>
+            <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportDataTableToTextFile($('#selected-response-table-name').val())">Export</button>
+            <button class="buttons, modal-buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
             <div id='modal-chart-axes-selection-dropdowns'>
                 <div id="chart-type">
                     <label id='chart-type-select-label' for='chart-type-select'>Chart type:</label>
@@ -502,9 +508,6 @@
                     <select id='modal-y-axis-field-select'></select>
                 </div>
             </div>
-            <button class="buttons, modal-buttons" id="view-model-chart-button" onclick="viewModalChart()">View chart</button>
-            <button class="buttons, modal-buttons" id="export-table-contents-modal" onclick="exportDataTableToTextFile($('#selected-response-table-name').val())">Export</button>
-            <button class="buttons, modal-buttons" id="close-database-table-contents-modal" onclick="closeDatabaseTableContentsModal(event)">Close</button>
        </div>  
         <div class="modal-content">
             <div id="modal-form-contents">
