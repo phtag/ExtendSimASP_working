@@ -21,6 +21,7 @@ router.route('/senddialogvariabledata').post(ExtendSimController.senddialogvaria
 router.route('/submitsimulationscenariotoblock').post(ExtendSimController.submitsimulationscenariotoblock);
 router.route('/submitsimulationscenario').post(ExtendSimController.submitsimulationscenario);
 router.route('/checkmodelrunstatus').post(ExtendSimController.checkmodelrunstatus);
+router.route('/getscenariorundetails').post(ExtendSimController.getscenariorundetails);
 router.route('/getdatabasetablecontentsstream').post(ExtendSimController.getdatabasetablecontentsstream);
 router.route('/removescenariofolder').post(ExtendSimController.removescenariofolder);
 module.exports = router;

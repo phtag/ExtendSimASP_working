@@ -590,6 +590,29 @@ module.exports = {
             return res.json({scenarioID: response.data});     
         });
     },
+    getscenariorundetails: function(req, res) {
+        var myheaders = { 
+            accept: "application/json", 
+        };
+        var queryURL = "http://" + IPaddress + ":8080/ExtendSimService/web/GetScenarioRunDetails";
+        console.log("getscenariorundetails: Making call to server...");
+        return axios({
+            url: queryURL,
+            method: 'post',
+            accept : "application/json",
+            contentType: "application/json;charset=utf-8",
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params: 
+            {
+                scenario_ID: req.body.scenarioID
+            }
+        }).then(function(response) {
+            var scenarioRunDetails = response.data;
+            console.log("getscenariorundetails: Model run status=" + scenarioRunDetails);
+            return res.json({scenarioRunDetails: response.data});
+        });
+    },
     checkmodelrunstatus: function(req, res) {
         var myheaders = { 
             accept: "application/json", 

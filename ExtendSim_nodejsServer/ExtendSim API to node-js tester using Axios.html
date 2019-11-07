@@ -108,6 +108,9 @@
         width: 50%;
         text-align: center;
     }
+    .percentage-value {
+        text-align: center;
+    }
     #chart-type-select-label, #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
         font-weight: bold;
     }
@@ -808,6 +811,9 @@
                             <th>
                                 Status
                             </th>
+                            <th nowrap>
+                                % Complete
+                            </th>
                             <th>
                                 Folder
                             </th>
@@ -1265,7 +1271,8 @@
     const c_scenarioIDColumn = 1;
     const c_scenarioNameColumn = 2;
     const c_scenarioStatusColumn = 4; 
-    const c_scenarioFolderPathnameColumn = 5;
+    const c_PercentComplete = 5;
+    const c_scenarioFolderPathnameColumn = 6;
     const c_waitForRunningSimulationScenariosInterval = 1000;
     const c_statusCheckInterval = 500;
     const c_statusCheckTimeout = 500;
@@ -2445,7 +2452,7 @@
         var table = $("#scenarios-table");
         g_scenariosTableRows++;
         var newrow = 
-        '<tr class="scenarios-table-row" id="scenario-index-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" value="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '">' + scenarioStatusValues[0] + '</td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
+        '<tr class="scenarios-table-row" id="scenario-index-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" value="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '">' + scenarioStatusValues[0] + '</td><td nowrap class="percentage-value" id="scenario-progress-' + g_scenariosTableRows + '">0%</td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
         table.append(newrow);
         $('#scenarios-table-body').width('90%');
     }
@@ -2826,7 +2833,25 @@
                     submitSelectedSimulationScenarios(tableRowIndex);
                 }
             } else {
-                myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(tableRowIndex, submittedScenarioIndex)}, c_statusCheckTimeout);
+                axios({
+                    url: proxyurl + queryURL_root + 'ExtendSim/getscenariorundetails',
+                    method: 'post',
+                    accept : 'application/json',
+                    contentType: 'application/json;charset=utf-8',
+                    data: {
+                        scenarioID: g_submittedScenarios[submittedScenarioIndex].scenarioID,
+                    }
+                })
+                .then(function(response) {  
+                    var scenarioRunDetails = response.data.scenarioRunDetails;
+                    var currentTime = scenarioRunDetails.currentSimulationTime;
+                    var endTime = scenarioRunDetails.endSimulationTime;
+                    var percentComplete = (currentTime / endTime) * 100;
+                    percentComplete = percentComplete.toFixed(2);
+                    updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, percentComplete.toString() + "%");
+                    console.log('Scenario details=' + JSON.stringify(response.data.scenarioRunDetails));          
+                    myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(tableRowIndex, submittedScenarioIndex)}, c_statusCheckTimeout);
+                });
             }
         });
     }
@@ -3359,7 +3384,7 @@
                     modelpathname: modelpathname,
                     databasename: databasename,
                     tablename: tablename,
-                    closeModel: true
+                    closeModel: false
                 }
             })
             .then(function(response) {
@@ -3379,7 +3404,7 @@
                 contentType: 'application/json;charset=utf-8',
                 data : {
                     modelPathname: modelPathname,
-                    closeModel: true
+                    closeModel: false
                 }
             })
             .then(function(response) {
@@ -3408,7 +3433,7 @@
                 data : {
                     modelPathname: modelpathname,
                     database: modelDatabases[databaseIndex].name,
-                    closeModel: true
+                    closeModel: false
                 }
             })
             .then(function(response) {
@@ -3477,7 +3502,7 @@
                 data : {
                     modelpathname: $("#user-models").val(),
                     modelInfoBlockName: 'Executive',
-                    closeModel: true
+                    closeModel: false
                 }
             })
             .then(function(response) {
