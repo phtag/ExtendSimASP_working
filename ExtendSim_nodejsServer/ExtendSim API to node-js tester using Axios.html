@@ -2192,35 +2192,39 @@
     }
     function createDatabaseInputsTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
-            var table = $("#database-inputs-table");
-            // $('#scenario-definition').width('auto');
-            databaseInputsTableRows++;
-
-            var myID = 'database-input-button-' + databaseInputsTableRows;
-            var myLabelID = 'database-input-label-' + databaseInputsTableRows;
-            var $myID = "'#" + myID + "'";
-            var newrow = 
-            '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" id="' + myID + '" style="display: none" onchange="databasefilesSelected(event)" class="input-file-row"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
-            table.append(newrow);
-            var targetDatabase = '#target-database-' + databaseInputsTableRows;
-            for (var i = 0; i < modelDatabases.length; i++) {
-                $(targetDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
-            }
-            if (modelDatabases.length > 0) {
-                $(targetDatabase).val(modelDatabases[0].name);
-            }
-            var targetTable = '#target-table-' + databaseInputsTableRows;
-            for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
-                $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
-            }
-            if (modelDatabases[0].tableNames.length > 0) {
-                $(targetTable).val(modelDatabases[0].tableNames[0]);
-            }
-            rowIndex++;
             if (rowIndex < numRows) {
-                resolve(createDatabaseInputsTableRow(rowIndex, numRows));
+                var table = $("#database-inputs-table");
+                // $('#scenario-definition').width('auto');
+                databaseInputsTableRows++;
+
+                var myID = 'database-input-button-' + databaseInputsTableRows;
+                var myLabelID = 'database-input-label-' + databaseInputsTableRows;
+                var $myID = "'#" + myID + "'";
+                var newrow = 
+                '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" id="' + myID + '" style="display: none" onchange="databasefilesSelected(event)" class="input-file-row"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
+                table.append(newrow);
+                var targetDatabase = '#target-database-' + databaseInputsTableRows;
+                for (var i = 0; i < modelDatabases.length; i++) {
+                    $(targetDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
+                }
+                if (modelDatabases.length > 0) {
+                    $(targetDatabase).val(modelDatabases[0].name);
+                }
+                var targetTable = '#target-table-' + databaseInputsTableRows;
+                for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
+                    $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
+                }
+                if (modelDatabases[0].tableNames.length > 0) {
+                    $(targetTable).val(modelDatabases[0].tableNames[0]);
+                }
+                rowIndex++;
+                if (rowIndex < numRows) {
+                    resolve(createDatabaseInputsTableRow(rowIndex, numRows));
+                } else {
+                    resolve(true);
+                }
             } else {
-                resolve(true);
+                resolve(true);               
             }
         });
     }
@@ -3274,6 +3278,7 @@
                             .then(function(uploadDialogVariableDataToModelResponse) {
                                     // // Trigger the submission of the scenario
                                 if (g_RSMblockNumber > 0) {
+                                // if (g_RSMblockNumber === 0) {
                                     const c_ReliabilityScenarioManager_blockName = "Reliability Scenario Manager";
                                     const c_ReliabilityScenarioManager_runButtonName = "SCEN_RunSelected_btn";
                                     var modelName =  $("#user-models").val();
