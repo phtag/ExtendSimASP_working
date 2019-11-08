@@ -19,6 +19,13 @@
       padding: 5px;
       text-align: left;    
     }
+    progress {
+        -webkit-appearance: none;
+    }
+
+    ::-webkit-progress-bar {
+        background-color: rgb(255, 251, 243);
+    }
     .login {
         margin-left: 5px;
         margin-right: 20px;
@@ -110,6 +117,14 @@
     }
     .percentage-value {
         text-align: center;
+    }
+    .progress-bar {
+        /* position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0; */
+        background-color: rgb(255, 0, 0);
+        /* z-index: -1; */
     }
     #chart-type-select-label, #modal-x-axis-field-select-label, #modal-y-axis-field-select-label {
         font-weight: bold;
@@ -824,6 +839,7 @@
                     </table>
                     <div id='remove-selected-button'>
                         <button class="scenario-buttons" id="run-selected-scenarios-button" onclick='submitSelectedSimulationScenarios(0)'>Run selected scenarios</button>
+                        <button id="get-selected-scenario-responses-button" onclick="getSelectedScenarioResponses()">Get selected scenario responses from server</button>
                         <button id="remove-selected-scenario-folders-button"  onclick="removeSelectedScenarioFolders()">Remove selected scenario folders from server</button>
                     </div>
                 </div>
@@ -1316,6 +1332,7 @@
     $('#scenarios-checkbox').prop('disabled', true);
     $('.scenario-definition-checkboxes').prop('disabled', true);
     $('#remove-selected-scenario-folders-button').prop('disabled', true);
+    $('#get-selected-scenario-responses-button').prop('disabled', true);
     $('#responses-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('checked', false);
     $('#scenario-file-inputs-checkbox').prop('checked', false);
@@ -1364,7 +1381,12 @@
         var statusValue = table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + columnIndex + ')').text(); 
         table.find('tr:eq(' + rowIndex + ') t' + (rowIndex == 0 ?  "h" : "d") + ':eq(' + columnIndex + ')').text(cellValue); 
     }
-    
+    function updateScenariosTableProgressBarValue(rowIndex, percentComplete) {
+        var progressBar = $('#scenario-progress-bar-' + (rowIndex + 1));
+        $(progressBar).attr('value', percentComplete);
+        var progressValue = $('#scenario-progress-value-' + (rowIndex + 1));
+        $(progressValue).text(percentComplete.toString() + '%');
+    }
     $("#the-form").submit(function(event) {
         event.preventDefault();
 
@@ -1518,65 +1540,98 @@
     }
 
     function makeCycleTimeChartData(cycleTimeData, dataType) {
-    const dataRow = [];
-    cycleTimeData.map((rowData, key) => {
-      const {
-              stepname,
-              totalJobsProcessed, 
-              totalProcessTime, 
-              totalWaitTime,
-              avgProcessTime,
-              avgWaitTime,
-              avgCycleTime,
-              CoVarrivals,
-              CoVdepartures
-            } = rowData; //destructuring
-      var value;
-  
-      switch (dataType) {
-        case 'totalJobsProcessed':
-          value = totalJobsProcessed;
-          break;
+        const dataRow = [];
+        cycleTimeData.map((rowData, key) => {
+        const {
+                stepname,
+                totalJobsProcessed, 
+                totalProcessTime, 
+                totalWaitTime,
+                avgProcessTime,
+                avgWaitTime,
+                avgCycleTime,
+                CoVarrivals,
+                CoVdepartures
+                } = rowData; //destructuring
+        var value;
+    
+        switch (dataType) {
+            case 'totalJobsProcessed':
+            value = totalJobsProcessed;
+            break;
 
-        case 'totalProcessTime':
-          value = totalProcessTime;
-          break;
+            case 'totalProcessTime':
+            value = totalProcessTime;
+            break;
 
-        case 'totalWaitTime':
-          value = totalWaitTime;
-          break;
+            case 'totalWaitTime':
+            value = totalWaitTime;
+            break;
 
-        case 'avgProcessTime':
-          value = avgProcessTime;
-          break;
+            case 'avgProcessTime':
+            value = avgProcessTime;
+            break;
 
-        case 'avgWaitTime':
-          value = avgWaitTime;
-          break;
+            case 'avgWaitTime':
+            value = avgWaitTime;
+            break;
 
-        case 'avgCycleTime':
-          value = avgCycleTime;
-          break;
+            case 'avgCycleTime':
+            value = avgCycleTime;
+            break;
 
-        case 'CoVarrivals':
-          value = CoVarrivals;
-          break;
-        
-        case 'CoVdepartures':
-          value = CoVdepartures;
-          break; 
+            case 'CoVarrivals':
+            value = CoVarrivals;
+            break;
+            
+            case 'CoVdepartures':
+            value = CoVdepartures;
+            break; 
 
-        default:
-          value = '';
-          break;    
-        }
-        dataRow.push({"value": value, "label": stepname });
-        return true;
-    });
-    return dataRow;
-  }
+            default:
+            value = '';
+            break;    
+            }
+            dataRow.push({"value": value, "label": stepname });
+            return true;
+        });
+        return dataRow;
+    }
 
-
+    function getSelectedScenarioResponses() {
+        return new Promise((resolve, reject) => {
+            axios({
+                url: proxyurl + queryURL_root + 'ExtendSim/getserverscenariofolders',
+                method: 'post',
+                accept : 'application/json',
+                contentType: 'application/json;charset=utf-8',
+                // params: {
+                data: {
+                    scenarioFolderPathname : $("#user-scenario-folder-pathname").val(),
+                }
+            })
+            .then(function(response) {
+                if (response.data.scenarioFolders.length > 0) {
+                    alert('Response=' + response.data.scenarioFolders[0]);
+                    console.log('Response=' + JSON.stringify(response));
+                    getScenarioFolderFiles(response.data.scenarioFolders[0])
+                    .then(function(response) {
+                        var scenarioFolderFiles = response.data.scenarioFolderFiles;
+                        for (var i = 0; i < scenarioFolderFiles.length; i++) {
+                            getServerFile(scenarioFolderFiles[i].OriginalPath)
+                            .then(function(response) {
+                                alert('Got file for ' + scenarioFolderFiles[i].OriginalPath);
+                            });
+                        }
+                    })
+                }
+                resolve(response);
+            })
+            .catch(function(error) {
+                reject(error);
+            })
+        });   
+    }
     function removeSelectedScenarioFolders() {
         var deletedRows = 0;
 
@@ -2405,9 +2460,9 @@
         var table = $("#file-outputs-table");
         outputFileTableRows++;
         if (scenarioFolderFiles.length === 0) {
-            getScenarioFolderFiles()
+            getScenarioFolderFiles($("#user-scenario-folder-pathname").val())
             .then(function(response) {
-                var newrow = '<tr><td>select class="output-file-row" id="output-folder-select-' + outputFileTableRows + '</td><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
+                var newrow = '<tr><td><select class="output-file-row" id="output-folder-select-' + outputFileTableRows + '"></td><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
                 table.append(newrow);
                 var scenarioFolderFiles = response.data.scenarioFolderFiles;
                 console.log('scenarioFolderFiles=' + JSON.stringify(scenarioFolderFiles));
@@ -2459,7 +2514,7 @@
         var table = $("#scenarios-table");
         g_scenariosTableRows++;
         var newrow = 
-        '<tr class="scenarios-table-row" id="scenario-index-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" value="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '">' + scenarioStatusValues[0] + '</td><td nowrap class="percentage-value" id="scenario-progress-' + g_scenariosTableRows + '">0%</td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
+        '<tr class="scenarios-table-row" id="scenario-index-' + g_scenariosTableRows + '"><td class="table-checkboxes"><input id="scenario-selection-' + g_scenariosTableRows + '" type="checkbox"></td><td nowrap id="scenario-id-' + g_scenariosTableRows + '">' + $("#scenario-id").val() + '</td><td nowrap id="scenario-name-' + g_scenariosTableRows + '">' + $("#scenario-name").val() + '</td><td style="text-align: center"><input type="text" rows="1" value="1" class="text-area" id="scenario-repetitions-' + g_scenariosTableRows + '"></input></td><td nowrap id="scenario-status-' + g_scenariosTableRows + '">' + scenarioStatusValues[0] + '</td><td nowrap class="percentage-value" id="scenario-progress-' + g_scenariosTableRows + '"><progress id="scenario-progress-bar-' + g_scenariosTableRows + '" value="0" max="100"></progress><div id="scenario-progress-value-' + g_scenariosTableRows + '">0%</div></td><td nowrap id="scenario-folder-pathname-' + g_scenariosTableRows + '">' + $("#user-scenario-folder-pathname").val() + '</td></tr>'
         table.append(newrow);
         $('#scenarios-table-body').width('90%');
     }
@@ -2831,9 +2886,11 @@
             updateScenariosTableCellValue((tableRowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus]);
             if ((g_submittedScenarios[submittedScenarioIndex].status == c_Completed_status) || (g_submittedScenarios[submittedScenarioIndex].status == c_Aborted_status)) {
                 clearInterval(myCheckStatusInterval);
-                updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
+                updateScenariosTableProgressBarValue(tableRowIndex, 100);
+                // updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
                 // $('#submit-scenarios-button').prop('disabled', false);
                 $('#run-selected-scenarios-button').prop('disabled', false);
+                $('#get-selected-scenario-responses-button').prop('disabled', false);
                 $('#remove-selected-scenario-folders-button').prop('disabled', false);
                 updateButtonsState();
                 tableRowIndex++;
@@ -2857,7 +2914,7 @@
                     var percentComplete = (currentTime / endTime) * 100;
                     percentComplete = percentComplete.toFixed(2);
                     if (percentComplete >= 0) {
-                        updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, percentComplete.toString() + "%");
+                        updateScenariosTableProgressBarValue(tableRowIndex, percentComplete);
                     }
                     myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(tableRowIndex, submittedScenarioIndex)}, c_statusCheckTimeout);
                 });
@@ -2884,7 +2941,7 @@
             })
         });   
     }
-    function getScenarioFolderFiles() {
+    function getScenarioFolderFiles(scenarioFolderPathname) {
         return new Promise((resolve, reject) => {
             axios({
                 url: proxyurl + queryURL_root + 'ExtendSim/getserverscenariofolderdirectory',
@@ -2893,7 +2950,8 @@
                 contentType: 'application/json;charset=utf-8',
                 // params: {
                 data: {
-                    scenarioFolderPathname : $("#user-scenario-folder-pathname").val(),
+                    // scenarioFolderPathname : $("#user-scenario-folder-pathname").val(),
+                    scenarioFolderPathname : scenarioFolderPathname
                 }
             })
             .then(function(response) {
@@ -3282,7 +3340,8 @@
             if (rowIndex === 0) {
                 for (var i=0;i<$('#scenarios-table tr').length;i++) {
                     updateScenariosTableCellValue((i + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
-                    updateScenariosTableCellValue((i + 1), c_PercentComplete, "0%");
+                    updateScenariosTableProgressBarValue(i, 0);
+                    // updateScenariosTableCellValue((i + 1), c_PercentComplete, "0%");
                 }
             }
             var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");

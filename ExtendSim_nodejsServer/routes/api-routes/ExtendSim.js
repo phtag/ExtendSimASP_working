@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const ExtendSimController = require('../../controllers/ExtendSimController');
 
+router.route('/getserverscenariofolders').post(ExtendSimController.getserverscenariofolders);
 router.route('/getserverextendmodelsrootdirectory').post(ExtendSimController.getserverextendmodelsrootdirectory);
 router.route('/getserverscenariofolderdirectory').post(ExtendSimController.getserverscenariofolderdirectory);
 router.route('/getmodeldatabases').post(ExtendSimController.getmodeldatabases);

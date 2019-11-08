@@ -48,6 +48,25 @@ module.exports = {
             })
         });
     },
+    getserverscenariofolders: function(req, res) {
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectories"
+        var myheaders = { 
+            accept: "application/json", 
+        }; 
+        axios({
+            url: queryURL,
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params : {
+                directoryPathname : req.body.scenarioFolderPathname
+            }
+        }).then(function(response) {
+            return res.json({ scenarioFolders: response.data });
+        });
+    },
     getserverscenariofolderdirectory: function(req, res) {
         var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
         var myheaders = { 
