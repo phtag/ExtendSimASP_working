@@ -556,8 +556,8 @@
                     <label  for='username'>
                         Username:
                     </label> 
-                    <!-- <input class="login" id="username" type="text" name="username" value="analyst2"></input> -->
-                    <input class="login" id="username" type="text" name="username" value="reliability"></input>
+                    <input class="login" id="username" type="text" name="username" value="analyst2"></input>
+                    <!-- <input class="login" id="username" type="text" name="username" value="reliability"></input> -->
                     <label  for='password'>
                         Password: 
                     </label>
@@ -693,6 +693,9 @@
                                 <button class="scenario-file-output-buttons" id="delete-file-outputs-table-row" onclick='deleteOutputFilesTableRow()'>Delete row</button>
                                 <table class="scenario-tables" id="file-outputs-table" style="width:auto">
                                     <tr>
+                                        <th>
+                                            Scenario folder
+                                        </th>        
                                         <th>
                                             Scenario folder files
                                         </th>
@@ -2404,10 +2407,14 @@
         if (scenarioFolderFiles.length === 0) {
             getScenarioFolderFiles()
             .then(function(response) {
-                var newrow = '<tr><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
+                var newrow = '<tr><td>select class="output-file-row" id="output-folder-select-' + outputFileTableRows + '</td><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
                 table.append(newrow);
                 var scenarioFolderFiles = response.data.scenarioFolderFiles;
                 console.log('scenarioFolderFiles=' + JSON.stringify(scenarioFolderFiles));
+                var outputFoldersSelect = $('#output-folder-select-' + outputFileTableRows);
+                $(outputFoldersSelect).empty(0);
+                $(outputFoldersSelect).append('<option value="Model">Model folder</option>');
+                $(outputFoldersSelect).append('<option value="Results">Results folder</option>');
                 var outputFilesSelect = $('#output-file-select-' + outputFileTableRows);
                 $(outputFilesSelect).empty(0);
                 for (var i = 0; i < scenarioFolderFiles.length; i++) {
@@ -2849,8 +2856,9 @@
                     var endTime = scenarioRunDetails.endSimulationTime;
                     var percentComplete = (currentTime / endTime) * 100;
                     percentComplete = percentComplete.toFixed(2);
-                    updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, percentComplete.toString() + "%");
-                    console.log('Scenario details=' + JSON.stringify(response.data.scenarioRunDetails));          
+                    if (percentComplete >= 0) {
+                        updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, percentComplete.toString() + "%");
+                    }
                     myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(tableRowIndex, submittedScenarioIndex)}, c_statusCheckTimeout);
                 });
             }
@@ -3274,6 +3282,7 @@
             if (rowIndex === 0) {
                 for (var i=0;i<$('#scenarios-table tr').length;i++) {
                     updateScenariosTableCellValue((i + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
+                    updateScenariosTableCellValue((i + 1), c_PercentComplete, "0%");
                 }
             }
             var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
