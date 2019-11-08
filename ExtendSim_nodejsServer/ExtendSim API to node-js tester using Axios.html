@@ -2824,6 +2824,7 @@
             updateScenariosTableCellValue((tableRowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus]);
             if ((g_submittedScenarios[submittedScenarioIndex].status == c_Completed_status) || (g_submittedScenarios[submittedScenarioIndex].status == c_Aborted_status)) {
                 clearInterval(myCheckStatusInterval);
+                updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
                 // $('#submit-scenarios-button').prop('disabled', false);
                 $('#run-selected-scenarios-button').prop('disabled', false);
                 $('#remove-selected-scenario-folders-button').prop('disabled', false);
