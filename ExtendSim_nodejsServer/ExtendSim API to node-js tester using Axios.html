@@ -712,11 +712,10 @@
                                             Folder
                                         </th>  
                                         <th>
-                                            Folder Name Substring
+                                            Matching Folder Pattern
                                         </th>                  
                                         <th>
-                                            Files
-                                        </th>
+                                            Matching File Pattern
                                         <th>
                                             Action
                                         </th>    
@@ -2483,7 +2482,11 @@
     function outputFolderSelected(event) {
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
         var thisId = $('#output-folder-select-' + rowIndex);
-        alert($(thisId).text());
+        if ($(thisId).val() === "Model sub-folders with matching pattern") {
+            $("#scenario-output-folder-match-pattern-" + rowIndex).hide();
+        } else {
+            $("#scenario-output-folder-match-pattern-" + rowIndex).show();
+        }
     } 
     function createOutputsFileTableRow() {
         var table = $("#file-outputs-table");
@@ -2491,14 +2494,15 @@
         if (scenarioFolderFiles.length === 0) {
             getScenarioFolderFiles($("#user-scenario-folder-pathname").val())
             .then(function(response) {
-                var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + outputFileTableRows + '"></td><td style="text-align: center><input type="text" rows="1" value="" class="text-area" id="scenario-output-folder-substring-' + outputFileTableRows + '"></input></td><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
+                var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + outputFileTableRows + '"></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-folder-match-pattern-' + outputFileTableRows + '"></input></td><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
                 table.append(newrow);
                 var scenarioFolderFiles = response.data.scenarioFolderFiles;
                 console.log('scenarioFolderFiles=' + JSON.stringify(scenarioFolderFiles));
                 var outputFoldersSelect = $('#output-folder-select-' + outputFileTableRows);
                 $(outputFoldersSelect).empty(0);
-                $(outputFoldersSelect).append('<option value="Model">Model folder</option>');
-                $(outputFoldersSelect).append('<option value="Results">Output folders created by scenario</option>');
+                $(outputFoldersSelect).append('<option value="Model folder">Model folder</option>');
+                $(outputFoldersSelect).append('<option value="All model sub-folders">All model sub-folders</option>');
+                $(outputFoldersSelect).append('<option value="Model sub-folders with matching pattern">Model sub-folders with matching pattern</option>');
                 var outputFilesSelect = $('#output-file-select-' + outputFileTableRows);
                 $(outputFilesSelect).empty(0);
                 for (var i = 0; i < scenarioFolderFiles.length; i++) {
