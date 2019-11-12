@@ -501,6 +501,14 @@
         font-size: 18px;   
         text-align: center; 
     }
+    #my-awesome-dropzone {
+        margin: auto;
+        width: 50%;
+        margin-bottom: 10px;
+    }
+    #dropzone-text {
+        margin-top: 7%;
+    }
     </style>
 </head>
 <body>
@@ -620,6 +628,7 @@
                                 <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'>Input Files</input>    
                             </div>
                             <div id="scenario-file-inputs-body">
+                                <form action="/file-upload" class="dropzone" id="my-awesome-dropzone"></form>
                                 <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
                                 <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
                                 <table class="scenario-tables" id="file-inputs-table">
@@ -1378,6 +1387,41 @@
 
     g_ScenarioDefinitions = [];
 
+    jQuery.fn.centerElement = function () {
+        this.css ("position", "absolute");
+        this.css ("top", ($ (window). height () - this.height ()) / 2 + $ (window). scrollTop () + "px");
+        this.css ("left", ($ (window). width () - this.width ()) / 2 + $ (window). scrollLeft () + "px")
+        
+        alert('Centering');
+        return this;
+    }
+    Dropzone.options.myAwesomeDropzone = {
+        createImageThumbnails: false, // NO THUMBS!
+        init: function() {
+            this.on("addedfile", function(file) { 
+                var numRows = $('#file-outputs-table tr').length;
+                addNewInputFilesTableRow(numRows, numRows + 1)
+                .then(function(response) {
+                    var myDropzone = $('#my-awesome-dropzone');
+                    $('.dz-preview').remove();
+                    $(myDropzone).html('<div id="dropzone-text">Drop files here to upload</div>');
+                    // $(myDropzone).text("Drop files here to upload");
+                    $(myDropzone).css('text-align','center');
+                    $(myDropzone).css('vertical-align','middle');
+                    // $(myDropzone).empty();
+                    // $(myDropzone).text("Drop files here to upload");
+                    // $(myDropzone).html('<div class="dz-default dz-message"><span>Drop files here to upload</span></div>');
+                })
+            });
+        }
+    };
+    function dz_complete(file) {
+        $('.dz-preview').remove();  // ...delete the template gen'd html.
+    }
+    // myAwesomeDropzone.on("complete", function(file) {
+    //     myAwesomeDropzone.removeFile(file);
+    // });
+
     function getNumScenariosSelected() {
         var numRowsSelected = 0;
         $('#scenarios-table tr').each(function(i) {
@@ -2032,7 +2076,6 @@
         var files = $("#" + event.target.id)[0].files;
         if (files) {
             readAndPreviewInputFile(fileList[0], event.target.id);
-            // [].forEach.call(files, readAndPreviewInputFile(fileList[0], event.target.id));
         }
         enableDisableUploadFilesButton();
     }
