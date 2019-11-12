@@ -2494,7 +2494,7 @@
         if (scenarioFolderFiles.length === 0) {
             getScenarioFolderFiles($("#user-scenario-folder-pathname").val())
             .then(function(response) {
-                var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + outputFileTableRows + '"></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-folder-match-pattern-' + outputFileTableRows + '"></input></td><td><select class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
+                var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + outputFileTableRows + '"></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-folder-match-pattern-' + outputFileTableRows + '"></input></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-file-match-pattern-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get file</button></td></tr>';
                 table.append(newrow);
                 $("#scenario-output-folder-match-pattern-" + outputFileTableRows).hide();
                 var scenarioFolderFiles = response.data.scenarioFolderFiles;
