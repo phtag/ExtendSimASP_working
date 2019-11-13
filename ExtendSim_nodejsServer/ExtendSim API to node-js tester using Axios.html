@@ -501,13 +501,29 @@
         font-size: 18px;   
         text-align: center; 
     }
-    #my-awesome-dropzone {
+    .dropzone {
+        /* margin: auto;
+        width: 50%;
+        height: 10px;
+        min-height: 0px !important;
+        max-height: 20px !important;
+        margin-bottom: 10px; */
+    } 
+    #scenario-factors-input-files-dropzone {
         margin: auto;
         width: 50%;
+        /* height: 10px; */
+        min-height: 0px !important;
+        /* max-height: 20px !important; */
         margin-bottom: 10px;
     }
-    #dropzone-text {
-        margin-top: 7%;
+    #input-files-dropzone-text {
+        margin-bottom: 7%; 
+        margin-top: 7%; 
+    }
+    #database-input-files-dropzone-text {
+        margin-bottom: 7%; 
+        margin-top: 7%; 
     }
     </style>
 </head>
@@ -628,7 +644,7 @@
                                 <input id="scenario-file-inputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-inputs")'>Input Files</input>    
                             </div>
                             <div id="scenario-file-inputs-body">
-                                <form action="/file-upload" class="dropzone" id="my-awesome-dropzone"></form>
+                                <form action="/file-upload" class="dropzone" id="scenario-factors-input-files-dropzone"></form>
                                 <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
                                 <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
                                 <table class="scenario-tables" id="file-inputs-table">
@@ -1294,6 +1310,7 @@
     // var queryURL3 = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
     // var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/LoginToServer?username=analyst1&password=model"
     // const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const c_dropzone_inputfileupload_defaultMessage = 'Drop files here to be uploaded to server for this scenario';
     const proxyurl = "";
     const pathname = "C:\Users\Administrator\Documents\ExtendSim10ASP_Prod\ASP\ASP Servers\ExtendSim Models\Analyst 1";
     const c_Completed_status = 3;
@@ -1392,25 +1409,31 @@
         this.css ("top", ($ (window). height () - this.height ()) / 2 + $ (window). scrollTop () + "px");
         this.css ("left", ($ (window). width () - this.width ()) / 2 + $ (window). scrollLeft () + "px")
         
-        alert('Centering');
         return this;
     }
-    Dropzone.options.myAwesomeDropzone = {
+    function setupDropzone() {
+        var myDropzone = $('#scenario-factors-input-files-dropzone');
+        $('.dz-preview').remove();
+        // $('.dz-message').text("Jinko");
+        $(myDropzone).html('<div class="dz-default dz-message"><span>Drop files here to be uploaded to server for this scenario</span></div>');
+        // $(myDropzone).css('text-align','center');
+        // $(myDropzone).css('vertical-align','middle');
+    }
+    Dropzone.options.scenarioFactorsInputFilesDropzone = {
         createImageThumbnails: false, // NO THUMBS!
+        dictDefaultMessage: c_dropzone_inputfileupload_defaultMessage,
         init: function() {
             this.on("addedfile", function(file) { 
-                var numRows = $('#file-outputs-table tr').length;
-                addNewInputFilesTableRow(numRows, numRows + 1)
-                .then(function(response) {
-                    var myDropzone = $('#my-awesome-dropzone');
-                    $('.dz-preview').remove();
-                    $(myDropzone).html('<div id="dropzone-text">Drop files here to upload</div>');
-                    // $(myDropzone).text("Drop files here to upload");
-                    $(myDropzone).css('text-align','center');
-                    $(myDropzone).css('vertical-align','middle');
-                    // $(myDropzone).empty();
-                    // $(myDropzone).text("Drop files here to upload");
-                    // $(myDropzone).html('<div class="dz-default dz-message"><span>Drop files here to upload</span></div>');
+                addNewInputFilesTableRow(0, 1)
+                .then(function(rowIndex) {
+                    setupDropzone();
+                    // var myDropzone = $('#scenario-factors-input-files-dropzone');
+                    // $('.dz-preview').remove();
+                    // $(myDropzone).html('<div id="input-files-dropzone-text">' + c_dropzone_inputfileupload_defaultMessage + '</div>');
+                    // // $(myDropzone).text("Drop files here to upload");
+                    // $(myDropzone).css('text-align','center');
+                    // $(myDropzone).css('vertical-align','middle');
+                    readAndPreviewInputFile(file, 'my-id-' + rowIndex);
                 })
             });
         }
@@ -1674,13 +1697,11 @@
             })
             .then(function(response) {
                 if (response.data.scenarioFolders.length > 0) {
-                    alert('Response=' + response.data.scenarioFolders[0]);
                     console.log('Response=' + JSON.stringify(response));
                     getScenarioFolderFiles(response.data.scenarioFolders[0])
                     .then(function(response) {
                         var scenarioFolderFiles = response.data.scenarioFolderFiles;
                         for (var i = 0; i < scenarioFolderFiles.length; i++) {
-                            alert('Got file for ' + scenarioFolderFiles[i].OriginalPath);
                             getServerFile(scenarioFolderFiles[i].OriginalPath)
                             .then(function(response) {
                                 console.log(JSON.stringify(response.data.result));
@@ -2158,7 +2179,6 @@
     }
     function readAndPreviewInputFile(file, id) {
         var fileIndex = Number(id.substring(id.lastIndexOf("-") + 1)) - 1;
-
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
@@ -2285,7 +2305,7 @@
             if (rowIndex < numRows) {
                 resolve(addNewInputFilesTableRow(rowIndex, numRows));
             } else {
-                resolve(true);
+                resolve(inputFileTableRows);
             }
         });
     }
