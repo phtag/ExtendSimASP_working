@@ -2608,35 +2608,49 @@
     }
 
     function createDialogOutputsTableRow() {
-        var table = $("#dialog-outputs-table");
-        dialogOutputsTableRows++;
-        var newrow = 
-        '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
-        table.append(newrow);
-        var blockType = '#source-block-type-select-' + dialogOutputsTableRows;
-        for (var i = 0; i < modelBlocks.length; i++) {
-            $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
-        }
-        if (modelBlocks.length > 0) {
-            $(blockType).val(modelBlocks[0]);
-            var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
-            updateSourceBlockNumbersDropdown(dialogOutputsTableRows);
-            updateSourceDialogVariableTypeDropdown(dialogOutputsTableRows);
-            downloadDialogVariableDataFromModel(dialogOutputsTableRows - 1);
-        }
+        return new Promise((resolve, reject) => {
+            var table = $("#dialog-outputs-table");
+            dialogOutputsTableRows++;
+            var newrow = 
+            '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
+            table.append(newrow);
+            var blockType = '#source-block-type-select-' + dialogOutputsTableRows;
+            for (var i = 0; i < modelBlocks.length; i++) {
+                $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
+            }
+            if (modelBlocks.length > 0) {
+                $(blockType).val(modelBlocks[0]);
+                var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
+                updateSourceBlockNumbersDropdown(dialogOutputsTableRows);
+                updateSourceDialogVariableTypeDropdown(dialogOutputsTableRows);
+                resolve(true);
+                // downloadDialogVariableDataFromModel(dialogOutputsTableRows - 1);
+            } else {
+            //  ATTENTION: This logic needs to be completed
+                resolve(true);
+            }
+        });
     }
     function addNewDialogOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
-        if (!isSelectedScenarioModelLoaded()) {
-            updateModelInfo($("#user-models").val(), true)
-            .then(function(response) {
-                createDialogOutputsTableRow();
-            })
-            .catch(function(error) {
-                reject(error);
-            })
-        } else {
-            createDialogOutputsTableRow();
-        }
+        return new Promise((resolve, reject) => {
+            if (!isSelectedScenarioModelLoaded()) {
+                updateModelInfo($("#user-models").val(), true)
+                .then(function(response) {
+                    createDialogOutputsTableRow()
+                    .then(function(response) {
+                        resolve(response);
+                    })
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
+            } else {
+                createDialogOutputsTableRow()
+                .then(function(response) {
+                    resolve(response);
+                })
+            }
+        });
     }
 
     function deleteDialogOutputsTableRow(event) {
@@ -2667,17 +2681,25 @@
         }
     }
     function addNewDatabaseOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
-        if (!isSelectedScenarioModelLoaded()) {
-            updateModelInfo($("#user-models").val(), true)
-            .then(function(response) {
-                createDatabaseOutputsTableRow();
-            })
-            .catch(function(error) {
-                reject(error);
-            })
-        } else {
-            createDatabaseOutputsTableRow();
-        }              
+        return new Promise((resolve, reject) => {
+            if (!isSelectedScenarioModelLoaded()) {
+                updateModelInfo($("#user-models").val(), true)
+                .then(function(response) {
+                    createDatabaseOutputsTableRow()
+                    .then(function(response) {
+                        resolve(response);
+                    })
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
+            } else {
+                createDatabaseOutputsTableRow()
+                .then(function(response) {
+                    resolve(response);
+                })
+            }        
+        });      
     }
     function outputFolderSelected(event) {
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
