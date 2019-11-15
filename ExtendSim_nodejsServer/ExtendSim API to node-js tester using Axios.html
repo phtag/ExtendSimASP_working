@@ -2127,10 +2127,8 @@
 
                             inputValue = '#target-variable-value-' + (k + 1);
                             $(inputValue).val(g_ScenarioDefinitions[scenarioIndex].factors.variableValues[k]);
-
                         }
                         resolve(true);
-                        // transferScenarioDefinitionToUserSessionsData(scenarioIndex);
                     })
                     .catch(function(error) {
                         alert('Error returned from addNewDialogInputsTableRow');
@@ -2169,18 +2167,30 @@
                 .then(function(response) {
                     for (rowIndex=0;rowIndex<g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.length;rowIndex++) {
                         $('#source-database-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames[rowIndex]);
-                        $('#source-table-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames);
+                        updateSourceTableList(rowIndex + 1);
+                        $('#source-table-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames[rowIndex]);
                     }
                     addNewDialogOutputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].responses.blockTypes.length, false)
                     .then(function(response) {
                         var selectValue;
                         var inputValue;
                         for (var rowIndex=0;rowIndex<g_ScenarioDefinitions[scenarioIndex].responses.blockTypes.length;rowIndex++) {
+                            // block type
                             $('#source-block-type-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.blockTypes[rowIndex]); 
-                            $('#source-variable-type-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableTypes[rowIndex]);
-                            $('#source-variable-name-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableNames[rowIndex]);                           
-                            $('#source-variable-value-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableValues[rowIndex]);
+                            updateSourceBlockNumbersDropdown(rowIndex + 1);
+                            
+                            // block number
                             $('#source-block-number-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.blockNumbers[rowIndex]);
+                            updateSourceDialogVariableTypeDropdown(rowIndex + 1);
+                            
+                            // variable type
+                            $('#source-variable-type-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableTypes[rowIndex]);
+                            updateSourceDialogVariableDropdown(rowIndex + 1);  
+
+                            // variable name
+                            $('#source-variable-name-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableNames[rowIndex]);                           
+                            
+                            // $('#source-variable-value-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableValues[rowIndex]);
                         }
                         // transferScenarioDefinitionToUserSessionsData(scenarioIndex);
                         resolve(true);
