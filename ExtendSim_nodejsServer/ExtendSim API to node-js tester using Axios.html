@@ -2150,9 +2150,9 @@
             addNewOutputFilesTableRow(0, g_ScenarioDefinitions[scenarioIndex].responses.outputFiles.length)
             .then(function(response) {
                 for (var rowIndex=0;rowIndex<g_ScenarioDefinitions[scenarioIndex].responses.outputFiles.length;rowIndex++) {
-                    $("#output-folder-select-" + (rowIndex + 1)).val() = outputFiles[rowIndex].folder;
-                    $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val() =outputFiles[rowIndex].matchingFolderpattern;
-                    $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val() = outputFiles[rowIndex].matchingFilePattern;
+                    $("#output-folder-select-" + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[rowIndex].folder);
+                    $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[rowIndex].matchingFolderpattern);
+                    $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[rowIndex].matchingFilePattern);
                 }
                 addNewDatabaseOutputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.length, false)
                 .then(function(response) {
@@ -2211,7 +2211,8 @@
             g_ScenarioDefinitions.push(g_scenarioDefinition);
             var scenarioIndex = g_ScenarioDefinitions.length - 1;
             g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
-            updateModelInfo($("#user-models").val(), true)
+            // updateModelInfo($("#user-models").val(), true)
+            updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, true)
             .then(function(response) {
                 populateScenarioFactorsSettings(scenarioIndex)
                 .then(function(response) {
@@ -3122,6 +3123,7 @@
             if (clearTableDataFlag) {
                 clearTableData();
             }
+            alert('updateModelInfo: modelPathname=' + modelPathname);
             getmodeldatabases(modelPathname, getModelInfo)
             .then(function(response) {
                 // save the currently loaded model name
