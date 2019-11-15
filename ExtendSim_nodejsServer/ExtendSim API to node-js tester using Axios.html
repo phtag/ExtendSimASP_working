@@ -1835,9 +1835,9 @@
         g_ScenarioDefinitions[scenarioIndex].responses.outputFiles = [];
         var outputFile = {};
         for (rowIndex=0;rowIndex<outputFileTableRows;rowIndex++) {
-            outputFiles[rowIndex].folder = $("#output-folder-select-" + (rowIndex + 1)).val();
-            outputFiles[rowIndex].matchingFolderpattern = $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val();
-            outputFiles[rowIndex].matchingFilePattern = $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val();
+            outputFile.folder = $("#output-folder-select-" + (rowIndex + 1)).val();
+            outputFile.matchingFolderpattern = $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val();
+            outputFile.matchingFilePattern = $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val();
             g_ScenarioDefinitions[scenarioIndex].responses.outputFiles.push(outputFile);
         }
         g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames = [];
@@ -2660,25 +2660,28 @@
         $("#dialog-inputs-table tr:last").remove();  
     }
     function createDatabaseOutputsTableRow() {
-        var table = $("#database-outputs-table");
-        databaseOutputsTableRows++;
-        var newrow = 
-        '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button class="scenario-database-output-buttons" id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
-        table.append(newrow);
-        var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
-        for (var i = 0; i < modelDatabases.length; i++) {
-            $(sourceDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
-        }
-        if (modelDatabases.length > 0) {
-            $(sourceDatabase).val(modelDatabases[0].name);
-        }
-        var sourceTable = '#source-table-' + databaseOutputsTableRows;
-        for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
-            $(sourceTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
-        }
-        if (modelDatabases[0].tableNames.length > 0) {
-            $(sourceTable).val(modelDatabases[0].tableNames[0]);
-        }
+        return new Promise((resolve, reject) => {
+            var table = $("#database-outputs-table");
+            databaseOutputsTableRows++;
+            var newrow = 
+            '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button class="scenario-database-output-buttons" id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
+            table.append(newrow);
+            var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
+            for (var i = 0; i < modelDatabases.length; i++) {
+                $(sourceDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
+            }
+            if (modelDatabases.length > 0) {
+                $(sourceDatabase).val(modelDatabases[0].name);
+            }
+            var sourceTable = '#source-table-' + databaseOutputsTableRows;
+            for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
+                $(sourceTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
+            }
+            if (modelDatabases[0].tableNames.length > 0) {
+                $(sourceTable).val(modelDatabases[0].tableNames[0]);
+            }
+            resolve(true);
+        });
     }
     function addNewDatabaseOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
