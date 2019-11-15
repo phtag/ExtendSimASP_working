@@ -2154,17 +2154,17 @@
                     $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val() =outputFiles[rowIndex].matchingFolderpattern;
                     $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val() = outputFiles[rowIndex].matchingFilePattern;
                 }
-                addNewDatabaseOutputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].responses.uploadedDatabaseFiles.length, false)
+                addNewDatabaseOutputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.length, false)
                 .then(function(response) {
                     for (rowIndex=0;rowIndex<g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.length;rowIndex++) {
                         $('#source-database-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames[rowIndex]);
                         $('#source-table-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames);
                     }
-                    addNewDialogOutputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.variableNames.length, false)
+                    addNewDialogOutputsTableRow(0, g_ScenarioDefinitions[scenarioIndex].responses.blockTypes.length, false)
                     .then(function(response) {
                         var selectValue;
                         var inputValue;
-                        for (var k=0;k<g_ScenarioDefinitions[scenarioIndex].responses.blockTypes.length;k++) {
+                        for (var rowIndex=0;rowIndex<g_ScenarioDefinitions[scenarioIndex].responses.blockTypes.length;rowIndex++) {
                             $('#source-block-type-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.blockTypes[rowIndex]); 
                             $('#source-variable-type-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableTypes[rowIndex]);
                             $('#source-variable-name-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableNames[rowIndex]);                           
@@ -2555,17 +2555,18 @@
                 var table = $("#dialog-inputs-table");
                 dialogInputsTableRows++;
                 var newrow = 
-                '<tr><td><select id="target-block-type-select-' + (rowIndex + 1) + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + (rowIndex + 1) + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + (rowIndex + 1) + '"></input></td></tr>'     
+                // '<tr><td><select id="target-block-type-select-' + (rowIndex + 1) + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + (rowIndex + 1) + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + (rowIndex + 1) + '"></input></td></tr>'     
+                '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
                 table.append(newrow);
-                var blockType = '#target-block-type-select-' + (rowIndex + 1);
+                var blockType = '#target-block-type-select-' + dialogInputsTableRows;
                 for (var i = 0; i < modelBlocks.length; i++) {
                     $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
                 }
                 if (modelBlocks.length > 0) {
                     $(blockType).val(modelBlocks[0]);
-                    var blockNumber = '#target-block-number-select-' + (rowIndex + 1);
-                    updateTargetBlockNumbersDropdown((rowIndex + 1));
-                    updateTargetDialogVariableTypeDropdown((rowIndex + 1));
+                    var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
+                    updateTargetBlockNumbersDropdown(dialogInputsTableRows);
+                    updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
                 }
                 rowIndex++;
                 resolve(createDialogInputsTableRow(rowIndex, numRows));
@@ -2688,54 +2689,62 @@
         }
     } 
     function createOutputsFileTableRow() {
-        var table = $("#file-outputs-table");
-        outputFileTableRows++;
-        if (scenarioFolderFiles.length === 0) {
-            getScenarioFolderFiles($("#user-scenario-folder-pathname").val())
-            .then(function(response) {
-                var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + outputFileTableRows + '"></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-folder-match-pattern-' + outputFileTableRows + '"></input></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-file-match-pattern-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get files</button></td></tr>';
-                table.append(newrow);
-                $("#scenario-output-folder-match-pattern-" + outputFileTableRows).hide();
-                var scenarioFolderFiles = response.data.scenarioFolderFiles;
-                console.log('scenarioFolderFiles=' + JSON.stringify(scenarioFolderFiles));
-                var outputFoldersSelect = $('#output-folder-select-' + outputFileTableRows);
-                $(outputFoldersSelect).empty(0);
-                $(outputFoldersSelect).append('<option value="Model folder">Model folder</option>');
-                $(outputFoldersSelect).append('<option value="All model sub-folders">All model sub-folders</option>');
-                $(outputFoldersSelect).append('<option value="Model sub-folders with matching pattern">Model sub-folders with matching pattern</option>');
-                var outputFilesSelect = $('#output-file-select-' + outputFileTableRows);
-                $(outputFilesSelect).empty(0);
-                for (var i = 0; i < scenarioFolderFiles.length; i++) {
-                    $(outputFilesSelect).append('<option value="' + scenarioFolderFiles[i].FullPath + '">' + scenarioFolderFiles[i].OriginalPath + '</option>');
-                }
-                if (scenarioFolderFiles.length > 0) {
-                    $(outputFilesSelect).val(scenarioFolderFiles[0].OriginalPath);
-                    $(outputFilesSelect).prop('selectedIndex', 0);
-                }
-            })
-        } else {
-            var newrow = '<tr><td><select onchange="outputFilesSelected(event)" class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td></tr>';
+        return new Promise((resolve, reject) => {
+            var table = $("#file-outputs-table");
+            outputFileTableRows++;
+            // if (scenarioFolderFiles.length === 0) {
+                // getScenarioFolderFiles($("#user-scenario-folder-pathname").val())
+                // .then(function(response) {
+            var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + outputFileTableRows + '"></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-folder-match-pattern-' + outputFileTableRows + '"></input></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-file-match-pattern-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get files</button></td></tr>';
             table.append(newrow);
-        }
+            $("#scenario-output-folder-match-pattern-" + outputFileTableRows).hide();
+            // var scenarioFolderFiles = response.data.scenarioFolderFiles;
+            // console.log('scenarioFolderFiles=' + JSON.stringify(scenarioFolderFiles));
+            var outputFoldersSelect = $('#output-folder-select-' + outputFileTableRows);
+            $(outputFoldersSelect).empty(0);
+            $(outputFoldersSelect).append('<option value="Model folder">Model folder</option>');
+            $(outputFoldersSelect).append('<option value="All model sub-folders">All model sub-folders</option>');
+            $(outputFoldersSelect).append('<option value="Model sub-folders with matching pattern">Model sub-folders with matching pattern</option>');
+            var outputFilesSelect = $('#output-file-select-' + outputFileTableRows);
+            $(outputFilesSelect).empty(0);
+            for (var i = 0; i < scenarioFolderFiles.length; i++) {
+                $(outputFilesSelect).append('<option value="' + scenarioFolderFiles[i].FullPath + '">' + scenarioFolderFiles[i].OriginalPath + '</option>');
+            }
+            if (scenarioFolderFiles.length > 0) {
+                $(outputFilesSelect).val(scenarioFolderFiles[0].OriginalPath);
+                $(outputFilesSelect).prop('selectedIndex', 0);
+            }
+            resolve(true);
+        });
+            // })
+        // } else {
+        //     var newrow = '<tr><td><select onchange="outputFilesSelected(event)" class="output-file-row" id="output-file-select-' + outputFileTableRows + '"></td></tr>';
+        //     table.append(newrow);
+        // }
     }
     function clearScenarioTables() {
         var table = $("#scenarios-table");
     }
     function addNewOutputFilesTableRow() {
-        if (!isSelectedScenarioModelLoaded()) {
-            updateModelInfo($("#user-models").val(), true)
-            .then(function(response) {
-                createOutputsFileTableRow(startRowIndex, numRows)
+        return new Promise((resolve, reject) => {
+            if (!isSelectedScenarioModelLoaded()) {
+                updateModelInfo($("#user-models").val(), true)
                 .then(function(response) {
-                    resolve(true);
+                    createOutputsFileTableRow()
+                    .then(function(response) {
+                        resolve(true);
+                    })
+                    .catch(function(error) {
+                        reject(error);
+                    })
                 })
-                .catch(function(error) {
-                    reject(error);
+            } else {
+                createOutputsFileTableRow()
+                .then(function(response) {
+                    resolve(response);
                 })
-            })
-        } else {
-            createOutputsFileTableRow();
-        }
+            }
+        });
     }
     function deleteOutputFilesTableRow(event) {
         if (outputFileTableRows > 0) {
