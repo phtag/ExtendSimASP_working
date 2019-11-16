@@ -1448,33 +1448,20 @@
         
         return this;
     }
-    function setupDropzone() {
-        var myDropzone = $('#scenario-factors-input-files-dropzone');
+    function setupDropzone(dropzoneID) {
+        var myDropzone = $('#' + dropzoneID);
         $(myDropzone).removeClass('dz-started');
         $('.dz-preview').remove();
         $(myDropzone).html('<div class="dz-default dz-message"><span>' + c_dropzone_inputfileupload_defaultMessage + '</span></div>');
-        // $(myDropzone).html('<div class="dz-default dz-message"><div id="input-files-dropzone-text">' + c_dropzone_inputfileupload_defaultMessage + '</div></div>');
-        // $(myDropzone).html('<div id="input-files-dropzone-text">' + c_dropzone_inputfileupload_defaultMessage + '</div>');
-        // $(myDropzone).text(c_dropzone_inputfileupload_defaultMessage);
-        // $(myDropzone).html('<div class="dz-default dz-message"><div id="input-files-dropzone-text">' + c_dropzone_inputfileupload_defaultMessage + '</div></div>');
-        // $(myDropzone).css('text-align','center');
-        // $(myDropzone).css('vertical-align','middle');
     }
     Dropzone.options.scenarioFactorsInputFilesDropzone = {
         createImageThumbnails: false, // NO THUMBS!
         dictDefaultMessage: c_dropzone_inputfileupload_defaultMessage,
-        // dictDefaultMessage: "",
         init: function() {
             this.on("addedfile", function(file) { 
                 addNewInputFilesTableRow(0, 1)
                 .then(function(rowIndex) {
-                    setupDropzone();
-                    // var myDropzone = $('#scenario-factors-input-files-dropzone');
-                    // $('.dz-preview').remove();
-                    // $(myDropzone).html('<div id="input-files-dropzone-text">' + c_dropzone_inputfileupload_defaultMessage + '</div>');
-                    // // $(myDropzone).text("Drop files here to upload");
-                    // $(myDropzone).css('text-align','center');
-                    // $(myDropzone).css('vertical-align','middle');
+                    setupDropzone('scenario-factors-input-files-dropzone');
                     readAndPreviewInputFile(file, 'my-id-' + rowIndex);
                 })
             });
@@ -1483,17 +1470,11 @@
     Dropzone.options.scenarioSetupModelFilesDropzone = {
         createImageThumbnails: false, // NO THUMBS!
         dictDefaultMessage: c_dropzone_modelfileupload_defaultMessage,
-        // dictDefaultMessage: "",
         init: function() {
             this.on("addedfile", function(file) { 
-                // <button onclick='$("#upload-user-model").click()'>Upload new model</button>
-                //             <input type="file" id='upload-user-model' style='display: none' onchange='uploadUserModelFile(event)'></input>        
-                //             <!-- <br></br> -->
-                // addNewInputFilesTableRow(0, 1)
-                uploadUserModelFile(event)
+                readAndPreviewUserModelFile(file)
                 .then(function(rowIndex) {
-                    setupDropzone();
-                    // readAndPreviewInputFile(file, 'my-id-' + rowIndex);
+                    setupDropzone('scenario-setup-model-files-dropzone');
                 })
             });
         }
@@ -2294,43 +2275,39 @@
         return new TextDecoder("utf-8").decode(uint8array);
     }
     function readAndPreviewUserModelFile(file) {
-        var reader  = new FileReader();
-        var data = new FormData();
+        return new Promise((resolve, reject) => {
+            var reader  = new FileReader();
+            var data = new FormData();
 
-        reader.onload = function(event) {
-            var contents = event.target.result;
-            console.log('Contents=' + contents);
-            var binary = "";
-            var bytes = new Uint8Array(contents);
-            var length = bytes.byteLength;
-            for (var i = 0; i < length; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            // const data = new FormData();
-            // data.append(g_uploadedUserModelFile.name, contents);
-            // g_uploadedUserModelFile.data = ab2str(contents);
-            var binaryString = Decodeuint8arr(bytes);
+            reader.onload = function(event) {
+                var contents = event.target.result;
+                console.log('Contents=' + contents);
+                var binary = "";
+                var bytes = new Uint8Array(contents);
+                var length = bytes.byteLength;
+                for (var i = 0; i < length; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                var binaryString = Decodeuint8arr(bytes);
 
-            console.log('File data=' + binaryString);
-            g_uploadedUserModelFile.data = binary;
-            // g_uploadedUserModelFile.data = bytes;
-            g_uploadedUserModelFile.arrayBuffer = bytes;
-            uploadUserModelToServer()
-            .then(function(response) {
-                getUserModelPaths()
-                .then(function(getUserModelPathsResponse) {
-                    updateLoadingDivVisibility(false);
+                console.log('File data=' + binaryString);
+                g_uploadedUserModelFile.data = binary;
+                g_uploadedUserModelFile.arrayBuffer = bytes;
+                uploadUserModelToServer()
+                .then(function(response) {
+                    getUserModelPaths()
+                    .then(function(getUserModelPathsResponse) {
+                        updateLoadingDivVisibility(false);
+                        resolve(true);
+                    });
                 });
-            });
-        };
-        if (file) {
-            console.log(file);
-            g_uploadedUserModelFile.name = file.name;
-            // reader.readAsBinaryString(file);
-            reader.readAsArrayBuffer(file);
-            // reader.readAsDataURL(file);
-            // reader.readAsText(file);
-        }
+            };
+            if (file) {
+                console.log(file);
+                g_uploadedUserModelFile.name = file.name;
+                reader.readAsArrayBuffer(file);
+            }
+        });
     }
     function readAndPreviewInputFile(file, id) {
         var fileIndex = Number(id.substring(id.lastIndexOf("-") + 1)) - 1;
@@ -2396,7 +2373,7 @@
             return false;
         }
     }
-    function uploadUserModelFile() {
+    function uploadUserModelFile(file) {
         return new Promise((resolve, reject) => {
             var files = $("#" + event.target.id)[0].files;
             if (files) {
