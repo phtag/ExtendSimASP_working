@@ -1722,44 +1722,116 @@
         });
         return dataRow;
     }
+    function downloadDataFilesFromServer(fileIndex, scenarioIndex) {
+        return new Promise((resolve, reject) => {
+            var folder;
+            // alert('uploadDataFilesToServer_new: Uploading ' + g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length + ' files');
+            if (g_ScenarioDefinitions[scenarioIndex].responses.outputFiles.length < 1) {
+                // Exit since there are no files to copy
+                resolve(true);
+            } else {
+                event.preventDefault();
+                folder = g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[fileIndex].folder;
+                if (folder === c_ModelFolder_outputFolderOption) {
+                    // Pull the list of files from the scenario model folder
+                    alert('Scenario pathname=' + g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname);
+                    getScenarioFolderFiles(g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname)
+                    .then(function(response) {
+                        var scenarioFolderFiles = response.data.scenarioFolderFiles;
+                        var matchingFilePattern = g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[fileIndex].matchingFilePattern;
+                        var position = matchingFilePattern.indexOf('*');
+                        if (position >= 0) {
+                            matchingFilePattern = matchingFilePattern.replace(/[*]/g,"");
+                        }
+                        alert('matching pattern=' + matchingFilePattern);
+                        for (var i = 0; i < scenarioFolderFiles.length; i++) {
+                            if (scenarioFolderFiles[i].OriginalPath.indexOf(matchingFilePattern) >= 0) {
+                                alert('Scenario file=' + scenarioFolderFiles[i].OriginalPath);
+                            }
+                            // getServerFile(scenarioFolderFiles[i].OriginalPath)
+                            // .then(function(response) {
+                            //     console.log(JSON.stringify(response.data.result));
+                            //     var fileData  = response.data.result;
+                            //     g_fileDataArray = fileData.split('\r\n').map(function(ln){
+                            //         return ln.split('\t');
+                            //     });
+                            //     // Remove last empty element from array
+                            //     g_fileDataArray.pop();
+                            // });
+                        }
+                    });
+                } else if (folder === c_AllModelSubFolders_outputFolderOption) {
+                    // Pull the list of folders from the scenario model folder
+
+                } else if (folder === c_ModelSubFoldersWithMatchingPattern_outputFolderOption) {
+                    // Pull the list of folders from the scenario model folder and filter
+                    //  on matching folder name pattern
+
+                }
+            }
+        });
+    }
 
     function getSelectedScenarioResponses() {
         return new Promise((resolve, reject) => {
-            axios({
-                url: proxyurl + queryURL_root + 'ExtendSim/getserverscenariofolders',
-                method: 'post',
-                accept : 'application/json',
-                contentType: 'application/json;charset=utf-8',
-                // params: {
-                data: {
-                    scenarioFolderPathname : $("#user-scenario-folder-pathname").val(),
-                }
-            })
-            .then(function(response) {
-                if (response.data.scenarioFolders.length > 0) {
-                    console.log('Response=' + JSON.stringify(response));
-                    getScenarioFolderFiles(response.data.scenarioFolders[0])
-                    .then(function(response) {
-                        var scenarioFolderFiles = response.data.scenarioFolderFiles;
-                        for (var i = 0; i < scenarioFolderFiles.length; i++) {
-                            getServerFile(scenarioFolderFiles[i].OriginalPath)
-                            .then(function(response) {
-                                console.log(JSON.stringify(response.data.result));
-                                var fileData  = response.data.result;
-                                g_fileDataArray = fileData.split('\r\n').map(function(ln){
-                                    return ln.split('\t');
-                                });
-                                // Remove last empty element from array
-                                g_fileDataArray.pop();
-                            });
-                        }
-                    })
-                }
-                resolve(response);
-            })
-            .catch(function(error) {
-                reject(error);
-            })
+            // Loop on all responses:
+            //  1) Output files
+            //      a) Depending on folder type, get list of folders or use the scenario folder as the root
+            //      b) Get list of files in the folders
+            //      c) Using file pattern, pull files that match pattern to the user specified client outputs folder
+            //  2) Database tables
+            //  3) Dialog variables
+
+
+            // Loop on all selected scenarios that have a completed status
+
+            var scenariosTable = $('#scenarios-table');
+            for (var rowIndex=0;rowIndex<$('#scenarios-table tr').length;rowIndex++) {
+                var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
+                var selectElementId = $(thisRow).attr('id');
+                var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
+                var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
+                alert('getSelectedScenarioResponses: scenarioIndex=' + scenarioIndex);
+                downloadDataFilesFromServer(0, scenarioIndex)
+                .then(function(response) {
+                    resolve(true);
+                })
+            }
+            // axios({
+            //     url: proxyurl + queryURL_root + 'ExtendSim/getserverscenariofolders',
+            //     method: 'post',
+            //     accept : 'application/json',
+            //     contentType: 'application/json;charset=utf-8',
+            //     // params: {
+            //     data: {
+            //         scenarioFolderPathname : $("#user-scenario-folder-pathname").val(),
+            //     }
+            // })
+            // .then(function(response) {
+            //     if (response.data.scenarioFolders.length > 0) {
+            //         console.log('Response=' + JSON.stringify(response));
+            //         getScenarioFolderFiles(response.data.scenarioFolders[0])
+            //         .then(function(response) {
+            //             var scenarioFolderFiles = response.data.scenarioFolderFiles;
+            //             for (var i = 0; i < scenarioFolderFiles.length; i++) {
+            //                 getServerFile(scenarioFolderFiles[i].OriginalPath)
+            //                 .then(function(response) {
+            //                     console.log(JSON.stringify(response.data.result));
+            //                     var fileData  = response.data.result;
+            //                     g_fileDataArray = fileData.split('\r\n').map(function(ln){
+            //                         return ln.split('\t');
+            //                     });
+            //                     // Remove last empty element from array
+            //                     g_fileDataArray.pop();
+            //                 });
+            //             }
+            //         })
+            //     }
+            //     resolve(response);
+            // })
+            // .catch(function(error) {
+            //     reject(error);
+            // })
         });   
     }
     function removeSelectedScenarioFolders() {
@@ -3656,6 +3728,7 @@
             createScenarioFolder(createScenariorFolderFlag, false, scenarioFolderName, rowIndex)
             .then(function(createScenarioFolderResponse) {
                 var scenarioFolderPathname = createScenarioFolderResponse;
+                g_scenarioDefinition[scenarioIndex].factors.scenarioFolderPathname = scenarioFolderPathname;
                 // Copy user selected server model into scenario folder
                 copyModelToScenarioFolder(createScenariorFolderFlag, scenarioFolderPathname)
                 .then(function(copyModelToScenarioFolderResponse) {
