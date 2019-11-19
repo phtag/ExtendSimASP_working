@@ -991,6 +991,21 @@
                 variableNames: [],
                 variableValues: [],
                 blockNumbers: []               
+            },
+            scenarioRunDetails: {
+                ID: -1,
+                modelPath: "",
+                runButtonName: "",
+                blockNumber: "",
+                quitExtendSim: true,
+                quitExcel: false,
+                submissionTime: 0,
+                startTime: 0,
+                completionTime: 0,
+                currentSimulationTime: 0,
+                endSimulationTime: 0,
+                runNumber: -1,
+                Aborted: false           
             }
         }
     ]
@@ -1346,6 +1361,9 @@
     const c_ModelFolder_outputFolderOption="Model folder"
     const c_AllModelSubFolders_outputFolderOption="All model sub-folders"
     const c_ModelSubFoldersWithMatchingPattern_outputFolderOption="Model sub-folders with matching pattern"
+
+    const c_undefined_ScenarioDetailsTime = -1;
+    const c_undefined_scenarioID = -1;
 
     const proxyurl = "";
     const pathname = "C:\Users\Administrator\Documents\ExtendSim10ASP_Prod\ASP\ASP Servers\ExtendSim Models\Analyst 1";
@@ -1734,7 +1752,6 @@
                 folder = g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[fileIndex].folder;
                 if (folder === c_ModelFolder_outputFolderOption) {
                     // Pull the list of files from the scenario model folder
-                    alert('Scenario pathname=' + g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname);
                     getScenarioFolderFiles(g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname)
                     .then(function(response) {
                         var scenarioFolderFiles = response.data.scenarioFolderFiles;
@@ -1746,18 +1763,19 @@
                         var pattern = ".txt";
                         for (var i = 0; i < scenarioFolderFiles.length; i++) {
                             if (scenarioFolderFiles[i].OriginalPath.indexOf(matchingFilePattern) >= 0) {
-                                alert(scenarioFolderFiles[i].OriginalPath);
+                                serverFilepath = g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname + "//" + scenarioFolderFiles[i].OriginalPath;
+                                alert('Getting server file=' + serverFilepath);
+                                getServerFile(serverFilepath)
+                                .then(function(response) {
+                                    alert(JSON.stringify(response.data.result));
+                                    var fileData  = response.data.result;
+                                    g_fileDataArray = fileData.split('\r\n').map(function(ln){
+                                        return ln.split('\t');
+                                    });
+                                    // Remove last empty element from array
+                                    g_fileDataArray.pop();
+                                });
                             }
-                            // getServerFile(scenarioFolderFiles[i].OriginalPath)
-                            // .then(function(response) {
-                            //     console.log(JSON.stringify(response.data.result));
-                            //     var fileData  = response.data.result;
-                            //     g_fileDataArray = fileData.split('\r\n').map(function(ln){
-                            //         return ln.split('\t');
-                            //     });
-                            //     // Remove last empty element from array
-                            //     g_fileDataArray.pop();
-                            // });
                         }
                     });
                 } else if (folder === c_AllModelSubFolders_outputFolderOption) {
@@ -1788,10 +1806,8 @@
             var scenariosTable = $('#scenarios-table');
             var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
             var selectElementId = $(thisRow).attr('id');
-            alert('thisRow=' + thisRow + ' selectElementId=' + selectElementId);
             var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
             var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
-            alert('getSelectedScenarioResponses: scenarioIndex=' + scenarioIndex);
             downloadDataFilesFromServer(0, scenarioIndex)
             .then(function(response) {
                 rowIndex++;
@@ -2282,12 +2298,38 @@
         $('#scenarios-checkbox').prop('disabled', false);
         // $('#submit-scenarios-button').prop('disabled', false); 
     }
+    function getCurrentTime() {
+        var today = new Date();
+        var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        var dateTime = date+' '+time;
+        return dataTime;
+    }
+    function initializeScenarioRunDetails(scenarioIndex) {
+        g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails = {
+            ID: c_undefined_scenarioID,
+            modelPath: g_ScenarioDefinitions[scenarioIndex].factors.modelPathname,
+            runButtonName: "",
+            blockNumber: -1,
+            quitExtendSim: true,
+            quitExcel: false,
+            submissionTime: c_undefined_ScenarioDetailsTime,
+            startTime: c_undefined_ScenarioDetailsTime,
+            completionTime: c_undefined_ScenarioDetailsTime,
+            currentSimulationTime: c_undefined_ScenarioDetailsTime,
+            endSimulationTime: c_undefined_ScenarioDetailsTime,
+            runNumber: -1,
+            Aborted: false        
+        }
+    }
     function readAndPreviewScenarioDefinitionFile(file) {
         var reader  = new FileReader();
         reader.onload = function(event) {
             g_ScenarioDefinitions.push(g_scenarioDefinition);
             var scenarioIndex = g_ScenarioDefinitions.length - 1;
             g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
+            initializeScenarioRunDetails(scenarioIndex);
+
             // updateModelInfo($("#user-models").val(), true)
             updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, true)
             .then(function(response) {
@@ -3260,6 +3302,8 @@
             if ((g_submittedScenarios[submittedScenarioIndex].status == c_Completed_status) || (g_submittedScenarios[submittedScenarioIndex].status == c_Aborted_status)) {
                 clearInterval(myCheckStatusInterval);
                 updateScenariosTableProgressBarValue(tableRowIndex, 100);
+                var scenarioIndex = g_submittedScenarios[submittedScenarioIndex].scenarioIndex;
+                g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails.completionTime = getCurrentTime();
                 // updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
                 // $('#submit-scenarios-button').prop('disabled', false);
                 $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected());
@@ -3772,7 +3816,9 @@
                                         updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
                                         g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
                                                                     rowIndex: rowIndex,
-                                                                    status: 0 });
+                                                                    status: 0,
+                                                                    scenarioIndex: scenarioIndex});
+                                        g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails.completionTime = c_undefined_ScenarioDetailsTime;
                                         myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(rowIndex, (g_submittedScenarios.length - 1))}, c_statusCheckTimeout);
                                         updateButtonsState();
                                     });
@@ -3796,7 +3842,8 @@
                                         updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
                                         g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
                                                                     rowIndex: rowIndex,
-                                                                    status: 0 });
+                                                                    status: 0, 
+                                                                    scenarioIndex: scenarioIndex });
                                         myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(rowIndex, (g_submittedScenarios.length - 1))}, c_statusCheckTimeout);
                                         updateButtonsState();
                                     });
