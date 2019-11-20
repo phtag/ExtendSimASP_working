@@ -1577,6 +1577,46 @@
         });
         return result;
     }
+    function exportToCsv(filename, rows) {
+        var processRow = function (row) {
+            var finalVal = '';
+            for (var j = 0; j < row.length; j++) {
+                var innerValue = row[j] === null ? '' : row[j].toString();
+                if (row[j] instanceof Date) {
+                    innerValue = row[j].toLocaleString();
+                };
+                var result = innerValue.replace(/"/g, '""');
+                if (result.search(/("|,|\n)/g) >= 0)
+                    result = '"' + result + '"';
+                if (j > 0)
+                    finalVal += ',';
+                finalVal += result;
+            }
+            return finalVal + '\n';
+        };
+
+        var csvFile = '';
+        for (var i = 0; i < rows.length; i++) {
+            csvFile += processRow(rows[i]);
+        }
+
+        var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+        if (navigator.msSaveBlob) { // IE 10+
+            navigator.msSaveBlob(blob, filename);
+        } else {
+            var link = document.createElement("a");
+            if (link.download !== undefined) { // feature detection
+                // Browsers that support HTML5 download attribute
+                var url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    }
     function exportDataTableToTextFile(tableName) {
         var titles = [];
         var data = [];
@@ -1610,7 +1650,20 @@
             }
         }
     }
-
+    function convertArrayToCSVfile(titles, data) {
+        if (titles.length > 0) {
+            var CSVString = prepCSVRow(titles, titles.length, '');
+        }
+        CSVString = prepCSVRow(data, titles.length, CSVString);
+        var downloadLink = document.createElement("a");
+        var blob = new Blob(["\ufeff", CSVString]);
+        var url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.download = modelInfo.Tablename + ".csv";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
     function exportScenarioModelTableToTextFile(event) {
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
@@ -1624,16 +1677,17 @@
                     data.push(elements[i]);
                 }
             });
-            var CSVString = prepCSVRow(titles, titles.length, '');
-            CSVString = prepCSVRow(data, titles.length, CSVString);
-            var downloadLink = document.createElement("a");
-            var blob = new Blob(["\ufeff", CSVString]);
-            var url = URL.createObjectURL(blob);
-            downloadLink.href = url;
-            downloadLink.download = modelInfo.Tablename + ".csv";
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
+            convertArrayToCSVfile(titles, data);
+            // var CSVString = prepCSVRow(titles, titles.length, '');
+            // CSVString = prepCSVRow(data, titles.length, CSVString);
+            // var downloadLink = document.createElement("a");
+            // var blob = new Blob(["\ufeff", CSVString]);
+            // var url = URL.createObjectURL(blob);
+            // downloadLink.href = url;
+            // downloadLink.download = modelInfo.Tablename + ".csv";
+            // document.body.appendChild(downloadLink);
+            // downloadLink.click();
+            // document.body.removeChild(downloadLink);
             updateLoadingDivVisibility(false);
         });
     }
@@ -1740,6 +1794,36 @@
         });
         return dataRow;
     }
+    function downloadFiles(fileIndex, serverFiles) {
+        return new Promise((resolve, reject) => {
+            if (fileIndex < serverFiles.length) {
+                getServerFile(serverFiles[fileIndex].serverFilepath)
+                .then(function(response) {
+                    alert(JSON.stringify(response.data.result));
+                    console.log(JSON.stringify(response.data.result));
+                    var fileData  = response.data.result;
+                    g_fileDataArray = fileData.split('\r\n').map(function(ln){
+                        return ln.split('\t');
+                    });
+                    // Remove last empty element from array
+                    if (g_fileDataArray.length > 1) {
+                        g_fileDataArray.pop();
+                    }
+                   
+                    var blob = new Blob([JSON.stringify(response.data.result)],
+                                        { type: 'text/csv;charset=utf-8;' });
+                                //    { type: "text/plain;charset=utf-8", endings:'native' });
+                    // saveAs(blob, serverFiles[fileIndex].clientFilepath);
+                    exportToCsv(serverFiles[fileIndex].clientFilepath, g_fileDataArray);
+                    fileIndex++;
+                    resolve(downloadFiles(fileIndex, serverFiles));
+                });
+            } else {
+                resolve(true);                                
+            }
+        });
+    }
+
     function downloadDataFilesFromServer(fileIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
             var folder;
@@ -1761,21 +1845,23 @@
                             matchingFilePattern = matchingFilePattern.replace(/[*]/g,"");
                         }
                         var pattern = ".txt";
+                        var serverFiles = [];
                         for (var i = 0; i < scenarioFolderFiles.length; i++) {
                             if (scenarioFolderFiles[i].OriginalPath.indexOf(matchingFilePattern) >= 0) {
-                                serverFilepath = g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname + "//" + scenarioFolderFiles[i].OriginalPath;
-                                alert('Getting server file=' + serverFilepath);
-                                getServerFile(serverFilepath)
-                                .then(function(response) {
-                                    alert(JSON.stringify(response.data.result));
-                                    var fileData  = response.data.result;
-                                    g_fileDataArray = fileData.split('\r\n').map(function(ln){
-                                        return ln.split('\t');
-                                    });
-                                    // Remove last empty element from array
-                                    g_fileDataArray.pop();
+                                serverFilepath = g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname + "\\" + scenarioFolderFiles[i].OriginalPath;
+                                // alert('Getting server file=' + serverFilepath);
+                                var clientFilepath = scenarioFolderFiles[i].OriginalPath;
+                                serverFiles.push({
+                                    serverFilepath: serverFilepath,
+                                    clientFilepath: clientFilepath
                                 });
                             }
+                        }
+                        if (serverFiles.length > 0) {
+                            downloadFiles(0, serverFiles)
+                            .then(function(response) {
+                                resolve(response);
+                            })
                         }
                     });
                 } else if (folder === c_AllModelSubFolders_outputFolderOption) {
