@@ -1618,6 +1618,7 @@
         }
     }
     function exportDataTableToTextFile(tableName) {
+        alert('exportDataTableToTextFile');
         var titles = [];
         var data = [];
         var tableId = 'selected-database-outputs-table';
@@ -1627,16 +1628,24 @@
         $('#' + tableId + ' td').each(function() {
             data.push($(this).text());
         });
-        var CSVString = prepCSVRow(titles, titles.length, '');
-        CSVString = prepCSVRow(data, titles.length, CSVString);
-        var downloadLink = document.createElement("a");
-        var blob = new Blob(["\ufeff", CSVString]);
-        var url = URL.createObjectURL(blob);
-        downloadLink.href = url;
-        downloadLink.download = tableName + ".csv";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        var tableData = [];
+        g_tableSchema.fields.forEach(function(element) {
+            tableData.push(element);
+        })
+        // concat(g_tableDataArray);
+
+        // exportToCsv(tableName + ".csv", tableData);
+        convertArrayToCSVfile(titles, data, g_tableDataArray.length, tableName + ".csv");
+        // var CSVString = prepCSVRow(titles, titles.length, '');
+        // CSVString = prepCSVRow(data, titles.length, CSVString);
+        // var downloadLink = document.createElement("a");
+        // var blob = new Blob(["\ufeff", CSVString]);
+        // var url = URL.createObjectURL(blob);
+        // downloadLink.href = url;
+        // downloadLink.download = tableName + ".csv";
+        // document.body.appendChild(downloadLink);
+        // downloadLink.click();
+        // document.body.removeChild(downloadLink);
     }
     function setUsersModelRootPath(userModelPaths) {
         var rootPath = '';
@@ -1650,21 +1659,22 @@
             }
         }
     }
-    function convertArrayToCSVfile(titles, data) {
+    function convertArrayToCSVfile(titles, data, numColumns, filename) {
         if (titles.length > 0) {
-            var CSVString = prepCSVRow(titles, titles.length, '');
+            var CSVString = prepCSVRow(titles, numColumns, '');
         }
-        CSVString = prepCSVRow(data, titles.length, CSVString);
+        CSVString = prepCSVRow(data, numColumns, CSVString);
         var downloadLink = document.createElement("a");
         var blob = new Blob(["\ufeff", CSVString]);
         var url = URL.createObjectURL(blob);
         downloadLink.href = url;
-        downloadLink.download = modelInfo.Tablename + ".csv";
+        downloadLink.download = filename;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
     }
     function exportScenarioModelTableToTextFile(event) {
+        alert('exportScenarioModelTableToTextFile');
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
         var modelInfo = buildDatabaseTableContentsStreamModelInfo(event.target.id);
@@ -1677,17 +1687,7 @@
                     data.push(elements[i]);
                 }
             });
-            convertArrayToCSVfile(titles, data);
-            // var CSVString = prepCSVRow(titles, titles.length, '');
-            // CSVString = prepCSVRow(data, titles.length, CSVString);
-            // var downloadLink = document.createElement("a");
-            // var blob = new Blob(["\ufeff", CSVString]);
-            // var url = URL.createObjectURL(blob);
-            // downloadLink.href = url;
-            // downloadLink.download = modelInfo.Tablename + ".csv";
-            // document.body.appendChild(downloadLink);
-            // downloadLink.click();
-            // document.body.removeChild(downloadLink);
+            convertArrayToCSVfile(titles, data, titles.length, modelInfo.Tablename + ".csv");
             updateLoadingDivVisibility(false);
         });
     }
@@ -1809,11 +1809,19 @@
                     if (g_fileDataArray.length > 1) {
                         g_fileDataArray.pop();
                     }
-                   
-                    var blob = new Blob([JSON.stringify(response.data.result)],
-                                        { type: 'text/csv;charset=utf-8;' });
+                 
+                    // var blob = new Blob([JSON.stringify(response.data.result)],
+                    //                     { type: 'text/csv;charset=utf-8;' });
                                 //    { type: "text/plain;charset=utf-8", endings:'native' });
                     // saveAs(blob, serverFiles[fileIndex].clientFilepath);
+                    // var titles = response.data.modelDatabaseTableFields.fields;
+                    var data = [];
+                    g_fileDataArray.forEach(function(elements, index) {
+                        for (var i=0;i<elements.length;i++) {            
+                            data.push(elements[i]);
+                        }
+                    });
+                    var titles = [];
                     exportToCsv(serverFiles[fileIndex].clientFilepath, g_fileDataArray);
                     fileIndex++;
                     resolve(downloadFiles(fileIndex, serverFiles));
@@ -2389,7 +2397,7 @@
         var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
         var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
         var dateTime = date+' '+time;
-        return dataTime;
+        return dateTime;
     }
     function initializeScenarioRunDetails(scenarioIndex) {
         g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails = {
