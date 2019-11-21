@@ -1618,7 +1618,6 @@
         }
     }
     function exportDataTableToTextFile(tableName) {
-        alert('exportDataTableToTextFile');
         var titles = [];
         var data = [];
         var tableId = 'selected-database-outputs-table';
@@ -1633,19 +1632,7 @@
             tableData.push(element);
         })
         // concat(g_tableDataArray);
-
-        // exportToCsv(tableName + ".csv", tableData);
         convertArrayToCSVfile(titles, data, g_tableDataArray.length, tableName + ".csv");
-        // var CSVString = prepCSVRow(titles, titles.length, '');
-        // CSVString = prepCSVRow(data, titles.length, CSVString);
-        // var downloadLink = document.createElement("a");
-        // var blob = new Blob(["\ufeff", CSVString]);
-        // var url = URL.createObjectURL(blob);
-        // downloadLink.href = url;
-        // downloadLink.download = tableName + ".csv";
-        // document.body.appendChild(downloadLink);
-        // downloadLink.click();
-        // document.body.removeChild(downloadLink);
     }
     function setUsersModelRootPath(userModelPaths) {
         var rootPath = '';
@@ -1660,8 +1647,9 @@
         }
     }
     function convertArrayToCSVfile(titles, data, numColumns, filename) {
+        var CSVString = "";
         if (titles.length > 0) {
-            var CSVString = prepCSVRow(titles, numColumns, '');
+            CSVString = prepCSVRow(titles, numColumns, '');
         }
         CSVString = prepCSVRow(data, numColumns, CSVString);
         var downloadLink = document.createElement("a");
@@ -1674,7 +1662,6 @@
         document.body.removeChild(downloadLink);
     }
     function exportScenarioModelTableToTextFile(event) {
-        alert('exportScenarioModelTableToTextFile');
         var rowIndex = getRowIndexFromTableRowId(event.target.id);
         updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
         var modelInfo = buildDatabaseTableContentsStreamModelInfo(event.target.id);
@@ -1799,7 +1786,6 @@
             if (fileIndex < serverFiles.length) {
                 getServerFile(serverFiles[fileIndex].serverFilepath)
                 .then(function(response) {
-                    alert(JSON.stringify(response.data.result));
                     console.log(JSON.stringify(response.data.result));
                     var fileData  = response.data.result;
                     g_fileDataArray = fileData.split('\r\n').map(function(ln){
@@ -1822,6 +1808,7 @@
                         }
                     });
                     var titles = [];
+                    // convertArrayToCSVfile(titles, data, g_tableDataArray.length, serverFiles[fileIndex].clientFilepath);
                     exportToCsv(serverFiles[fileIndex].clientFilepath, g_fileDataArray);
                     fileIndex++;
                     resolve(downloadFiles(fileIndex, serverFiles));
