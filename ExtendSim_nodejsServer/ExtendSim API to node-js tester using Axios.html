@@ -2365,7 +2365,6 @@
         });
     }
     function loadScenarioDefinition(event) {
-        alert('loadScenarioDefinition');
         g_loadingScenarioData = true;
         loadedScenarioModelpathname = '';
         var files = $("#" + event.target.id)[0].files;
@@ -2411,7 +2410,6 @@
             g_ScenarioDefinitions.push(g_scenarioDefinition);
             var scenarioIndex = g_ScenarioDefinitions.length - 1;
             g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
-            alert('readAndPreviewScenarioDefinitionFile');
             initializeScenarioRunDetails(scenarioIndex);
             updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, true)
             .then(function(response) {
@@ -3109,7 +3107,6 @@
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
-        alert('buildDatabaseTableContentsStreamModelInfo: modelpathname=' + modelpathname);
         return modelInfo;
     }
     function openDatabaseTableContentsModal(event) {
