@@ -832,7 +832,7 @@
                 <!-- <label for='load-scenario-definition' class="btn">Load scenario definition</label> -->
                 <button onclick='$("#load-scenario-definition").click()'>Load scenario definition</button>
                 <input type="file" id='load-scenario-definition' style='display: none' onchange='loadScenarioDefinition(event)'></input>
-                <button class='scenario-buttons' id='save-scenario-definition'  onclick='saveScenarioDefinition()'>Save scenario definition</button>
+                <button class='scenario-buttons' id='save-scenario-definition' onclick='saveScenarioDefinition()'>Save scenario definition</button>
             </div>
         </div>
         <div id="scenarios">
@@ -2365,10 +2365,11 @@
         });
     }
     function loadScenarioDefinition(event) {
+        alert('loadScenarioDefinition');
         g_loadingScenarioData = true;
         loadedScenarioModelpathname = '';
         var files = $("#" + event.target.id)[0].files;
-        clearTableData();
+        initializeWebPage();
         inputFileTableRows = 0;
         databaseInputsTableRows = 0;
         numDatabaseFilesUploaded = 0;
@@ -2377,6 +2378,7 @@
             [].forEach.call(files, readAndPreviewScenarioDefinitionFile);
         }
         $('#scenarios-checkbox').prop('disabled', false);
+        $('#load-scenario-definition').val("");
         // $('#submit-scenarios-button').prop('disabled', false); 
     }
     function getCurrentTime() {
@@ -2409,9 +2411,8 @@
             g_ScenarioDefinitions.push(g_scenarioDefinition);
             var scenarioIndex = g_ScenarioDefinitions.length - 1;
             g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
+            alert('readAndPreviewScenarioDefinitionFile');
             initializeScenarioRunDetails(scenarioIndex);
-
-            // updateModelInfo($("#user-models").val(), true)
             updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, true)
             .then(function(response) {
                 populateScenarioFactorsSettings(scenarioIndex)
@@ -4169,8 +4170,12 @@
             });  
         });     
     }
-    function loginToServer() {
+    function initializeWebPage() {
+        $('#user-scenario-folder-pathname').val("");
         clearTableData();
+    }
+    function loginToServer() {
+        initializeWebPage();
         axios({
             url: proxyurl + queryURL_root + 'users/login',
             method: 'post',
