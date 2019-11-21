@@ -3097,13 +3097,18 @@
     function buildDatabaseTableContentsStreamModelInfo(tableRowId) {
         var rowIndex = getRowIndexFromTableRowId(tableRowId);
         var modelName =  $("#user-models").val();
-        modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-        var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
+        if ($("#user-scenario-folder-pathname").val() !== "") {
+            modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+            var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
+        } else {
+            var modelpathname = modelName;
+        }
         var modelInfo = {
             Modelpathname: modelpathname,
             Databasename:  $("#source-database-" + rowIndex).val(),
             Tablename: $("#source-table-" + rowIndex).val()
         }
+        alert('buildDatabaseTableContentsStreamModelInfo: modelpathname=' + modelpathname);
         return modelInfo;
     }
     function openDatabaseTableContentsModal(event) {
