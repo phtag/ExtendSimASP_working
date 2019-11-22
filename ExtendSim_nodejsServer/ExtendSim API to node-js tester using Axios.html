@@ -1840,8 +1840,15 @@
             }
         });
     }
-
-    function downloadDataFilesFromServer(fileIndex, scenarioIndex) {
+    function downloadDatabaseTableDataFromServer(fileIndex, scenarioIndex) {
+        return new Promise((resolve, reject) => {
+        });
+    }
+    function downloadDialogVariableDataFromServer(fileIndex, scenarioIndex) {
+        return new Promise((resolve, reject) => {
+        });
+    }
+    function downloadOutputFilesFromServer(fileIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
             var folder;
             // alert('uploadDataFilesToServer_new: Uploading ' + g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length + ' files');
@@ -1911,8 +1918,9 @@
             var selectElementId = $(thisRow).attr('id');
             var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
             var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
-            downloadDataFilesFromServer(0, scenarioIndex)
+            downloadOutputFilesFromServer(0, scenarioIndex)
             .then(function(response) {
+                downloadDatabaseTableDataFromServer(0, scenarioIndex)
                 rowIndex++;
                 if (rowIndex < $('#scenarios-table tr').length) {
                     resolve(getSelectedScenarioResponses(rowIndex));
