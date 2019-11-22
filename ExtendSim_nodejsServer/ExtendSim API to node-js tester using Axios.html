@@ -669,7 +669,7 @@
                             </div>
                             <div id="scenario-file-inputs-body">
                                 <form action="/file-upload" class="dropzone" id="scenario-factors-input-files-dropzone"></form>
-                                <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow()'>Add row</button>
+                                <button class="scenario-file-input-buttons" onclick='addNewInputFilesTableRow(inputFileTableRows(), 1)'>Add row</button>
                                 <button class="scenario-file-input-buttons" onclick='deleteInputFilesTableRow()''>Delete row</button>
                                 <table class="scenario-tables" id="file-inputs-table">
                                     <tr>
@@ -688,7 +688,7 @@
                                 <input type="checkbox" id="scenario-database-inputs-checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'>ExtendSim DB Table Inputs</input>    
                             </div>
                             <div id="scenario-database-inputs-body">
-                                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow(0, 1, false)'>Add row</button>
+                                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow(databaseInputsTableRows(), 1, false)'>Add row</button>
                                 <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
                                 <table class="scenario-tables" id="database-inputs-table">
                                     <tr>
@@ -713,7 +713,7 @@
                                 <input type="checkbox" id="scenario-dialog-inputs-checkbox" onclick='updateDOMelementVisibility("scenario-dialog-inputs")'>Dialog Variable Inputs</input>    
                             </div>
                             <div id="scenario-dialog-inputs-body">
-                                <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow(0, 1, false)'>Add row</button>
+                                <button class="scenario-dialog-input-buttons" id="add-dialog-inputs-table-row" onclick='addNewDialogInputsTableRow(dialogInputsTableRows(), 1, false)'>Add row</button>
                                 <button class="scenario-dialog-input-buttons" id="delete-dialog-inputs-table-row" onclick='deleteDialogInputsTableRow()'>Delete row</button>
                                 <button class="scenario-dialog-input-buttons" id="upload-dialog-inputs-file" onclick='uploadDialogInputsFile()'>Upload file</button>
                                 <table class="scenario-tables" id="dialog-inputs-table" style="width:auto">
@@ -753,7 +753,7 @@
                                 <input id="scenario-file-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-file-outputs")'>Output Files</input>    
                             </div>
                             <div id="scenario-file-outputs-body">
-                                <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow()'>Add row</button>
+                                <button class="scenario-file-output-buttons" id="add-file-outputs-table-row" onclick='addNewOutputFilesTableRow(outputFileTableRows(), 0)'>Add row</button>
                                 <button class="scenario-file-output-buttons" id="delete-file-outputs-table-row" onclick='deleteOutputFilesTableRow()'>Delete row</button>
                                 <table class="scenario-tables" id="file-outputs-table" style="width:auto">
                                     <tr>
@@ -903,9 +903,6 @@
     Dropzone.options.mydropzone = {
         init: function() {
             this.on("sending", function(file, xhr, formData) { 
-                // for (var pair of formData.entries()) {
-                //     alert(pair[0]+ ', ' + pair[1]); 
-                // } 
                 uploadUserModelPathnameToServer(g_userModelsRootPath, file.name)
                 .then(function() {
                     alert("Successfully sent model pathname to server");                    
@@ -1486,7 +1483,7 @@
         dictDefaultMessage: c_dropzone_inputfileupload_defaultMessage,
         init: function() {
             this.on("addedfile", function(file) { 
-                addNewInputFilesTableRow(0, 1)
+                addNewInputFilesTableRow(inputFileTableRows(), 1)
                 .then(function(rowIndex) {
                     setupDropzone('scenario-factors-input-files-dropzone', c_dropzone_inputfileupload_defaultMessage);
                     readAndPreviewInputFile(file, 'my-id-' + rowIndex);
@@ -1560,12 +1557,10 @@
     $("#the-form").submit(function(event) {
         event.preventDefault();
 
-        // alert('Got here. file=' + file);
         var formData = new FormData(this);
         var extendsimmodelfile = $('#extendsim-model-file');
         var fakepath = $('#extendsim-model-file').val();
         extendSimModelFilename = fakepath.substring(fakepath.lastIndexOf("\\") + 1);
-        // alert('ExtendSim model name=' + extendSimModelFilename);
         uploadUserModelPathnameToServer(g_userModelsRootPath, extendSimModelFilename)
         .then(function() {
             var xhr = new XMLHttpRequest();
@@ -2542,21 +2537,71 @@
             }
         });
     }
+    function readAndPreviewUserExcelFile(file) {
+        return new Promise((resolve, reject) => {
+            var reader  = new FileReader();
+            var data = new FormData();
+
+            reader.onload = function(event) {
+                var contents = event.target.result;
+                console.log('Contents=' + contents);
+                var binary = "";
+                var bytes = new Uint8Array(contents);
+                var length = bytes.byteLength;
+                for (var i = 0; i < length; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                var binaryString = Decodeuint8arr(bytes);
+
+                console.log('File data=' + binaryString);
+                g_uploadedUserModelFile.data = binary;
+                g_uploadedUserModelFile.arrayBuffer = bytes;
+                uploadUserModelToServer()
+                .then(function(response) {
+                    getUserModelPaths()
+                    .then(function(getUserModelPathsResponse) {
+                        updateLoadingDivVisibility(false);
+                        resolve(true);
+                    });
+                });
+            };
+            if (file) {
+                console.log(file);
+                g_uploadedUserModelFile.name = file.name;
+                reader.readAsArrayBuffer(file);
+            }
+        });
+    }
+    
     function readAndPreviewInputFile(file, id) {
         var fileIndex = Number(id.substring(id.lastIndexOf("-") + 1)) - 1;
         var reader  = new FileReader();
         reader.onload = function(event) {
             var contents = event.target.result;
-            uploadedFiles[fileIndex].data = contents;
             var inputLabel = '#input-label-' + (fileIndex + 1);
             updateInputLabel(inputLabel, file.name, 20);
+            if (file.name.indexOf('.xls') > 0) {
+                var binary = "";
+                var bytes = new Uint8Array(contents);
+                var length = bytes.byteLength;
+                for (var i = 0; i < length; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                uploadedFiles[fileIndex].data = binary;
+            } else {
+                uploadedFiles[fileIndex].data = contents;
+            }
         };
 
         if (file) {
             console.log(file);
             uploadedFiles.push({ name: file.name });
             selectedFiles.push(file);
-            reader.readAsText(file);
+            if (file.name.indexOf('.xls') > 0) {
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.readAsText(file);
+            }
         }
     }
     function readAndPreviewDatabaseInputFile(file, id) {
@@ -2662,11 +2707,7 @@
     function addNewInputFilesTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
             var table = $("#file-inputs-table");
-            // inputFileTableRows++;
-
             var myID = 'input-button-' + (rowIndex + 1);
-            // var myID = 'input-button-' + inputFileTableRows;
-            // var myLabelID = 'input-label-' + inputFileTableRows;
             var myLabelID = 'input-label-' + (rowIndex + 1);
             var $myID = "'#" + myID + "'";
             var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td></tr>';
@@ -2681,9 +2722,6 @@
         });
     }
     function deleteInputFilesTableRow(event) {
-        // if (inputFileTableRows > 0) {
-        //     inputFileTableRows--;
-        // }
         $("#file-inputs-table tr:last").remove();
         uploadedFiles.pop();
     }
@@ -3800,16 +3838,44 @@
             });
         });
     }
+    function uploadExcelFilesToServer(fileIndex, scenarioIndex, scenarioFolderPathname) {
+        return new Promise((resolve, reject) => {
+            event.preventDefault();
+            updateLoadingDivVisibility(true, 'Uploading model to server. Please wait...');
+            axios({
+                // url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+                url: proxyurl + queryURL_root + "ExtendSim/uploadmodelfile",
+                method: 'post',
+                accept : 'application/json',
+                // contentType: 'application/json;charset=utf-8',
+                // contentType: 'application/octet-stream',
+                // contentType: 'blob',
+                // contentType: 'multipart/form-data',
+                data : {
+                    scenarioFolderPathname: scenarioFolderPathname,
+                    filename: g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles[fileIndex].name,
+                    filedata: g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles[fileIndex].data
+                }
+            })
+            .then(function(response) {
+                resolve(true);
+            });
+        });
+    }
     function uploadDataFilesToServer_new(fileIndex, scenarioIndex, scenarioFolderPathname) {
         return new Promise((resolve, reject) => {
-            // alert('uploadDataFilesToServer_new: Uploading ' + g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length + ' files');
             if (g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length < 1) {
                 // Exit since there are no files to copy
                 resolve(true);
             } else {
+                if (g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles[fileIndex].name.indexOf('.xls') > 0) {
+                    var url = proxyurl + queryURL_root + "ExtendSim/uploadmodelfile";
+                } else {
+                    var url = proxyurl + queryURL_root + "ExtendSim/sendfile";
+                }
                 event.preventDefault();
                 axios({
-                    url: proxyurl + queryURL_root + "ExtendSim/sendfile",
+                    url: url,
                     method: 'post',
                     accept : 'application/json',
                     contentType: 'application/json;charset=utf-8',
@@ -3867,17 +3933,6 @@
             }
         });
     }
-    // function waitForRunningSimulationScenarios() {
-    //     return new Promise((resolve, reject) => { 
-    //         if (getNumRunningSimulationScenarios() === 0) {
-    //             alert('RESOLVING...');
-    //             resolve(true);
-    //         } else {
-    //             alert('Setting timeout')
-    //             resolve(setTimeout(()=> waitForRunningSimulationScenarios(), c_waitForRunningSimulationScenariosInterval));
-    //         }
-    //     });
-    // }
     function getNumRunningSimulationScenarios() {
         var numRunningSimulationScenarios = 0;
         for (var i=0;i<g_submittedScenarios.length;i++) {
@@ -3921,7 +3976,7 @@
                     selected = isScenarioSelected(scenarioIndex);
                     if (selected) {
                         updateScenariosTableCellValue(i, c_scenarioStatusColumn, scenarioStatusValues[1]);
-                        updateScenariosTableCellValue(i, c_scenarioIDColumn, c_undefined_scenarioID);
+                        updateScenariosTableCellValue(i, c_scenarioIDColumn, "undefined");
                         updateScenariosTableProgressBarValue(i, 0);
                     }
                 }
@@ -4416,7 +4471,6 @@
                 if (checked) {
                     $('#' + elementName).width(g_containers[i].width.checked);
                     if (g_containers[i].parent.name !== '') {
-                        // alert('Setting parent width=' + g_containers[i].parent.width.checked);
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.checked);
                     }
                     var childrenChecked = false;
@@ -4426,26 +4480,20 @@
                             validChildren++;
                             if ($('#' + g_containers[i].children[j].name + '-checkbox').prop('checked')) {
                                 childrenChecked = true;
-                                // alert('CHECKED: Setting ' + g_containers[i].children[j].name + ' width=' + g_containers[i].children[j].width.checked);
                                 $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.checked);
                             }
                             else {
-                                // alert('UNCHECKED: Setting ' + g_containers[i].children[j].name + ' width=' + g_containers[i].children[j].width.unchecked);
                                 $('#' + g_containers[i].children[j].name).width(g_containers[i].children[j].width.unchecked);
                             }
                         }
                     }
                     if (!childrenChecked && (validChildren > 0)) {
-                        // alert('Setting width=' + g_containers[i].width.unchecked);
                         $('#' + elementName).width(g_containers[i].width.unchecked);  
                     } else {
-                        // alert('Setting width=' + g_containers[i].width.checked);
                         $('#' + elementName).width(g_containers[i].width.checked);                       
                     }
                 } else {
-                    // alert('Unchecked width=' + g_containers[i].width.unchecked);
                     $('#' + elementName).width(g_containers[i].width.unchecked);
-                    // alert('Setting width=' + g_containers[i].width.unchecked);
                     if (g_containers[i].parent.name !== '') {
                         $('#' + g_containers[i].parent.name).width(g_containers[i].parent.width.unchecked);
                     }
