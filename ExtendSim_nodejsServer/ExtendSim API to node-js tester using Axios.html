@@ -3920,7 +3920,8 @@
                     scenarioIndex = getScenariosTableScenarioIndex(i);
                     selected = isScenarioSelected(scenarioIndex);
                     if (selected) {
-                        updateScenariosTableCellValue((i + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
+                        updateScenariosTableCellValue(i, c_scenarioStatusColumn, scenarioStatusValues[1]);
+                        updateScenariosTableCellValue(i, c_scenarioIDColumn, c_undefined_scenarioID);
                         updateScenariosTableProgressBarValue(i, 0);
                     }
                 }
