@@ -3825,6 +3825,18 @@
         }
         return numRunningSimulationScenarios;
     }
+    function getScenariosTableScenarioIndex(rowIndex) {
+        var scenariosTable = $('#scenarios-table');
+        var thisRow = $(scenariosTable).find("tr:eq(" + rowIndex + ")");
+        var selectElementId = $(thisRow).attr('id');
+        alert('getScenariosTableScenarioIndex: rowIndex=' + rowIndex + ' selectElementId=' + selectElementId);
+        var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
+        return scenarioIndex;
+    }
+    function isScenarioSelected(scenarioIndex) {
+        var selected = $('#scenario-selection-' + (scenarioIndex + 1)).is(":checked");
+        return selected;
+    }
     function submitSelectedSimulationScenarios(rowIndex) {
         return new Promise((resolve, reject) => { 
             // Trigger the sequence of calls required to:
@@ -3838,19 +3850,23 @@
             // waitForRunningSimulationScenarios()
             // .then(function(response) {
             var scenariosTable = $('#scenarios-table');
+            var scenarioIndex;
+            var selected = false;
             // mark the scenarios as being submitted
             if (rowIndex === 0) {
-                for (var i=0;i<$('#scenarios-table tr').length;i++) {
-                    updateScenariosTableCellValue((i + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
-                    updateScenariosTableProgressBarValue(i, 0);
-                    // updateScenariosTableCellValue((i + 1), c_PercentComplete, "0%");
+                for (var i=1;i<$('#scenarios-table tr').length;i++) {
+                    scenarioIndex = getScenariosTableScenarioIndex(i);
+                    selected = isScenarioSelected(scenarioIndex);
+                    if (selected) {
+                        updateScenariosTableCellValue((i + 1), c_scenarioStatusColumn, scenarioStatusValues[1]);
+                        updateScenariosTableProgressBarValue(i, 0);
+                    }
                 }
             }
-            var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
-            var selectElementId = $(thisRow).attr('id');
-            var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
-            var selected = $('#scenario-selection-' + (scenarioIndex + 1)).is(":checked");
+            scenarioIndex = getScenariosTableScenarioIndex(rowIndex + 1);
+            selected = isScenarioSelected(scenarioIndex);
             if (selected) {
+                var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
                 var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
                 // $('#submit-scenarios-button').prop('disabled', true);
                 $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected()); 
@@ -3946,6 +3962,13 @@
                 .catch(function(error1) {
                     alert('createScenarioFolder error=' + error1);
                 });
+            } else {
+                rowIndex++;
+                if (rowIndex < $('#scenarios-table tr').length) {
+                    resolve(submitSelectedSimulationScenarios(rowIndex));
+                } else {
+                    resolve(true);
+                }
             }
         })
         // });
