@@ -530,7 +530,14 @@
         margin-top: 10px;
         margin-bottom: 10px;
     }
-
+    #scenario-definition-files-dropzone {
+        /* font-size: 18px; */
+        margin: auto;
+        width: 70%;
+        min-height: 0px !important;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
     #input-files-dropzone-text {
         margin-bottom: 7%; 
         margin-top: 7%; 
@@ -830,8 +837,9 @@
                     </div>
                 </div>
                 <!-- <label for='load-scenario-definition' class="btn">Load scenario definition</label> -->
-                <button onclick='$("#load-scenario-definition").click()'>Load scenario definition</button>
-                <input type="file" id='load-scenario-definition' style='display: none' onchange='loadScenarioDefinition(event)'></input>
+                <!-- <button onclick='$("#load-scenario-definition").click()'>Load scenario definition</button>
+                <input type="file" id='load-scenario-definition' style='display: none' onchange='loadScenarioDefinition(event)'></input> -->
+                <form action="/file-upload" class="dropzone" id="scenario-definition-files-dropzone"></form>
                 <button class='scenario-buttons' id='save-scenario-definition' onclick='saveScenarioDefinition()'>Save scenario definition</button>
             </div>
         </div>
@@ -920,12 +928,12 @@
     var g_fileDataArray = [];
     var g_submittedScenarios = [];
     var modelBlockInfo;
-    var inputFileTableRows = 0;
-    var outputFileTableRows = 0;
-    var databaseInputsTableRows = 0;
-    var dialogInputsTableRows = 0;
-    var dialogOutputsTableRows = 0;
-    var databaseOutputsTableRows = 0;
+    // var inputFileTableRows = 0;
+    // var outputFileTableRows = 0;
+    // var databaseInputsTableRows = 0;
+    // var dialogInputsTableRows = 0;
+    // var dialogOutputsTableRows = 0;
+    // var databaseOutputsTableRows = 0;
     var g_scenariosTableRows = 0;
     const scenarioStatusValues = ['Unsubmitted', 'Submitted', 'Running', 'Completed', 'Aborted']
     // var numFilesUploaded = 0;
@@ -1358,6 +1366,7 @@
     // const proxyurl = "https://cors-anywhere.herokuapp.com/";
     const c_dropzone_inputfileupload_defaultMessage = 'Drop scenario input files here';
     const c_dropzone_modelfileupload_defaultMessage = 'Drop model files here to upload to server';
+    const c_dropzone_scenarioDefinitionFileupload_defaultMessage = 'Drop scenario definition files here';
     const c_ModelFolder_outputFolderOption="Model folder"
     const c_AllModelSubFolders_outputFolderOption="All model sub-folders"
     const c_ModelSubFoldersWithMatchingPattern_outputFolderOption="Model sub-folders with matching pattern"
@@ -1497,6 +1506,23 @@
             });
         }
     };
+    Dropzone.options.scenarioDefinitionFilesDropzone = {
+        createImageThumbnails: false, // NO THUMBS!
+        dictDefaultMessage: c_dropzone_scenarioDefinitionFileupload_defaultMessage,
+        init: function() {
+            initializeScenarioData();
+            this.on("addedfile", function(file) { 
+                readAndPreviewScenarioDefinitionFile(file)
+                .then(function(rowIndex) {
+                    setupDropzone('scenario-definition-files-dropzone', c_dropzone_scenarioDefinitionFileupload_defaultMessage);
+                    // enable scenarios checkbox
+                    $('#scenarios-checkbox').prop('disabled', false);
+                    $('#load-scenario-definition').val("");
+                })
+            });
+        }
+    };
+
     function dz_complete(file) {
         $('.dz-preview').remove();  // ...delete the template gen'd html.
     }
@@ -1972,7 +1998,7 @@
         g_ScenarioDefinitions[scenarioIndex].factors.factorDatabasenames = [];
         g_ScenarioDefinitions[scenarioIndex].factors.factorTablenames = [];
         // database factors
-        for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
+        for (rowIndex=0;rowIndex<databaseInputsTableRows();rowIndex++) {
             g_ScenarioDefinitions[scenarioIndex].factors.factorDatabasenames.push($('#target-database-' + (rowIndex + 1)).val());
             g_ScenarioDefinitions[scenarioIndex].factors.factorTablenames.push($('#target-table-' + (rowIndex + 1)).val());
         }
@@ -1983,7 +2009,7 @@
         g_ScenarioDefinitions[scenarioIndex].factors.variableValues = [];
         g_ScenarioDefinitions[scenarioIndex].factors.blockNumbers = [];
 
-        for (rowIndex=0;rowIndex<dialogInputsTableRows;rowIndex++) {
+        for (rowIndex=0;rowIndex<dialogInputsTableRows();rowIndex++) {
             g_ScenarioDefinitions[scenarioIndex].factors.blockTypes.push($('#target-block-type-select-' + (rowIndex + 1)).val());
             g_ScenarioDefinitions[scenarioIndex].factors.variableTypes.push($('#target-variable-type-select-' + (rowIndex + 1)).val());            
             g_ScenarioDefinitions[scenarioIndex].factors.variableNames.push($('#target-variable-name-select-' + (rowIndex + 1)).val());
@@ -1993,7 +2019,7 @@
         //  Responses
         g_ScenarioDefinitions[scenarioIndex].responses.outputFiles = [];
         var outputFile = {};
-        for (rowIndex=0;rowIndex<outputFileTableRows;rowIndex++) {
+        for (rowIndex=0;rowIndex<outputFileTableRows();rowIndex++) {
             outputFile = {};
             outputFile.folder = $("#output-folder-select-" + (rowIndex + 1)).val();
             outputFile.matchingFolderpattern = $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).val();
@@ -2002,7 +2028,7 @@
         }
         g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames = [];
         g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames = [];
-        for (rowIndex=0;rowIndex<databaseInputsTableRows;rowIndex++) {
+        for (rowIndex=0;rowIndex<databaseInputsTableRows();rowIndex++) {
             g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.push($('#source-database-' + (rowIndex + 1)).val());
             g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames.push($('#source-table-' + (rowIndex + 1)).val());
         }
@@ -2012,7 +2038,7 @@
         g_ScenarioDefinitions[scenarioIndex].responses.variableNames = [];
         g_ScenarioDefinitions[scenarioIndex].responses.variableValues = [];
         g_ScenarioDefinitions[scenarioIndex].responses.blockNumbers = [];
-        for (rowIndex=0;rowIndex<dialogOutputsTableRows;rowIndex++) {
+        for (rowIndex=0;rowIndex<dialogOutputsTableRows();rowIndex++) {
             g_ScenarioDefinitions[scenarioIndex].responses.blockTypes.push($('#source-block-type-select-' + (rowIndex + 1)).val());
             g_ScenarioDefinitions[scenarioIndex].responses.variableTypes.push($('#source-variable-type-select-' + (rowIndex + 1)).val());            
             g_ScenarioDefinitions[scenarioIndex].responses.variableNames.push($('#source-variable-name-select-' + (rowIndex + 1)).val());
@@ -2239,9 +2265,6 @@
             // $("#user-scenario-folder-pathname").val(g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname);
             $("#user-scenario-folder-pathname").val('');
             updateButtonsState();
-            // updateModelInfo($("#user-models").val(), true)
-            // .then(function(response) {
-                // populate the factors input files table
             addNewInputFilesTableRow(0, g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length)
             .then(function(response) {
                 for (var i=0;i<g_ScenarioDefinitions[scenarioIndex].factors.uploadedFiles.length;i++) {
@@ -2365,13 +2388,22 @@
             })
         });
     }
+    function initializeScenarioData() {
+        initializeWebPage();
+        g_loadingScenarioData = true;
+        loadedScenarioModelpathname = '';
+        // inputFileTableRows = 0;
+        // databaseInputsTableRows = 0;
+        numDatabaseFilesUploaded = 0;
+        loadedScenarioModelpathname = '';   //  force a query to the server to get the loaded model's data
+    }
     function loadScenarioDefinition(event) {
         g_loadingScenarioData = true;
         loadedScenarioModelpathname = '';
         var files = $("#" + event.target.id)[0].files;
         initializeWebPage();
-        inputFileTableRows = 0;
-        databaseInputsTableRows = 0;
+        // inputFileTableRows = 0;
+        // databaseInputsTableRows = 0;
         numDatabaseFilesUploaded = 0;
         loadedScenarioModelpathname = '';   //  force a query to the server to get the loaded model's data
         if (files) {
@@ -2406,27 +2438,30 @@
         }
     }
     function readAndPreviewScenarioDefinitionFile(file) {
-        var reader  = new FileReader();
-        reader.onload = function(event) {
-            g_ScenarioDefinitions.push(g_scenarioDefinition);
-            var scenarioIndex = g_ScenarioDefinitions.length - 1;
-            g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
-            initializeScenarioRunDetails(scenarioIndex);
-            updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, true)
-            .then(function(response) {
-                populateScenarioFactorsSettings(scenarioIndex)
+        return new Promise((resolve, reject) => {
+            var reader  = new FileReader();
+            reader.onload = function(event) {
+                g_ScenarioDefinitions.push(g_scenarioDefinition);
+                var scenarioIndex = g_ScenarioDefinitions.length - 1;
+                g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
+                initializeScenarioRunDetails(scenarioIndex);
+                updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, true)
                 .then(function(response) {
-                    populateScenarioResponsesSettings(scenarioIndex)
+                    populateScenarioFactorsSettings(scenarioIndex)
                     .then(function(response) {
-                        transferScenarioDefinitionToUserSessionsData(scenarioIndex);
+                        populateScenarioResponsesSettings(scenarioIndex)
+                        .then(function(response) {
+                            transferScenarioDefinitionToUserSessionsData(scenarioIndex);
+                            resolve(true);
+                        })
                     })
-                })
-            });
-        }
-        if (file) {
-            console.log(file);
-            reader.readAsText(file);
-        }
+                });
+            }
+            if (file) {
+                console.log(file);
+                reader.readAsText(file);
+            }
+        });
     }
     function databasefilesSelected(event) {
         var fileList = event.target.files
@@ -2627,10 +2662,12 @@
     function addNewInputFilesTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
             var table = $("#file-inputs-table");
-            inputFileTableRows++;
+            // inputFileTableRows++;
 
-            var myID = 'input-button-' + inputFileTableRows;
-            var myLabelID = 'input-label-' + inputFileTableRows;
+            var myID = 'input-button-' + (rowIndex + 1);
+            // var myID = 'input-button-' + inputFileTableRows;
+            // var myLabelID = 'input-label-' + inputFileTableRows;
+            var myLabelID = 'input-label-' + (rowIndex + 1);
             var $myID = "'#" + myID + "'";
             var newrow = '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" style="display: none" onchange="inputFilesSelected(event)" class="input-file-row" id="' + myID + '"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td></tr>';
             table.append(newrow);
@@ -2638,14 +2675,15 @@
             if (rowIndex < numRows) {
                 resolve(addNewInputFilesTableRow(rowIndex, numRows));
             } else {
-                resolve(inputFileTableRows);
+                resolve(rowIndex);
+                // resolve(inputFileTableRows);
             }
         });
     }
     function deleteInputFilesTableRow(event) {
-        if (inputFileTableRows > 0) {
-            inputFileTableRows--;
-        }
+        // if (inputFileTableRows > 0) {
+        //     inputFileTableRows--;
+        // }
         $("#file-inputs-table tr:last").remove();
         uploadedFiles.pop();
     }
@@ -2674,27 +2712,42 @@
         // }
         return modelPathname;
     }
+    function inputFileTableRows() {
+        return ($('#file-inputs-table tr').length - 1);
+    }
+    function outputFileTableRows() {
+        return ($('#file-outputs-table tr').length - 1);
+    }
+    function databaseInputsTableRows() {
+        return ($('#database-inputs-table tr').length - 1);
+    }
+    function dialogInputsTableRows() {
+        return ($('#dialog-inputs-table tr').length - 1);
+    }
+    function dialogOutputsTableRows() {
+        return ($('#dialog-outputs-table tr').length - 1);
+    }
+    function databaseOutputsTableRows() {
+        return ($('#database-outputs-table tr').length - 1);
+    }
     function createDatabaseInputsTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
             if (rowIndex < numRows) {
                 var table = $("#database-inputs-table");
-                // $('#scenario-definition').width('auto');
-                databaseInputsTableRows++;
-
-                var myID = 'database-input-button-' + databaseInputsTableRows;
-                var myLabelID = 'database-input-label-' + databaseInputsTableRows;
+                var myID = 'database-input-button-' + (rowIndex + 1);
+                var myLabelID = 'database-input-label-' + (rowIndex + 1);
                 var $myID = "'#" + myID + "'";
                 var newrow = 
-                '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" id="' + myID + '" style="display: none" onchange="databasefilesSelected(event)" class="input-file-row"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + databaseInputsTableRows + '"></select></td><td><select id="target-table-' + databaseInputsTableRows + '"></select></td></tr>'
+                '<tr><td><button onclick="$(' + $myID + ').click()">Upload file</button><input type="file" id="' + myID + '" style="display: none" onchange="databasefilesSelected(event)" class="input-file-row"><input type="text" class="input-label" id="' + myLabelID + '" readonly></td><td><select onchange="updateTargetTableSelect(event)" id="target-database-' + (rowIndex + 1) + '"></select></td><td><select id="target-table-' + (rowIndex + 1) + '"></select></td></tr>'
                 table.append(newrow);
-                var targetDatabase = '#target-database-' + databaseInputsTableRows;
+                var targetDatabase = '#target-database-' + (rowIndex + 1);
                 for (var i = 0; i < modelDatabases.length; i++) {
                     $(targetDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
                 }
                 if (modelDatabases.length > 0) {
                     $(targetDatabase).val(modelDatabases[0].name);
                 }
-                var targetTable = '#target-table-' + databaseInputsTableRows;
+                var targetTable = '#target-table-' + (rowIndex + 1);
                 for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
                     $(targetTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
                 }
@@ -2739,9 +2792,9 @@
     }
 
     function deleteDatabaseInputsTableRow(event) {
-        if (databaseInputsTableRows > 0) {
-            databaseInputsTableRows--;
-        }
+        // if (databaseInputsTableRows > 0) {
+        //     databaseInputsTableRows--;
+        // }
         $("#database-inputs-table tr:last").remove();  
         uploadedDatabaseFiles.pop();
     }
@@ -2750,20 +2803,25 @@
         return new Promise((resolve, reject) => {
             if (rowIndex < numRows) {
                 var table = $("#dialog-inputs-table");
-                dialogInputsTableRows++;
+                // dialogInputsTableRows++;
                 var newrow = 
                 // '<tr><td><select id="target-block-type-select-' + (rowIndex + 1) + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + (rowIndex + 1) + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + (rowIndex + 1) + '"></input></td></tr>'     
-                '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+                // '<tr><td><select id="target-block-type-select-' + dialogInputsTableRows + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + dialogInputsTableRows + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + dialogInputsTableRows + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + dialogInputsTableRows + '"></input></td></tr>'     
+                '<tr><td><select id="target-block-type-select-' + (rowIndex + 1) + '" onchange="targetBlockTypeSelected(event)"></select></td><td><select id="target-block-number-select-' + (rowIndex + 1) + '" onchange="targetBlockNumberSelected(event)"></select></td><td><select id="target-variable-type-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableTypeSelected(event)"></select></td><td><select id="target-variable-name-select-' + (rowIndex + 1) + '" onchange="targetDialogVariableSelected(event)"></select></td><td><input type="text" id="target-variable-value-' + (rowIndex + 1) + '"></input></td></tr>'     
                 table.append(newrow);
-                var blockType = '#target-block-type-select-' + dialogInputsTableRows;
+                // var blockType = '#target-block-type-select-' + dialogInputsTableRows;
+                var blockType = '#target-block-type-select-' + (rowIndex + 1);
                 for (var i = 0; i < modelBlocks.length; i++) {
                     $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
                 }
                 if (modelBlocks.length > 0) {
                     $(blockType).val(modelBlocks[0]);
-                    var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
-                    updateTargetBlockNumbersDropdown(dialogInputsTableRows);
-                    updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
+                    // var blockNumber = '#target-block-number-select-' + dialogInputsTableRows;
+                    var blockNumber = '#target-block-number-select-' + (rowIndex + 1);
+                    updateTargetBlockNumbersDropdown((rowIndex + 1));
+                    updateTargetDialogVariableTypeDropdown((rowIndex + 1));
+                    // updateTargetBlockNumbersDropdown(dialogInputsTableRows);
+                    // updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
                 }
                 rowIndex++;
                 resolve(createDialogInputsTableRow(rowIndex, numRows));
@@ -2798,28 +2856,33 @@
         });
     }
     function deleteDialogInputsTableRow(event) {
-        if (dialogInputsTableRows > 0) {
-            dialogInputsTableRows--;
-        }
+        // if (dialogInputsTableRows > 0) {
+        //     dialogInputsTableRows--;
+        // }
         $("#dialog-inputs-table tr:last").remove();  
     }
 
-    function createDialogOutputsTableRow() {
+    function createDialogOutputsTableRow(rowIndex) {
         return new Promise((resolve, reject) => {
             var table = $("#dialog-outputs-table");
-            dialogOutputsTableRows++;
+            // dialogOutputsTableRows++;
             var newrow = 
-            '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
+            // '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
+            '<tr><td><select id="source-block-type-select-' + (rowIndex + 1) + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + (rowIndex + 1) + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + (rowIndex + 1) + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + (rowIndex + 1) + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + (rowIndex + 1) + '"></input></td></tr>'     
             table.append(newrow);
-            var blockType = '#source-block-type-select-' + dialogOutputsTableRows;
+            // var blockType = '#source-block-type-select-' + dialogOutputsTableRows;
+            var blockType = '#source-block-type-select-' + (rowIndex + 1);
             for (var i = 0; i < modelBlocks.length; i++) {
                 $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
             }
             if (modelBlocks.length > 0) {
                 $(blockType).val(modelBlocks[0]);
-                var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
-                updateSourceBlockNumbersDropdown(dialogOutputsTableRows);
-                updateSourceDialogVariableTypeDropdown(dialogOutputsTableRows);
+                var blockNumber = '#source-block-number-select-' + (rowIndex + 1);
+                updateSourceBlockNumbersDropdown((rowIndex + 1));
+                updateSourceDialogVariableTypeDropdown((rowIndex + 1));
+                // var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
+                // updateSourceBlockNumbersDropdown(dialogOutputsTableRows);
+                // updateSourceDialogVariableTypeDropdown(dialogOutputsTableRows);
                 resolve(true);
                 // downloadDialogVariableDataFromModel(dialogOutputsTableRows - 1);
             } else {
@@ -2833,7 +2896,7 @@
             if (!isSelectedScenarioModelLoaded()) {
                 updateModelInfo($("#user-models").val(), true)
                 .then(function(response) {
-                    createDialogOutputsTableRow()
+                    createDialogOutputsTableRow(rowIndex)
                     .then(function(response) {
                         rowIndex++;
                         if (rowIndex < numRows) {
@@ -2847,7 +2910,7 @@
                     reject(error);
                 })
             } else {
-                createDialogOutputsTableRow()
+                createDialogOutputsTableRow(rowIndex)
                 .then(function(response) {
                     rowIndex++;
                     if (rowIndex < numRows) {
@@ -2861,26 +2924,26 @@
     }
 
     function deleteDialogOutputsTableRow(event) {
-        if (dialogOutputsTableRows > 0) {
-            dialogOutputsTableRows--;
-        }
+        // if (dialogOutputsTableRows > 0) {
+        //     dialogOutputsTableRows--;
+        // }
         $("#dialog-inputs-table tr:last").remove();  
     }
-    function createDatabaseOutputsTableRow() {
+    function createDatabaseOutputsTableRow(rowIndex) {
         return new Promise((resolve, reject) => {
             var table = $("#database-outputs-table");
-            databaseOutputsTableRows++;
+            // databaseOutputsTableRows++;
             var newrow = 
-            '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + databaseOutputsTableRows + '"></select></td><td><select id="source-table-' + databaseOutputsTableRows + '"></select></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-' + databaseOutputsTableRows + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-chart-' + databaseOutputsTableRows + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button class="scenario-database-output-buttons" id="export-source-database-table-' + databaseOutputsTableRows + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
+            '<tr><td><select onchange="updateSourceTableSelect(event)" id="source-database-' + (rowIndex + 1) + '"></select></td><td><select id="source-table-' + (rowIndex + 1) + '"></select></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-' + (rowIndex + 1) + '" onclick="openDatabaseTableContentsModal(event)">View data</button></td><td><button class="scenario-database-output-buttons" id="view-source-database-table-chart-' + (rowIndex + 1) + '" onclick="openViewDatabaseTableChartModal(event)">View chart</button></td><td><button class="scenario-database-output-buttons" id="export-source-database-table-' + (rowIndex + 1) + '" onClick="exportScenarioModelTableToTextFile(event)">Export data</button></td></tr>'
             table.append(newrow);
-            var sourceDatabase = '#source-database-' + databaseOutputsTableRows;
+            var sourceDatabase = '#source-database-' + (rowIndex + 1);
             for (var i = 0; i < modelDatabases.length; i++) {
                 $(sourceDatabase).append('<option value="' + modelDatabases[i].name + '">' + modelDatabases[i].name + '</option>');
             }
             if (modelDatabases.length > 0) {
                 $(sourceDatabase).val(modelDatabases[0].name);
             }
-            var sourceTable = '#source-table-' + databaseOutputsTableRows;
+            var sourceTable = '#source-table-' + (rowIndex + 1);
             for (var i = 0; i < modelDatabases[0].tableNames.length; i++) {
                 $(sourceTable).append('<option value="' + modelDatabases[0].tableNames[i] + '">' + modelDatabases[0].tableNames[i] + '</option>');
             }
@@ -2895,7 +2958,7 @@
             if (!isSelectedScenarioModelLoaded()) {
                 updateModelInfo($("#user-models").val(), true)
                 .then(function(response) {
-                    createDatabaseOutputsTableRow()
+                    createDatabaseOutputsTableRow(rowIndex)
                     .then(function(response) {
                         rowIndex++;
                         if (rowIndex < numRows) {
@@ -2909,7 +2972,7 @@
                     reject(error);
                 })
             } else {
-                createDatabaseOutputsTableRow()
+                createDatabaseOutputsTableRow(rowIndex)
                 .then(function(response) {
                     rowIndex++;
                     if (rowIndex < numRows) {
@@ -2930,14 +2993,14 @@
             $("#scenario-output-folder-match-pattern-" + rowIndex).hide();
         }
     } 
-    function createOutputsFileTableRow() {
+    function createOutputsFileTableRow(rowIndex) {
         return new Promise((resolve, reject) => {
             var table = $("#file-outputs-table");
-            outputFileTableRows++;
-            var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + outputFileTableRows + '"></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-folder-match-pattern-' + outputFileTableRows + '"></input></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-file-match-pattern-' + outputFileTableRows + '"></td><td><button id="view-source-file-' + outputFileTableRows + '" onclick="openFileContentsModal(event)">Get files</button></td></tr>';
+            // outputFileTableRows++;
+            var newrow = '<tr><td><select class="output-file-row" onchange="outputFolderSelected(event)" id="output-folder-select-' + (rowIndex + 1) + '"></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-folder-match-pattern-' + (rowIndex + 1) + '"></input></td><td style="text-align: center"><input type="text" rows="1" value=" " class="text-area" id="scenario-output-file-match-pattern-' + (rowIndex + 1) + '"></td><td><button id="view-source-file-' + (rowIndex + 1) + '" onclick="openFileContentsModal(event)">Get files</button></td></tr>';
             table.append(newrow);
-            $("#scenario-output-folder-match-pattern-" + outputFileTableRows).hide();
-            var outputFoldersSelect = $('#output-folder-select-' + outputFileTableRows);
+            $("#scenario-output-folder-match-pattern-" + (rowIndex + 1)).hide();
+            var outputFoldersSelect = $('#output-folder-select-' + (rowIndex + 1));
             $(outputFoldersSelect).empty(0);
             $(outputFoldersSelect).append('<option value="' + c_ModelFolder_outputFolderOption + '">Model folder</option>');
             $(outputFoldersSelect).append('<option value="' + c_AllModelSubFolders_outputFolderOption + '">All model sub-folders</option>');
@@ -2962,7 +3025,7 @@
             if (!isSelectedScenarioModelLoaded()) {
                 updateModelInfo($("#user-models").val(), true)
                 .then(function(response) {
-                    createOutputsFileTableRow()
+                    createOutputsFileTableRow(rowIndex)
                     .then(function(response) {
                         rowIndex++;
                         if (rowIndex < numRows) {
@@ -2976,7 +3039,7 @@
                     })
                 })
             } else {
-                createOutputsFileTableRow()
+                createOutputsFileTableRow(rowIndex)
                 .then(function(response) {
                     rowIndex++;
                     if (rowIndex < numRows) {
@@ -2989,9 +3052,9 @@
         });
     }
     function deleteOutputFilesTableRow(event) {
-        if (outputFileTableRows > 0) {
-            outputFileTableRows--;
-        }
+        // if (outputFileTableRows > 0) {
+        //     outputFileTableRows--;
+        // }
         $("#file-outputs-table tr:last").remove();
     }
     function areScenariosSelected() {
@@ -3052,9 +3115,9 @@
     }
 
     function deleteDatabaseOutputsTableRow(event) {
-        if (databaseOutputsTableRows > 0) {
-            databaseOutputsTableRows--;
-        }
+        // if (databaseOutputsTableRows > 0) {
+        //     databaseOutputsTableRows--;
+        // }
         $("#database-outputs-table tr:last").remove();  
     }
 
@@ -3536,7 +3599,7 @@
 
     function downloadDialogVariableDataFromModel(rowIndex) {
         return new Promise((resolve, reject) => {
-            if (dialogOutputsTableRows < 1) {
+            if (dialogOutputsTableRows() < 1) {
                 // Exit since there is not data to push 
                 resolve(true);
             } else {
@@ -3564,7 +3627,7 @@
                     $("#source-variable-value-" + (rowIndex + 1)).val(response.data.result);
                 //  Advance to the next row
                     rowIndex++;
-                    if (rowIndex < dialogOutputsTableRows) {
+                    if (rowIndex < dialogOutputsTableRows()) {
                         resolve(downloadDialogVariableDataFromModel(rowIndex));
                     } else {
                         // All dialog variable values pushed to server
@@ -3577,7 +3640,7 @@
 
     function uploadDialogVariableDataToModel(rowIndex, scenarioIndex, scenarioFolderPathname) {
         return new Promise((resolve, reject) => {
-            if (dialogInputsTableRows < 1) {
+            if (dialogInputsTableRows() < 1) {
                 // Exit since there is not data to push 
                 resolve(true);
             } else {
@@ -3653,7 +3716,7 @@
     }
     function uploadDataStreamsToModel(rowIndex) {
         return new Promise((resolve, reject) => {
-            if (databaseInputsTableRows < 1) {
+            if (databaseInputsTableRows() < 1) {
                 // Exit since there is not data to push 
                 resolve(true);
             } else {
@@ -3679,7 +3742,7 @@
                     })
                     .then(function(response) {
                         rowIndex++;
-                        if (rowIndex < databaseInputsTableRows) {
+                        if (rowIndex < databaseInputsTableRows()) {
                             resolve(uploadDataStreamsToModel(rowIndex));
                         } else {
                             // All data streams have been sent to the user's models on the server
@@ -3770,7 +3833,7 @@
     }
     function uploadDataFilesToServer(fileIndex) {
         return new Promise((resolve, reject) => {
-            if (inputFileTableRows < 1) {
+            if (inputFileTableRows() < 1) {
                 // Exit since there are no files to copy
                 resolve(true);
             } else {
@@ -3791,7 +3854,7 @@
                     })
                     .then(function(response) {
                         fileIndex++;
-                        if (fileIndex < inputFileTableRows) {
+                        if (fileIndex < inputFileTableRows()) {
                             resolve(uploadDataFilesToServer(fileIndex));
                         } else {
                             $("#files-uploaded-status").prop('checked', true);
@@ -3829,7 +3892,6 @@
         var scenariosTable = $('#scenarios-table');
         var thisRow = $(scenariosTable).find("tr:eq(" + rowIndex + ")");
         var selectElementId = $(thisRow).attr('id');
-        alert('getScenariosTableScenarioIndex: rowIndex=' + rowIndex + ' selectElementId=' + selectElementId);
         var scenarioIndex = Number(selectElementId.substring(selectElementId.lastIndexOf("-") + 1)) - 1;
         return scenarioIndex;
     }
