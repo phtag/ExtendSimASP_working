@@ -688,7 +688,7 @@
                                 <input type="checkbox" id="scenario-database-inputs-checkbox" onclick='updateDOMelementVisibility("scenario-database-inputs")'>ExtendSim DB Table Inputs</input>    
                             </div>
                             <div id="scenario-database-inputs-body">
-                                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow(databaseInputsTableRows(), 1, false)'>Add row</button>
+                                <button class="scenario-database-input-buttons" id="add-database-inputs-table-row" onclick='addNewDatabaseInputsTableRow(databaseInputsTableRows(), (databaseInputsTableRows() + 1), false)'>Add row</button>
                                 <button class="scenario-database-input-buttons" id="delete-database-inputs-table-row" onclick='deleteDatabaseInputsTableRow()'>Delete row</button>
                                 <table class="scenario-tables" id="database-inputs-table">
                                     <tr>
@@ -779,7 +779,7 @@
                             </div>
                             <div id="scenario-database-outputs-body">
                                 <!-- <h3>Scenario Database Outputs</h3> -->
-                                <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow()'>Add row</button>
+                                <button class="scenario-database-output-buttons" id="add-database-outputs-table-row" onclick='addNewDatabaseOutputsTableRow(databaseOutputsTableRows(), 1)'>Add row</button>
                                 <button class="scenario-database-output-buttons" id="delete-database-outputs-table-row" onclick='deleteDatabaseOutputsTableRow()'>Delete row</button>
                                 <table class="scenario-tables" id="database-outputs-table" style="width:auto">
                                     <tr>
@@ -808,7 +808,7 @@
                                 <input id="scenario-dialog-outputs-checkbox" type="checkbox" onclick='updateDOMelementVisibility("scenario-dialog-outputs")'>Dialog Variable Outputs</input>    
                             </div>
                             <div id="scenario-dialog-outputs-body">
-                                <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogOutputsTableRow()'>Add row</button>
+                                <button class="scenario-dialog-output-buttons" id="add-dialog-outputs-table-row" onclick='addNewDialogOutputsTableRow(dialogOutputsTableRows(), 1)'>Add row</button>
                                 <button class="scenario-dialog-output-buttons" id="delete-dialog-outputs-table-row" onclick='deleteDialogOutputsTableRow()'>Delete row</button>
                                 <table class="scenario-tables" id="dialog-outputs-table" style="width:auto">
                                     <tr>
@@ -2717,7 +2717,6 @@
                 resolve(addNewInputFilesTableRow(rowIndex, numRows));
             } else {
                 resolve(rowIndex);
-                // resolve(inputFileTableRows);
             }
         });
     }
@@ -2770,7 +2769,7 @@
     }
     function createDatabaseInputsTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
-            if (rowIndex < numRows) {
+            // if (rowIndex < numRows) {
                 var table = $("#database-inputs-table");
                 var myID = 'database-input-button-' + (rowIndex + 1);
                 var myLabelID = 'database-input-label-' + (rowIndex + 1);
@@ -2798,9 +2797,9 @@
                 } else {
                     resolve(true);
                 }
-            } else {
-                resolve(true);               
-            }
+            // } else {
+            //     resolve(true);               
+            // }
         });
     }
     function addNewDatabaseInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
@@ -2839,7 +2838,7 @@
     
     function createDialogInputsTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
-            if (rowIndex < numRows) {
+            // if (rowIndex < numRows) {
                 var table = $("#dialog-inputs-table");
                 // dialogInputsTableRows++;
                 var newrow = 
@@ -2862,10 +2861,12 @@
                     // updateTargetDialogVariableTypeDropdown(dialogInputsTableRows);
                 }
                 rowIndex++;
-                resolve(createDialogInputsTableRow(rowIndex, numRows));
-            } else {
-                resolve(true);
-            }
+                if (rowIndex < numRows) {
+                    resolve(createDialogInputsTableRow(rowIndex, numRows));
+                } else {
+                    resolve(true);
+                }
+        // }
         });
     }
     function addNewDialogInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
@@ -2903,12 +2904,9 @@
     function createDialogOutputsTableRow(rowIndex) {
         return new Promise((resolve, reject) => {
             var table = $("#dialog-outputs-table");
-            // dialogOutputsTableRows++;
             var newrow = 
-            // '<tr><td><select id="source-block-type-select-' + dialogOutputsTableRows + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + dialogOutputsTableRows + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + dialogOutputsTableRows + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + dialogOutputsTableRows + '"></input></td></tr>'     
             '<tr><td><select id="source-block-type-select-' + (rowIndex + 1) + '" onchange="sourceBlockTypeSelected(event)"></select></td><td><select id="source-block-number-select-' + (rowIndex + 1) + '" onchange="sourceBlockNumberSelected(event)"></select></td><td><select id="source-variable-type-select-' + (rowIndex + 1) + '" onchange="sourceDialogVariableTypeSelected(event)"></select></td><td><select id="source-variable-name-select-' + (rowIndex + 1) + '" onchange="sourceDialogVariableSelected(event)"></select></td><td><input type="text" id="source-variable-value-' + (rowIndex + 1) + '"></input></td></tr>'     
             table.append(newrow);
-            // var blockType = '#source-block-type-select-' + dialogOutputsTableRows;
             var blockType = '#source-block-type-select-' + (rowIndex + 1);
             for (var i = 0; i < modelBlocks.length; i++) {
                 $(blockType).append('<option value="' + modelBlocks[i] + '">' + modelBlocks[i] + '</option>');
@@ -2918,11 +2916,7 @@
                 var blockNumber = '#source-block-number-select-' + (rowIndex + 1);
                 updateSourceBlockNumbersDropdown((rowIndex + 1));
                 updateSourceDialogVariableTypeDropdown((rowIndex + 1));
-                // var blockNumber = '#source-block-number-select-' + dialogOutputsTableRows;
-                // updateSourceBlockNumbersDropdown(dialogOutputsTableRows);
-                // updateSourceDialogVariableTypeDropdown(dialogOutputsTableRows);
                 resolve(true);
-                // downloadDialogVariableDataFromModel(dialogOutputsTableRows - 1);
             } else {
             //  ATTENTION: This logic needs to be completed
                 resolve(true);
