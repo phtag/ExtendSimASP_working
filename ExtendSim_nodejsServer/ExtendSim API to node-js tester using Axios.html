@@ -1816,13 +1816,7 @@
                     // Remove last empty element from array
                     if (g_fileDataArray.length > 1) {
                         g_fileDataArray.pop();
-                    }
-                 
-                    // var blob = new Blob([JSON.stringify(response.data.result)],
-                    //                     { type: 'text/csv;charset=utf-8;' });
-                                //    { type: "text/plain;charset=utf-8", endings:'native' });
-                    // saveAs(blob, serverFiles[fileIndex].clientFilepath);
-                    // var titles = response.data.modelDatabaseTableFields.fields;
+                    }                
                     var data = [];
                     g_fileDataArray.forEach(function(elements, index) {
                         for (var i=0;i<elements.length;i++) {            
@@ -1849,6 +1843,7 @@
                     Modelpathname: g_ScenarioDefinitions[scenarioIndex].factors.modelPathname,
                     Databasename:  g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames[DBtableResponseIndex],
                     Tablename: g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames[DBtableResponseIndex],
+                    closeExtendSimModel: false
                 }
                 getDatabaseTableContentsStream(modelInfo, true)
                 .then(function(response) {
@@ -3220,7 +3215,8 @@
         var modelInfo = {
             Modelpathname: modelpathname,
             Databasename:  $("#source-database-" + rowIndex).val(),
-            Tablename: $("#source-table-" + rowIndex).val()
+            Tablename: $("#source-table-" + rowIndex).val(),
+            closeExtendSimModel: true
         }
         return modelInfo;
     }
@@ -3250,7 +3246,8 @@
         var modelInfo = {
             Modelpathname: modelpathname,
             Databasename:  $("#source-database-" + rowIndex).val(),
-            Tablename: $("#source-table-" + rowIndex).val()
+            Tablename: $("#source-table-" + rowIndex).val(),
+            closeExtendSimModel: true
         }
         $('#modal-chart-axes-selection-dropdowns').show();
         $('#view-model-chart-button').show();
@@ -4240,7 +4237,8 @@
                 var modelInfo = {
                     Modelpathname: $("#user-models").val(),
                     Databasename: response.data.ModelInfo.Databasename,
-                    Tablename: response.data.ModelInfo.Tablename
+                    Tablename: response.data.ModelInfo.Tablename,
+                    closeExtendSimModel: true
                 }
                 console.log("ModelInfo: " + JSON.stringify(modelInfo));
                 getDatabaseTableContentsStream(modelInfo, false)
@@ -4281,7 +4279,8 @@
                 data : {
                     modelPathname: modelInfo.Modelpathname, 
                     databaseName: modelInfo.Databasename,
-                    tableName: modelInfo.Tablename
+                    tableName: modelInfo.Tablename,
+                    closeExtendSimModel: modelInfo.closeModel
                 }
             })
             .then(function(response) {
