@@ -86,6 +86,46 @@ module.exports = {
             return res.json({ scenarioFolderFiles: response.data });
         });
     },
+    getserverscenariofolderdirectory: function(req, res) {
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectoryFiles"
+        var myheaders = { 
+            accept: "application/json", 
+        }; 
+        axios({
+            url: queryURL,
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params : {
+                directoryPathname : req.body.scenarioFolderPathname
+            }
+        }).then(function(response) {
+            return res.json({ scenarioFolderFiles: response.data });
+        });
+    },
+    getserverscenariofolderdirectories: function(req, res) {
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/GetServerDirectories"
+        var myheaders = { 
+            accept: "application/json", 
+        }; 
+        console.log('getserverscenariofolderdirectories: getting directories for scenario folder pathname=' + req.body.scenarioFolderPathname);
+        axios({
+            url: queryURL,
+            method: 'post',
+            accept : 'application/json',
+            contentType: 'application/json;charset=utf-8',
+            headers : myheaders,
+            muteHttpExceptions : false,
+            params : {
+                directoryPathname : req.body.scenarioFolderPathname
+            }
+        }).then(function(response) {
+            console.log('getserverscenariofolderdirectories: response.data=' + response.data);
+            return res.json({ scenarioFolderDirectories: response.data });
+        });
+    },
     removescenariofolder: function(req, res) {
         var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/RemoveScenarioFolder"
         var myheaders = { 

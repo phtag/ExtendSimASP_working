@@ -4,6 +4,7 @@ const ExtendSimController = require('../../controllers/ExtendSimController');
 router.route('/getserverscenariofolders').post(ExtendSimController.getserverscenariofolders);
 router.route('/getserverextendmodelsrootdirectory').post(ExtendSimController.getserverextendmodelsrootdirectory);
 router.route('/getserverscenariofolderdirectory').post(ExtendSimController.getserverscenariofolderdirectory);
+router.route('/getserverscenariofolderdirectories').post(ExtendSimController.getserverscenariofolderdirectories);
 router.route('/getmodeldatabases').post(ExtendSimController.getmodeldatabases);
 router.route('/getmodeldatabasetables').post(ExtendSimController.getmodeldatabasetables);
 router.route('/getmodeldatabasetablefields').post(ExtendSimController.getmodeldatabasetablefields);
