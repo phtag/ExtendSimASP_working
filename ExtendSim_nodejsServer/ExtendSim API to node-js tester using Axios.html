@@ -1871,6 +1871,50 @@
             resolve(true);
         });
     }
+    function downloadFilesFromDirectories(directoryIndex, directories, outputFilesArrayIndex, scenarioIndex, matchingFilePattern) {
+        return new Promise((resolve, reject) => {
+            if (directoryIndex >= directories.length) {
+                resolve(true);
+            } else {
+                // get all files in the current directory
+                getScenarioFolderFiles(directories[directoryIndex])
+                .then(function(filesResponse) {
+                    var scenarioFolderFiles = filesResponse.data.scenarioFolderFiles;
+                    if (scenarioFolderFiles.length > 0) {
+                        alert('downloadFilesFromDirectories: scenarioFolderFiles.length=' + scenarioFolderFiles.length + ' for directory=' + directories[directoryIndex]);
+                        var serverFiles = [];
+                        for (var i = 0; i < scenarioFolderFiles.length; i++) {
+                            if ((matchingFilePattern === "") || (scenarioFolderFiles[i].OriginalPath.indexOf(matchingFilePattern) >= 0)) {
+                                // serverFilepath = g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname + "\\" + scenarioFolderFiles[i].OriginalPath;
+                                serverFilepath = directories[directoryIndex] + "\\" + scenarioFolderFiles[i].OriginalPath;
+                                var clientFilepath = scenarioFolderFiles[i].OriginalPath;
+                                serverFiles.push({
+                                    serverFilepath: serverFilepath,
+                                    clientFilepath: clientFilepath
+                                });
+                            }
+                        }
+                        downloadFiles(0, serverFiles)
+                        .then(function(response) {
+                            directoryIndex++;
+                            if (directoryIndex < directories.length) {
+                                resolve(downloadFilesFromDirectories(directoryIndex, directories, outputFilesArrayIndex, scenarioIndex, matchingFilePattern));
+                            } else {
+                                resolve(true);
+                            }
+                        });
+                    } else {
+                        directoryIndex++;
+                        if (directoryIndex < directories.length) {
+                            resolve(downloadFilesFromDirectories(directoryIndex, directories, outputFilesArrayIndex, scenarioIndex, matchingFilePattern));
+                        } else {
+                            resolve(true);
+                        }                       
+                    }
+                });
+            }
+        });
+    }         
     function downloadOutputFilesFromServer(outputFilesArrayIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
             var folder;
@@ -1904,7 +1948,6 @@
                             }
                         }
                         if (serverFiles.length > 0) {
-                            alert('Donwloading ' + serverFiles.length + ' files from server');
                             downloadFiles(0, serverFiles)
                             .then(function(response) {
                                 // advance to the next output files definition for the responses for this scenario
@@ -1924,13 +1967,23 @@
                     // Pull the list of folders from the scenario model folder
                     getScenarioFolderDirectories( g_ScenarioDefinitions[scenarioIndex].factors.scenarioFolderPathname)
                     .then(function(response) {
-                        var scenarioFolderDirectories = response.data.scenarioFolderDirectories;
-                        for (var i=0;i<scenarioFolderDirectories.length;i++) {
-                        // get all files in the current directory
-                        alert('scenarioFolderDirectories[i]=' + scenarioFolderDirectories[i]);
+                        var matchingFilePattern = g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[outputFilesArrayIndex].matchingFilePattern.trim();
+                        var matchingFilePattern = g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[outputFilesArrayIndex].matchingFilePattern.trim();
+                        var position = matchingFilePattern.indexOf('*');
+                        if (position >= 0) {
+                            matchingFilePattern = matchingFilePattern.replace(/[*]/g,"");
                         }
-                        resolve(response);
-                    }) 
+                        var scenarioFolderDirectories = response.data.scenarioFolderDirectories;
+                        downloadFilesFromDirectories(0, scenarioFolderDirectories, outputFilesArrayIndex, scenarioIndex, matchingFilePattern)
+                        .then(function(downloadResponse) {
+                            outputFilesArrayIndex++;
+                            if (outputFilesArrayIndex < g_ScenarioDefinitions[scenarioIndex].responses.outputFiles.length){
+                                resolve(downloadOutputFilesFromServer(outputFilesArrayIndex, scenarioIndex));
+                            } else {
+                                resolve(response);
+                            }
+                        }) 
+                    })
                 } else if (folder === c_ModelSubFoldersWithMatchingPattern_outputFolderOption) {
                     // Pull the list of folders from the scenario model folder and filter
                     //  on matching folder name pattern
