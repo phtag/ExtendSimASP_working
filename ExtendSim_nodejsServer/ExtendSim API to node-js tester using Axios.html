@@ -840,7 +840,7 @@
                 <!-- <button onclick='$("#load-scenario-definition").click()'>Load scenario definition</button>
                 <input type="file" id='load-scenario-definition' style='display: none' onchange='loadScenarioDefinition(event)'></input> -->
                 <form action="/file-upload" class="dropzone" id="scenario-definition-files-dropzone"></form>
-                <button class='scenario-buttons' id='save-scenario-definition' onclick='saveScenarioDefinition()'>Save scenario definition</button>
+                <button class='scenario-buttons' id='save-scenario-definition' onclick='saveScenarioDefinition(-1)'>Save scenario definition</button>
             </div>
         </div>
         <div id="scenarios">
@@ -986,7 +986,8 @@
                     {
                         folder: '',
                         matchingFolderpattern: '',
-                        matchingFilePattern: ''
+                        matchingFilePattern: '',
+                        dataArray: []
                     }
                 ],
                 responseDatabasenames: [],
@@ -1803,7 +1804,7 @@
         });
         return dataRow;
     }
-    function downloadFiles(fileIndex, serverFiles) {
+    function downloadFiles(fileIndex, serverFiles, outputFilesArrayIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
             if (fileIndex < serverFiles.length) {
                 getServerFile(serverFiles[fileIndex].serverFilepath)
@@ -1823,11 +1824,12 @@
                             data.push(elements[i]);
                         }
                     });
+                    g_ScenarioDefinitions[scenarioIndex].responses.outputFiles[outputFilesArrayIndex].dataArray = g_fileDataArray;
                     var titles = [];
                     // convertArrayToCSVfile(titles, data, g_tableDataArray.length, serverFiles[fileIndex].clientFilepath);
                     exportToCsv(serverFiles[fileIndex].clientFilepath, g_fileDataArray);
                     fileIndex++;
-                    resolve(downloadFiles(fileIndex, serverFiles));
+                    resolve(downloadFiles(fileIndex, serverFiles, outputFilesArrayIndex, scenarioIndex));
                 });
             } else {
                 resolve(true);                                
@@ -1866,9 +1868,12 @@
             };
         });
     }
-    function downloadDialogVariableDataFromServer(fileIndex, scenarioIndex) {
+    function downloadDialogVariableDataFromServer(rowIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
-            resolve(true);
+            downloadDialogVariableDataFromModel(rowIndex, scenarioIndex)
+            .then(function(response) {
+                resolve(true);
+            })
         });
     }
     function downloadFilesFromDirectories(directoryIndex, directories, outputFilesArrayIndex, scenarioIndex, matchingFilePattern) {
@@ -1946,7 +1951,7 @@
                             }
                         }
                         if (serverFiles.length > 0) {
-                            downloadFiles(0, serverFiles)
+                            downloadFiles(0, serverFiles,outputFilesArrayIndex, scenarioIndex)
                             .then(function(response) {
                                 // advance to the next output files definition for the responses for this scenario
                                 outputFilesArrayIndex++;
@@ -2047,13 +2052,14 @@
                     // download data as text files from all user specified database table responses
                     downloadDatabaseTableDataFromServer(0, scenarioIndex)
                     .then(function(downloadDatabaseTableDataResponse) {
-                    // download data as a text file from all user specified dialog variable responses
-                    downloadDialogVariableDataFromServer(0, scenarioIndex) 
+                        // download data as a text file from all user specified dialog variable responses
+                        downloadDialogVariableDataFromServer(0, scenarioIndex) 
                         .then(function(downloadDialogVariableDataResponse) {
                             rowIndex++;
                             if (rowIndex < $('#scenarios-table tr').length) {
                                 resolve(getSelectedScenarioResponses(rowIndex));
                             } else {
+                                saveScenarioDefinition(scenarioIndex);
                                 resolve(true);
                             }
                         });
@@ -2157,8 +2163,10 @@
         addNewScenarioTableRow();
         return scenarioIndex;
     }
-    function saveScenarioDefinition() {
-        var scenarioIndex = transferUserSessionDataToScenarioDefinition();
+    function saveScenarioDefinition(scenarioIndex) {
+        if (scenarioIndex < 0) {
+            scenarioIndex = transferUserSessionDataToScenarioDefinition();
+        }
         // save by index
         var blob = new Blob([JSON.stringify(g_ScenarioDefinitions[scenarioIndex])],
                 { type: "text/plain;charset=utf-8" });
@@ -3765,18 +3773,21 @@
         uploadDataFilesToServer(0, uploadDataStreamsToModel, uploadDialogVariableDataToModel);
     }
 
-    function downloadDialogVariableDataFromModel(rowIndex) {
+    function downloadDialogVariableDataFromModel(rowIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
             if (dialogOutputsTableRows() < 1) {
                 // Exit since there is not data to push 
                 resolve(true);
             } else {
-                var modelName =  $("#user-models").val();
-                modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-                var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                var variableName = $('#source-variable-name-select-' + (rowIndex + 1)).val();
-                var variableValue = $('#source-variable-value-' + (rowIndex + 1)).val();
-                var blockNumber = $('#source-block-number-select-' + (rowIndex + 1)).val();
+                // var modelName =  $("#user-models").val();
+                // modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
+                // var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
+                // var variableName = $('#source-variable-name-select-' + (rowIndex + 1)).val();
+                // var variableValue = $('#source-variable-value-' + (rowIndex + 1)).val();
+                // var blockNumber = $('#source-block-number-select-' + (rowIndex + 1)).val();
+                var modelpathname = g_ScenarioDefinitions[scenarioIndex].factors.modelPathname;
+                var variableName = g_ScenarioDefinitions[scenarioIndex].responses.variableNames[rowIndex];
+                var blockNumber = g_ScenarioDefinitions[scenarioIndex].responses.blockNumbers[rowIndex];
                 axios({
                     url: proxyurl + queryURL_root + "ExtendSim/getdialogvariabledata",
                     method: 'post',
@@ -3791,12 +3802,13 @@
                     }
                 })
                 .then(function(response) {
-                    // deposit result in dialog outputs table cell
-                    $("#source-variable-value-" + (rowIndex + 1)).val(response.data.result);
+                // deposit result in dialog outputs table cell
+                    g_ScenarioDefinitions[scenarioIndex].responses.variableValues[rowIndex] = response.data.result;
+                // $("#source-variable-value-" + (rowIndex + 1)).val(response.data.result);
                 //  Advance to the next row
                     rowIndex++;
                     if (rowIndex < dialogOutputsTableRows()) {
-                        resolve(downloadDialogVariableDataFromModel(rowIndex));
+                        resolve(downloadDialogVariableDataFromModel(rowIndex, scenarioIndex));
                     } else {
                         // All dialog variable values pushed to server
                         resolve(true);
