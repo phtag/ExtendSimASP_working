@@ -992,6 +992,8 @@
                 ],
                 responseDatabasenames: [],
                 responseTablenames: [],
+                responseTableFieldNames: [],
+                responseTableData: [],
                 blockTypes: [],
                 variableTypes: [],
                 variableNames: [],
@@ -1856,6 +1858,9 @@
                             data.push(elements[i]);
                         }
                     });
+                    g_ScenarioDefinitions[scenarioIndex].responses.responseTableFieldNames.push(titles);
+                    g_ScenarioDefinitions[scenarioIndex].responses.responseTableData.push(data);
+
                     convertArrayToCSVfile(titles, data, titles.length, modelInfo.Tablename + ".csv");
                     DBtableResponseIndex++;
                     if (DBtableResponseIndex < g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.length) {
@@ -2050,13 +2055,15 @@
                 downloadOutputFilesFromServer(0, scenarioIndex)
                 .then(function(downloadOutputFilesResponse) {
                     // download data as text files from all user specified database table responses
+                    g_ScenarioDefinitions[scenarioIndex].responses.responseTableFieldNames = [];
+                    g_ScenarioDefinitions[scenarioIndex].responses.responseTableData = [];
                     downloadDatabaseTableDataFromServer(0, scenarioIndex)
                     .then(function(downloadDatabaseTableDataResponse) {
                         // download data as a text file from all user specified dialog variable responses
                         downloadDialogVariableDataFromServer(0, scenarioIndex) 
                         .then(function(downloadDialogVariableDataResponse) {
                             rowIndex++;
-                            if (rowIndex < $('#scenarios-table tr').length) {
+                            if (rowIndex < ($('#scenarios-table tr').length - 1)) {
                                 resolve(getSelectedScenarioResponses(rowIndex));
                             } else {
                                 saveScenarioDefinition(scenarioIndex);
@@ -2483,7 +2490,8 @@
                             // variable name
                             $('#source-variable-name-select-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableNames[rowIndex]);                           
                             
-                            // $('#source-variable-value-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableValues[rowIndex]);
+                            // variable value
+                            $('#source-variable-value-' + (rowIndex + 1)).val(g_ScenarioDefinitions[scenarioIndex].responses.variableValues[rowIndex]);
                         }
                         // transferScenarioDefinitionToUserSessionsData(scenarioIndex);
                         resolve(true);
@@ -3811,6 +3819,7 @@
                         resolve(downloadDialogVariableDataFromModel(rowIndex, scenarioIndex));
                     } else {
                         // All dialog variable values pushed to server
+                        alert('downloadDialogVariableDataFromModel: exit');
                         resolve(true);
                     }
                 });
@@ -4046,7 +4055,6 @@
                 resolve(true);
             } else {
                 var reader = new FileReader();
-
                 reader.onload = function(event) {
                 event.preventDefault();
                     axios({

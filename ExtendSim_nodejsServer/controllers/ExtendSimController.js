@@ -696,11 +696,11 @@ module.exports = {
         });
     },
     getdatabasetablecontentsstream: function(req, res) {
-        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/ReceiveDataTableESdataStream3";
+        var queryURL = "http://" + IPaddress + ":8090/StreamingService/web/ReceiveDataTableESdataStream2";
         var myheaders = { 
             accept: "application/json", 
             }; 
-        console.log("getdatabasetablecontentsstream:  Call to ReceiveDataTableESdataStream3 w/model pathname=" + req.body.modelPathname + " database=" + req.body.databaseName + " table=" + req.body.tableName);
+        console.log("getdatabasetablecontentsstream:  Call to ReceiveDataTableESdataStream2 w/model pathname=" + req.body.modelPathname + " database=" + req.body.databaseName + " table=" + req.body.tableName);
         return axios({
             url: queryURL,
             method: 'get',
@@ -713,7 +713,6 @@ module.exports = {
                 EDmodelPathname: req.body.modelPathname,
                 EDmodelDatabaseName: req.body.databaseName,
                 EDmodelTableName: req.body.tableName,
-                EDcloseExtendSimModel: req.body.closeExtendSimModel
             }
         }).then(function(response) {
             var tableData  = response.data;
@@ -724,7 +723,7 @@ module.exports = {
             tableDataArray.pop();
 
             if (req.body.tableName === "ModelDialogVariables") {
-                console.log("getdtabasetablecontentsstream: response - tableDataArray.length =" + tableDataArray.length);
+                console.log("getdtabasetablecontentsstream: ModelDialogVariables - tableDataArray.length =" + tableDataArray.length);
                 var row = 1;
                 res.json({tableDataArray: tableDataArray});          
             }
