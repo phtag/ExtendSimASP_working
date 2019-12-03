@@ -3614,7 +3614,6 @@
                 clearInterval(myCheckStatusInterval);
                 updateScenariosTableProgressBarValue(tableRowIndex, 100);
                 var scenarioIndex = g_submittedScenarios[submittedScenarioIndex].scenarioIndex;
-                alert('Completed scenarioIndex=' + scenarioIndex);
                 g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails.completionTime = getCurrentTime();
                 // updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
                 // $('#submit-scenarios-button').prop('disabled', false);
