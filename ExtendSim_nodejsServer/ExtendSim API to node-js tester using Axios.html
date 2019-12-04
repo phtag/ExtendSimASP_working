@@ -616,7 +616,7 @@
                     <label  for='username'>
                         Username:
                     </label> 
-                    <input class="login" id="username" type="text" name="username" value="analyst2"></input>
+                    <input class="login" id="username" type="text" name="username" value="WSC2019"></input>
                     <!-- <input class="login" id="username" type="text" name="username" value="reliability"></input> -->
                     <label  for='password'>
                         Password: 
@@ -1370,7 +1370,7 @@
     const c_ModelFolder_outputFolderOption="Model folder"
     const c_AllModelSubFolders_outputFolderOption="All model sub-folders"
     const c_ModelSubFoldersWithMatchingPattern_outputFolderOption="Model sub-folders with matching pattern"
-
+    const c_databaseInputsTable_name = "database-inputs-table"
     const c_undefined_ScenarioDetailsTime = -1;
     const c_undefined_scenarioID = -1;
 
@@ -1840,7 +1840,7 @@
     }
     function downloadDatabaseTableDataFromServer(DBtableResponseIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
-            if (DBtableResponseIndex >= g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames[DBtableResponseIndex].length) {
+            if (DBtableResponseIndex >= g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.length) {
                 resolve(true);
             } else {
                 var modelInfo = {
@@ -1875,6 +1875,7 @@
     }
     function downloadDialogVariableDataFromServer(rowIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
+            alert('Downloading dialog data for scenarioIndex=' + scenarioIndex);
             downloadDialogVariableDataFromModel(rowIndex, scenarioIndex)
             .then(function(response) {
                 resolve(true);
@@ -2043,6 +2044,7 @@
             //  3) Dialog variables
             // Loop on all selected scenarios that have a completed status
 
+            updateLoadingDivVisibility(true, 'Uploading scenario responses from server. Please wait...');
             var scenariosTable = $('#scenarios-table');
             var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
             var selectElementId = $(thisRow).attr('id');
@@ -2064,9 +2066,12 @@
                         .then(function(downloadDialogVariableDataResponse) {
                             rowIndex++;
                             if (rowIndex < ($('#scenarios-table tr').length - 1)) {
+                                alert('Saving scenario=' + scenarioIndex);
+                                saveScenarioDefinition(scenarioIndex);
                                 resolve(getSelectedScenarioResponses(rowIndex));
                             } else {
                                 saveScenarioDefinition(scenarioIndex);
+                                updateLoadingDivVisibility(false);
                                 resolve(true);
                             }
                         });
@@ -2448,7 +2453,6 @@
         // });
     }
     function populateScenarioResponsesSettings(scenarioIndex) {
-        // updateModelInfo($("#user-models").val(), true)
         return new Promise((resolve, reject) => {
             // populate the factors input files table
             addNewOutputFilesTableRow(0, g_ScenarioDefinitions[scenarioIndex].responses.outputFiles.length)
@@ -2862,7 +2866,7 @@
     }
     function respondToUserModelSelection() {
         // clear tables
-        clearTableData();
+        clearTableData("");
         // clear scenario pathname
         $("#user-scenario-folder-pathname").val("");
         // update state of web page DOM elements
@@ -2934,7 +2938,8 @@
     function addNewDatabaseInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                updateModelInfo($("#user-models").val(), true)
+                clearTableData(c_databaseInputsTable_name);
+                updateModelInfo($("#user-models").val(), false)
                 .then(function(response) {
                     createDatabaseInputsTableRow(startRowIndex, numRows)
                     .then(function(response) {
@@ -3553,21 +3558,24 @@
     function sourceDialogVariableSelected(event) {
 
     }
-    function clearTableData() {
-        // $("#file-inputs-table").empty();
-        $("#file-inputs-table").find("tr:not(:first)").remove();
-        $("#database-inputs-table").find("tr:not(:first)").remove();
-        $("#dialog-inputs-table").find("tr:not(:first)").remove();
-        $("#file-outputs-table").find("tr:not(:first)").remove();
-        $("#database-outputs-table").find("tr:not(:first)").remove();
-        $("#dialog-outputs-table").find("tr:not(:first)").remove(); 
+    function clearTableData(tableName) {
+        if (tableName === "") {
+            $("#file-inputs-table").find("tr:not(:first)").remove();
+            $("#database-inputs-table").find("tr:not(:first)").remove();
+            $("#dialog-inputs-table").find("tr:not(:first)").remove();
+            $("#file-outputs-table").find("tr:not(:first)").remove();
+            $("#database-outputs-table").find("tr:not(:first)").remove();
+            $("#dialog-outputs-table").find("tr:not(:first)").remove(); 
+        } else {
+            $("#" + tableName).find("tr:not(:first)").remove();           
+        }
     }
 
     function updateModelInfo(modelPathname, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
             if (clearTableDataFlag) {
-                clearTableData();
+                clearTableData("");
             }
             getmodeldatabases(modelPathname, getModelInfo)
             .then(function(response) {
@@ -3791,12 +3799,6 @@
                 // Exit since there is not data to push 
                 resolve(true);
             } else {
-                // var modelName =  $("#user-models").val();
-                // modelName = modelName.substring(modelName.lastIndexOf("\\") + 1);
-                // var modelpathname = $("#user-scenario-folder-pathname").val() + "\\" + modelName;
-                // var variableName = $('#source-variable-name-select-' + (rowIndex + 1)).val();
-                // var variableValue = $('#source-variable-value-' + (rowIndex + 1)).val();
-                // var blockNumber = $('#source-block-number-select-' + (rowIndex + 1)).val();
                 var modelpathname = g_ScenarioDefinitions[scenarioIndex].factors.modelPathname;
                 var variableName = g_ScenarioDefinitions[scenarioIndex].responses.variableNames[rowIndex];
                 var blockNumber = g_ScenarioDefinitions[scenarioIndex].responses.blockNumbers[rowIndex];
@@ -4333,7 +4335,7 @@
 
     function getUserModelPaths() {
         return new Promise((resolve, reject) => { 
-            clearTableData();
+            clearTableData("");
             $("#get-user-models-button").prop('disabled', true);
             updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
             axios({
@@ -4469,7 +4471,7 @@
     }
     function initializeWebPage() {
         $('#user-scenario-folder-pathname').val("");
-        clearTableData();
+        clearTableData("");
     }
     function loginToServer() {
         initializeWebPage();
@@ -4607,7 +4609,7 @@
         var folder = $(this).closest('tr').find('td:eq(' + c_scenarioFolderPathnameColumn + ')').text();
         if (folder !== $("#user-scenario-folder-pathname").val()) {
         //  User has selected a scenario that is not currently loaded
-            clearTableData();
+            clearTableData("");
         }
         $("#user-scenario-folder-pathname").val(folder);                
     });
