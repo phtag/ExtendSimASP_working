@@ -2173,7 +2173,6 @@
     function saveScenarioDefinition(scenarioIndex) {
         if (scenarioIndex < 0) {
             scenarioIndex = transferUserSessionDataToScenarioDefinition();
-            alert('scenarioIndex=' + scenarioIndex);
         }
         // save by index
         var blob = new Blob([JSON.stringify(g_ScenarioDefinitions[scenarioIndex])],
@@ -3615,7 +3614,6 @@
                 clearInterval(myCheckStatusInterval);
                 updateScenariosTableProgressBarValue(tableRowIndex, 100);
                 var scenarioIndex = g_submittedScenarios[submittedScenarioIndex].scenarioIndex;
-                alert('Completed scenarioIndex=' + scenarioIndex + ' submittedScenarioIndex=' + submittedScenarioIndex);
 
                 g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails.completionTime = getCurrentTime();
                 // updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
@@ -3822,7 +3820,6 @@
                         resolve(downloadDialogVariableDataFromModel(rowIndex, scenarioIndex));
                     } else {
                         // All dialog variable values pushed to server
-                        alert('downloadDialogVariableDataFromModel: exit');
                         resolve(true);
                     }
                 });
@@ -4213,7 +4210,6 @@
                                         })
                                         .then(function(response) {
                                             updateScenariosTableCellValue((rowIndex + 1), c_scenarioIDColumn, response.data.scenarioID);
-                                            alert('submitting scenarioIndex=' + scenarioIndex + ' g_submittedScenarios.length=' + g_submittedScenarios.length + ' g_scenarioDefinitions.length=' + g_ScenarioDefinitions.length);
                                             g_submittedScenarios.push({ scenarioID: response.data.scenarioID,
                                                                         rowIndex: rowIndex,
                                                                         status: 0, 
