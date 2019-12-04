@@ -1875,7 +1875,6 @@
     }
     function downloadDialogVariableDataFromServer(rowIndex, scenarioIndex) {
         return new Promise((resolve, reject) => {
-            alert('Downloading dialog data for scenarioIndex=' + scenarioIndex);
             downloadDialogVariableDataFromModel(rowIndex, scenarioIndex)
             .then(function(response) {
                 resolve(true);
@@ -2066,7 +2065,6 @@
                         .then(function(downloadDialogVariableDataResponse) {
                             rowIndex++;
                             if (rowIndex < ($('#scenarios-table tr').length - 1)) {
-                                alert('Saving scenario=' + scenarioIndex);
                                 saveScenarioDefinition(scenarioIndex);
                                 resolve(getSelectedScenarioResponses(rowIndex));
                             } else {
