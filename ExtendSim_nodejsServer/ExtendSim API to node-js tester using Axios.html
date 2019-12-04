@@ -3610,10 +3610,12 @@
         .then(function(response) {
             g_submittedScenarios[submittedScenarioIndex].status = response.data.modelRunStatus;
             updateScenariosTableCellValue((tableRowIndex + 1), c_scenarioStatusColumn, scenarioStatusValues[response.data.modelRunStatus]);
+            var scenarioIndex = g_submittedScenarios[submittedScenarioIndex].scenarioIndex;
             if ((g_submittedScenarios[submittedScenarioIndex].status == c_Completed_status) || (g_submittedScenarios[submittedScenarioIndex].status == c_Aborted_status)) {
                 clearInterval(myCheckStatusInterval);
-                updateScenariosTableProgressBarValue(tableRowIndex, 100);
-                var scenarioIndex = g_submittedScenarios[submittedScenarioIndex].scenarioIndex;
+                // var scenarioIndex = g_submittedScenarios[submittedScenarioIndex].scenarioIndex;
+                updateScenariosTableProgressBarValue(scenarioIndex, 100);
+                // updateScenariosTableProgressBarValue(tableRowIndex, 100);
 
                 g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails.completionTime = getCurrentTime();
                 // updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
@@ -3643,7 +3645,8 @@
                     var percentComplete = (currentTime / endTime) * 100;
                     percentComplete = percentComplete.toFixed(2);
                     if (percentComplete >= 0) {
-                        updateScenariosTableProgressBarValue(tableRowIndex, percentComplete);
+                        updateScenariosTableProgressBarValue(scenarioIndex, percentComplete);
+                        // updateScenariosTableProgressBarValue(tableRowIndex, percentComplete);
                     }
                     myCheckStatusInterval = setTimeout(()=> {checkScenarioStatus(tableRowIndex, submittedScenarioIndex)}, c_statusCheckTimeout);
                 });
@@ -4127,7 +4130,8 @@
                     if (selected) {
                         updateScenariosTableCellValue(i, c_scenarioStatusColumn, scenarioStatusValues[1]);
                         updateScenariosTableCellValue(i, c_scenarioIDColumn, "undefined");
-                        updateScenariosTableProgressBarValue((i-1), 0);
+                        updateScenariosTableProgressBarValue(scenarioIndex, 0);
+                        // updateScenariosTableProgressBarValue((i-1), 0);
                     }
                 }
             }
