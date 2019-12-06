@@ -112,7 +112,7 @@
         width: auto;
     }
     .text-area {
-        width: 50%;
+        width: 90%;
         text-align: center;
     }
     .percentage-value {
@@ -1370,7 +1370,12 @@
     const c_ModelFolder_outputFolderOption="Model folder"
     const c_AllModelSubFolders_outputFolderOption="All model sub-folders"
     const c_ModelSubFoldersWithMatchingPattern_outputFolderOption="Model sub-folders with matching pattern"
-    const c_databaseInputsTable_name = "database-inputs-table"
+    const c_InputFilesTable_tableName = "file-inputs-table"
+    const c_DatabaseInputsTable_tableName = "database-inputs-table"
+    const c_DialogInputsTable_tableName = "dialog-inputs-table"
+    const c_DatabaseOutputsTable_tableName = "database-outputs-table"
+    const c_DialogOutputsTable_tableName = "dialog-outputs-table"
+    const c_OutputFilesTable_tableName = "file-outputs-table"
     const c_undefined_ScenarioDetailsTime = -1;
     const c_undefined_scenarioID = -1;
 
@@ -2152,7 +2157,7 @@
         }
         g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames = [];
         g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames = [];
-        for (rowIndex=0;rowIndex<databaseInputsTableRows();rowIndex++) {
+        for (rowIndex=0;rowIndex<databaseOutputsTableRows();rowIndex++) {
             g_ScenarioDefinitions[scenarioIndex].responses.responseDatabasenames.push($('#source-database-' + (rowIndex + 1)).val());
             g_ScenarioDefinitions[scenarioIndex].responses.responseTablenames.push($('#source-table-' + (rowIndex + 1)).val());
         }
@@ -2571,7 +2576,7 @@
                 var scenarioIndex = g_ScenarioDefinitions.length - 1;
                 g_ScenarioDefinitions[scenarioIndex] = JSON.parse(event.target.result);
                 initializeScenarioRunDetails(scenarioIndex);
-                updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, true)
+                updateModelInfo(g_ScenarioDefinitions[scenarioIndex].factors.modelPathname, "")
                 .then(function(response) {
                     populateScenarioFactorsSettings(scenarioIndex)
                     .then(function(response) {
@@ -2936,8 +2941,7 @@
     function addNewDatabaseInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                clearTableData(c_databaseInputsTable_name);
-                updateModelInfo($("#user-models").val(), false)
+                updateModelInfo($("#user-models").val(), c_DatabaseInputsTable_tableName)
                 .then(function(response) {
                     createDatabaseInputsTableRow(startRowIndex, numRows)
                     .then(function(response) {
@@ -3004,7 +3008,7 @@
     function addNewDialogInputsTableRow(startRowIndex, numRows , clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                updateModelInfo($("#user-models").val(), true)
+                updateModelInfo($("#user-models").val(), c_DialogInputsTable_tableName)
                 .then(function(response) {
                     createDialogInputsTableRow(startRowIndex, numRows)
                     .then(function(response) {
@@ -3058,7 +3062,7 @@
     function addNewDialogOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                updateModelInfo($("#user-models").val(), true)
+                updateModelInfo($("#user-models").val(), c_DialogOutputsTable_tableName)
                 .then(function(response) {
                     createDialogOutputsTableRow(rowIndex)
                     .then(function(response) {
@@ -3120,7 +3124,7 @@
     function addNewDatabaseOutputsTableRow(rowIndex, numRows, clearTableDataFlag) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                updateModelInfo($("#user-models").val(), true)
+                updateModelInfo($("#user-models").val(), c_DatabaseOutputsTable_tableName)
                 .then(function(response) {
                     createDatabaseOutputsTableRow(rowIndex)
                     .then(function(response) {
@@ -3187,7 +3191,7 @@
     function addNewOutputFilesTableRow(rowIndex, numRows) {
         return new Promise((resolve, reject) => {
             if (!isSelectedScenarioModelLoaded()) {
-                updateModelInfo($("#user-models").val(), true)
+                updateModelInfo($("#user-models").val(), c_OutputFilesTable_tableName)
                 .then(function(response) {
                     createOutputsFileTableRow(rowIndex)
                     .then(function(response) {
@@ -3569,12 +3573,10 @@
         }
     }
 
-    function updateModelInfo(modelPathname, clearTableDataFlag) {
+    function updateModelInfo(modelPathname, clearTableName) {
         return new Promise((resolve, reject) => {
             updateLoadingDivVisibility(true, 'Loading data from server. Please wait...');
-            if (clearTableDataFlag) {
-                clearTableData("");
-            }
+            clearTableData(clearTableName);
             getmodeldatabases(modelPathname, getModelInfo)
             .then(function(response) {
                 // save the currently loaded model name
@@ -4347,15 +4349,18 @@
             })
             .then(function(response) {
                 var userModelPaths = response.data.userModelPaths;
-                setUsersModelRootPath(userModelPaths);
+                // if (userModelPaths.length >= 1) {
+                //     alert(userModelPaths);
+                    setUsersModelRootPath(userModelPaths);
 
-                $('#user-models').empty(0);
-                for (var i = 0; i < userModelPaths.length; i++) {
-                    $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i].substring(userModelPaths[i].lastIndexOf("\\") + 1) + '</option>');
-                }
-                if (userModelPaths.length > 0) {
-                    $('#user-models').val(userModelPaths[0]);
-                }
+                    $('#user-models').empty(0);
+                    for (var i = 0; i < userModelPaths.length; i++) {
+                        $('#user-models').append('<option value="' + userModelPaths[i] + '">' + userModelPaths[i].substring(userModelPaths[i].lastIndexOf("\\") + 1) + '</option>');
+                    }
+                    if (userModelPaths.length > 0) {
+                        $('#user-models').val(userModelPaths[0]);
+                    }
+                // }
                 this.enableDisableCopyModelToScenarioFolderButton();
                 this.updateButtonsState();
                 updateLoadingDivVisibility(false);
