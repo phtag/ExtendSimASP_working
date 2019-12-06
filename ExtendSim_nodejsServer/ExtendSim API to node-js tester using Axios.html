@@ -1428,8 +1428,8 @@
     $('#scenarios-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('disabled', true);
     $('.scenario-definition-checkboxes').prop('disabled', true);
-    $('#remove-selected-scenario-folders-button').prop('disabled', !areScenariosSelected());
-    $('#get-selected-scenario-responses-button').prop('disabled', !areScenariosSelected());
+    $('#remove-selected-scenario-folders-button').prop('disabled', !areScenariosSelected(false));
+    $('#get-selected-scenario-responses-button').prop('disabled', !areScenariosSelected(false));
     $('#responses-checkbox').prop('checked', false);
     $('#scenarios-checkbox').prop('checked', false);
     $('#scenario-file-inputs-checkbox').prop('checked', false);
@@ -1535,17 +1535,25 @@
     //     myAwesomeDropzone.removeFile(file);
     // });
 
-    function getNumScenariosSelected() {
+    function getNumScenariosSelected(checkScenarioFoldername) {
         var numRowsSelected = 0;
         $('#scenarios-table tr').each(function(i) {
             // Cache checkbox selector
             var $chkbox = $(this).find('input[type="checkbox"]');
+            var $scenarioFolder = $(this).find('input[type="checkbox"]');
 
             // Only check rows that contain a checkbox
             if($chkbox.length) {
                 var status = $chkbox.prop('checked');
                 if (status === true) {
-                    numRowsSelected++;
+                    if (checkScenarioFoldername) {
+                        var scenarioStatus = $(this).find('td:eq(' + c_scenarioStatusColumn + ')').text();
+                        if (scenarioStatus === scenarioStatusValues[3]) {
+                            numRowsSelected++;
+                        }
+                    } else {
+                        numRowsSelected++;
+                    }
                 }
             }
         });
@@ -3225,17 +3233,17 @@
         // }
         $("#file-outputs-table tr:last").remove();
     }
-    function areScenariosSelected() {
-        if (getNumScenariosSelected() > 0) {
+    function areScenariosSelected(checkScenarioFoldername) {
+        if (getNumScenariosSelected(checkScenarioFoldername) > 0) {
             return true;
         } else {
             return false;
         }
     }
     function scenarioSelected(event) {
-        $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected()); 
-        $('#remove-selected-scenario-folders-button').prop('disabled', !areScenariosSelected());
-        $('#get-selected-scenario-responses-button').prop('disabled', !areScenariosSelected());
+        $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected(false)); 
+        $('#remove-selected-scenario-folders-button').prop('disabled', !areScenariosSelected(true));
+        $('#get-selected-scenario-responses-button').prop('disabled', !areScenariosSelected(true));
     }
     function addNewScenarioTableRow() {
         var table = $("#scenarios-table");
@@ -3626,11 +3634,9 @@
                 // updateScenariosTableProgressBarValue(tableRowIndex, 100);
 
                 g_ScenarioDefinitions[scenarioIndex].scenarioRunDetails.completionTime = getCurrentTime();
-                // updateScenariosTableCellValue((tableRowIndex + 1), c_PercentComplete, "100%");
-                // $('#submit-scenarios-button').prop('disabled', false);
-                $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected());
-                $('#get-selected-scenario-responses-button').prop('disabled', !areScenariosSelected());
-                $('#remove-selected-scenario-folders-button').prop('disabled', !areScenariosSelected());
+                $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected(false));
+                $('#get-selected-scenario-responses-button').prop('disabled', !areScenariosSelected(true));
+                $('#remove-selected-scenario-folders-button').prop('disabled', !areScenariosSelected(true));
                 updateButtonsState();
                 tableRowIndex++;
                 if ((tableRowIndex + 1) < ($('#scenarios-table tr').length)) {
@@ -4142,7 +4148,7 @@
             if (selected) {
                 var thisRow = $(scenariosTable).find("tr:eq(" + (rowIndex + 1) + ")");
                 var scenarioFolderName = $(thisRow).find('td:eq(' + c_scenarioNameColumn + ')').text();
-                $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected()); 
+                $('#run-selected-scenarios-button').prop('disabled', !areScenariosSelected(false)); 
                 // Check to see if there is more than the heading in the scenarios table
                 if ($('#scenarios-table tr').length > 1) {
                     createScenariorFolderFlag = true;
